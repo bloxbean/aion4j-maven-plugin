@@ -8,8 +8,8 @@ $> git clone https://github.com/satran004/aion4j-maven-plugin.git
 ```
 
 ```
-$> mvn initialize
+$> mvnw initialize
 ```
 ```
-$> mvn clean install
+$> mvnw clean install
 ```
