@@ -1,0 +1,29 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.aion4j.maven.avm.testing</groupId>
+    <artifactId>deploy-test</artifactId>
+    <packaging>war</packaging>
+    <version>1.0</version>
+
+    <properties>
+        <aion4jPluginVersion>xxx</aion4jPluginVersion>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.aion4j</groupId>
+                <artifactId>aion4j-maven-plugin</artifactId>
+                <version>${aion4jPluginVersion}</version>
+                <configuration>
+                    <avmLibDir>${project.basedir}/libtest</avmLibDir>
+                    <mode>local</mode>
+                    <dappJar>dapp.jar</dappJar>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
