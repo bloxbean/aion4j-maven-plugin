@@ -21,12 +21,16 @@ Java 10
 ```
 $> git clone https://github.com/satran004/aion4j-maven-plugin.git
 ```
-1. Compile the plugin
+1. Install avm.jar to local .m2 repo for compilation
+```
+$> ./mvnw initialize
+```
+2. Compile the plugin
 ```
 $> ./mvnw clean install -DskipITs
 ```
 
-2. Run integration tests
+3. Run integration tests
 ```
 $>  ./mvnw integration-test
 ```
