@@ -1,5 +1,10 @@
 package org.aion4j.maven.avm.mojo;
 
+import org.aion4j.maven.avm.local.LocalAvmNode;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.ResolutionScope;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
@@ -11,11 +16,7 @@ import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import org.aion4j.maven.avm.api.DeployResponse;
-import org.aion4j.maven.avm.exception.DeploymentFailedException;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.ResolutionScope;
+import java.security.CodeSource;
 
 @Mojo(name = "deploy", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class AVMDeployMojo extends AVMBaseMojo {
@@ -53,11 +54,20 @@ public class AVMDeployMojo extends AVMBaseMojo {
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
+
+        URL pluginJar = getLocalAVMNodeClassJarLocation();
+        if(pluginJar != null) {
+            try {
+                getLog().info(pluginJar.toURI().toString());
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+            }
+        }
+
         getLog().info("----------- AVM classpath Urls Ends --------------");
 
         ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
-        ClassLoader classLoader = new URLClassLoader(new URL[]{urlsForClassLoader},
-            originalClassLoader);
+        ClassLoader classLoader = new URLClassLoader(new URL[]{urlsForClassLoader, pluginJar});
 
         Thread.currentThread().setContextClassLoader(classLoader);
 
@@ -74,30 +84,21 @@ public class AVMDeployMojo extends AVMBaseMojo {
             //final Method method = clazz.getMethod("main", String[].class);
 
             Class clazz = classLoader.loadClass("org.aion4j.maven.avm.local.LocalAvmNode");
-            final Method method = clazz.getMethod("deploy", String[].class);
+            final Method method = clazz.getMethod("deploy", String.class);
 
             final Object[] args = new Object[1];
-            args[0] = new String[]{"deploy", dappJar};
+            args[0] = new String[]{dappJar};
 
             Object instance = clazz.newInstance();
 
             getLog().info(String.format("Deploying %s to the embedded AVM ...", getDappJar()));
-            Object response = method.invoke(instance, args);
+            Object response = method.invoke(instance, dappJar);
 
-           /* String result = baos.toString();
+            Method getAddressMethod = response.getClass().getMethod("getAddress");
+            Method getEnergyUsed = response.getClass().getMethod("getEnergyUsed");
 
-            //Throw error if it's not successful
-            if (isError(result)) {
-                getLog().error(baos.toString());
-                throw new MojoExecutionException("Dapp deployment failed.");
-            } else {
-                getLog().info(baos.toString());
-            }*/
-
-            DeployResponse deployResponse = (DeployResponse)response;
-
-            getLog().info("Dapp address: " + deployResponse.getAddress());
-            getLog().info("Energy used: " + deployResponse.getEnergyUsed());
+            getLog().info("Dapp address: " + getAddressMethod.invoke(response));
+            getLog().info("Energy used: " + getEnergyUsed.invoke(response));
 
             getLog()
                 .info(String.format("%s deployed successfully to the embedded AVM.", getDappJar()));
@@ -112,6 +113,17 @@ public class AVMDeployMojo extends AVMBaseMojo {
             Thread.currentThread().setContextClassLoader(originalClassLoader);
         }
 
+    }
+
+    //Get the maven plugin jar file location to solve parent->child classloader issue
+    private URL getLocalAVMNodeClassJarLocation() {
+        CodeSource src = LocalAvmNode.class.getProtectionDomain().getCodeSource();
+        if (src != null) {
+            URL jar = src.getLocation();
+            return jar;
+        }
+
+        return null;
     }
 
     private boolean isError(String result) throws MojoExecutionException {

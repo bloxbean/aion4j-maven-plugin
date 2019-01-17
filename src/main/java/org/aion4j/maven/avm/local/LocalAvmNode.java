@@ -1,46 +1,52 @@
 package org.aion4j.maven.avm.local;
 
+import org.aion.avm.core.CommonAvmFactory;
+import org.aion.avm.core.util.CodeAndArguments;
+import org.aion.avm.core.util.Helpers;
+import org.aion.kernel.*;
+import org.aion.vm.api.interfaces.Address;
+import org.aion.vm.api.interfaces.TransactionContext;
+import org.aion.vm.api.interfaces.TransactionResult;
+import org.aion.vm.api.interfaces.VirtualMachine;
+import org.aion4j.maven.avm.api.DeployResponse;
+import org.aion4j.maven.avm.exception.DeploymentFailedException;
+import org.aion4j.maven.avm.exception.LocalAVMException;
+
+import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import org.aion.avm.core.CommonAvmFactory;
-import org.aion.avm.core.util.CodeAndArguments;
-import org.aion.avm.core.util.Helpers;
-import org.aion.avm.core.util.TestingHelper;
-import org.aion.kernel.AvmTransactionResult;
-import org.aion.kernel.AvmTransactionResult.Code;
-import org.aion.kernel.Block;
-import org.aion.kernel.KernelInterfaceImpl;
-import org.aion.kernel.Transaction;
-import org.aion.kernel.TransactionContextImpl;
-import org.aion.vm.api.interfaces.Address;
-import org.aion.vm.api.interfaces.TransactionContext;
-import org.aion.vm.api.interfaces.TransactionInterface;
-import org.aion.vm.api.interfaces.TransactionResult;
-import org.aion.vm.api.interfaces.VirtualMachine;
-import org.aion4j.maven.avm.api.DeployResponse;
-import org.aion4j.maven.avm.exception.DeploymentFailedException;
 
 public class LocalAvmNode {
 
     private org.aion.vm.api.interfaces.Address defaultDeployer = KernelInterfaceImpl.PREMINED_ADDRESS;
     Block block = new Block(new byte[32], 1, Helpers.randomAddress(), System.currentTimeMillis(), new byte[0]);
 
-
     private  VirtualMachine avm;
     private KernelInterfaceImpl kernel;
 
-    private long energyLimit = 1_000_000l; //TODO Needs to configured by the project
-    private long enertyPrice = 11;  //TODO Needs to be configured by the project
+    private long energyLimit = 100000000; //TODO Needs to configured by the project
+//    private long energyPrice = 11;  //TODO Needs to be configured by the project
 
     public LocalAvmNode() {
-        connect();
+        connect("storage");
     }
 
-    public void connect() {
-        KernelInterfaceImpl kernel = new KernelInterfaceImpl();
+    public void connect(String storagePath) {
+        verifyStorageExists(storagePath);
+        File storagePathFile = new File(storagePath);
+        kernel = new KernelInterfaceImpl(storagePathFile);
+
+        //Open account
+        if(kernel.getBalance(defaultDeployer) == null || kernel.getBalance(defaultDeployer) == BigInteger.ZERO) {
+            kernel.createAccount(defaultDeployer);
+            kernel.adjustBalance(defaultDeployer, BigInteger.valueOf(100000000000000L));
+
+            System.out.println("Create default account");
+        }
+
         avm = CommonAvmFactory.buildAvmInstance(kernel);
     }
 
@@ -91,6 +97,17 @@ public class LocalAvmNode {
 
         return createTransaction;
 
+    }
+
+    private static void verifyStorageExists(String storageRoot) {
+        File directory = new File(storageRoot);
+        if (!directory.isDirectory()) {
+            boolean didCreate = directory.mkdirs();
+            // Is this the best way to handle this failure?
+            if (!didCreate) {
+               throw new LocalAVMException("Unable create storage folder");
+            }
+        }
     }
 
     public void shutdown() {
