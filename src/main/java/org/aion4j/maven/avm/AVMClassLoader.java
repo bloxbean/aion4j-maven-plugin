@@ -5,7 +5,8 @@ import java.net.URLClassLoader;
 
 public class AVMClassLoader extends URLClassLoader {
 
-    public AVMClassLoader(URL[] urls) {
-        super(urls);
+    public AVMClassLoader(URL[] urls, ClassLoader parent) {
+        super(urls, parent);
     }
+
 }
