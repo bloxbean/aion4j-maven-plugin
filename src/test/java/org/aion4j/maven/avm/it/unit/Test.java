@@ -19,7 +19,7 @@ public class Test {
 
     public static void deploy() throws DeploymentFailedException {
 
-       LocalAvmNode localAvmNode = new LocalAvmNode();
+       LocalAvmNode localAvmNode = new LocalAvmNode("storage");
        localAvmNode.deploy("/Users/OsDev/work/avm-quickstarter/target/avm-quickstarter-1.0-SNAPSHOT.jar");
 
     }

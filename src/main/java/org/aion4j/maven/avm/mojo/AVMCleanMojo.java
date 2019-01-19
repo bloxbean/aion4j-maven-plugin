@@ -1,19 +1,18 @@
 package org.aion4j.maven.avm.mojo;
 
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
-import org.aion4j.maven.avm.util.ZipUtil;
-import org.apache.commons.io.FileUtils;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Mojo;
 
-@Mojo(name = "clean", defaultPhase = LifecyclePhase.CLEAN)
+@Mojo(name = "avm-clean", defaultPhase = LifecyclePhase.CLEAN)
 public class AVMCleanMojo extends AVMBaseMojo {
 
     @Override

@@ -12,11 +12,14 @@ public abstract class AVMBaseMojo extends AbstractMojo {
     @Parameter(property = "dapp-jar", defaultValue = "${project.build.directory}/${project.build.finalName}.jar")
     protected String dappJar;
 
-    @Parameter(property = "mode", defaultValue = "local")
-    protected String mode;
+//    @Parameter(property = "mode", defaultValue = "EMBED")
+//    protected Mode mode;
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     protected MavenProject project;
+
+    @Parameter(property = "storage-path", defaultValue = "${project.build.directory}/storage")
+    protected String storagePath;
 
 
     public String getAvmLibDir() {
@@ -35,11 +38,19 @@ public abstract class AVMBaseMojo extends AbstractMojo {
         this.dappJar = dappJar;
     }
 
-    public String getMode() {
-        return mode;
+//    public Mode getMode() {
+//        return mode;
+//    }
+//
+//    public void setMode(Mode mode) {
+//        this.mode = mode;
+//    }
+
+    public String getStoragePath() {
+        return storagePath;
     }
 
-    public void setMode(String mode) {
-        this.mode = mode;
+    public void setStoragePath(String storagePath) {
+        this.storagePath = storagePath;
     }
 }
