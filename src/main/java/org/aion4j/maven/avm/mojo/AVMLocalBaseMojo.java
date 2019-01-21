@@ -11,24 +11,12 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.CodeSource;
 
 public abstract class AVMLocalBaseMojo extends AVMBaseMojo {
 
 
     public void execute() throws MojoExecutionException {
-
-        getLog().info("Executing avm-deploy : ");
-
-        //check if dAppJar exists
-        Path path = Paths.get(getDappJar());
-        if (!Files.exists(path)) {
-            throw new MojoExecutionException(String.format("Dapp jar file doesn't exist : %s \n"
-                    + "Please make sure you have built the project.", dappJar));
-        }
 
         getLog().info("----------- AVM classpath Urls --------------");
         URL urlsForClassLoader = null;
@@ -70,10 +58,7 @@ public abstract class AVMLocalBaseMojo extends AVMBaseMojo {
         Method shutDownMethod = null;
         Object localAvmInstance = null;
         try {
-            Class clazz = classLoader.loadClass("org.aion4j.maven.avm.local.LocalAvmNode");
-            Constructor localAvmConstructor = clazz.getConstructor(String.class);
-
-            localAvmInstance = localAvmConstructor.newInstance(getStoragePath());
+            localAvmInstance = getLocalAvmImplInstance(classLoader);
 
             //call abstract method
             execute(classLoader, localAvmInstance);
@@ -84,23 +69,11 @@ public abstract class AVMLocalBaseMojo extends AVMBaseMojo {
             throw new MojoExecutionException("Avm maven execution failed", ex);
         } finally {
 
-            if(localAvmInstance != null && shutDownMethod != null) {
-                try {
-                    shutDownMethod.invoke(localAvmInstance);
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                } catch (InvocationTargetException e) {
-                    e.printStackTrace();
-                }
-            }
+            postExecute(localAvmInstance);
 
             Thread.currentThread().setContextClassLoader(originalClassLoader);
         }
 
-    }
-
-    protected Class getLocalAvmClass(ClassLoader avmClassloader) throws ClassNotFoundException {
-        return  avmClassloader.loadClass("org.aion4j.maven.avm.local.LocalAvmNode");
     }
 
     //Get the maven plugin jar file location to solve parent->child classloader issue
@@ -114,6 +87,9 @@ public abstract class AVMLocalBaseMojo extends AVMBaseMojo {
         return null;
     }
 
+    protected abstract void preexecute() throws MojoExecutionException;
     protected abstract void execute(ClassLoader avmClassloader, Object localAvmInstance) throws MojoExecutionException;
+    protected abstract void postExecute(Object localAvmInstance) throws MojoExecutionException;
+    protected abstract Object getLocalAvmImplInstance(ClassLoader avmClassloader);
 
 }

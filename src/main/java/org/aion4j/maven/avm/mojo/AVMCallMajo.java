@@ -9,15 +9,20 @@ import java.lang.reflect.Method;
 import java.math.BigInteger;
 
 @Mojo(name = "call", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
-public class AVMCallMajo extends AVMLocalBaseMojo {
+public class AVMCallMajo extends AVMLocalRuntimeBaseMojo {
+
+    @Override
+    protected void preexecute() throws MojoExecutionException {
+        //don nothing
+    }
 
     @Override
     protected void execute(ClassLoader avmClassloader, Object localAvmInstance) throws MojoExecutionException {
 
         try {
-            Class clazz = getLocalAvmClass(avmClassloader);
 
-            final Method callMethod = clazz.getMethod("call", String.class, String.class, String.class, String.class, BigInteger.class);
+            final Method callMethod = localAvmInstance.getClass()
+                    .getMethod("call", String.class, String.class, String.class, String.class, BigInteger.class);
 
             final Object[] args = new Object[5];
 
