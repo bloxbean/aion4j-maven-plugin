@@ -12,7 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
 
-@Mojo(name = "avm-clean", defaultPhase = LifecyclePhase.CLEAN)
+@Mojo(name = "clean", defaultPhase = LifecyclePhase.CLEAN)
 public class AVMCleanMojo extends AVMBaseMojo {
 
     @Override

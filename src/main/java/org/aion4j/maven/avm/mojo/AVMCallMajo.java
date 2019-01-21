@@ -8,7 +8,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
 
-@Mojo(name = "avm-call", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
+@Mojo(name = "call", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class AVMCallMajo extends AVMLocalBaseMojo {
 
     @Override

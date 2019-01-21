@@ -7,7 +7,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import java.lang.reflect.Method;
 
-@Mojo(name = "avm-deploy", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
+@Mojo(name = "deploy", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class AVMDeployMojo extends AVMLocalBaseMojo {
 
     @Override

@@ -2,11 +2,11 @@
 
 Following maven goals has been implemented in this plugin :
 
-1. aion4j:avm-clean - Default phase for this goal is "clean". To clean storage folder in case of embedded AVM deployment. 
-2. aion4j:avm-deploy - Deploy the contract / dapp jar to an embedded AVM. This goal needs to invoked explicitely from the command line.
-3. aion4j:avm-call - Call contract method 
-4. aion4j:avm-init - Default phase for this goal is "initialize". It initializes the project with required AVM dependencies. Currently it copies all required avm jars to a lib folder under project's folder. You can also manually create this lib folder or point to an existing avm lib folder through the plugin's configuration parameter.
-5. aion4j:avm-prepack - Default phase "prepare-package". Copy org-aion-avm-userlib.jar's classes to target folder for packaging with dapp's jar.
+1. aion4j:clean - Default phase for this goal is "clean". To clean storage folder in case of embedded AVM deployment. 
+2. aion4j:deploy - Deploy the contract / dapp jar to an embedded AVM. This goal needs to invoked explicitely from the command line.
+3. aion4j:call - Call contract method 
+4. aion4j:init - Default phase for this goal is "initialize". It initializes the project with required AVM dependencies. Currently it copies all required avm jars to a lib folder under project's folder. You can also manually create this lib folder or point to an existing avm lib folder through the plugin's configuration parameter.
+5. aion4j:prepack - Default phase "prepare-package". Copy org-aion-avm-userlib.jar's classes to target folder for packaging with dapp's jar.
 
 ***To Do:***
 
@@ -41,6 +41,7 @@ $>  ./mvnw integration-test
 ```
   <properties>
        ...
+       <aion4j.plugin.version>x.x.x</aion4j.plugin.version>
        <avm.lib.dir>${project.basedir}/lib</avm.lib.dir>
   </properties>
 ```
