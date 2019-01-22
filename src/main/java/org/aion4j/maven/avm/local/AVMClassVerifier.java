@@ -29,10 +29,10 @@ public class AVMClassVerifier {
         NamespaceMapper mapper = new NamespaceMapper(singletonRules);
         byte[] filteredBytes = new ClassToolchain.Builder(testBytes, 0)
                 .addNextVisitor(new RejectionClassVisitor(singletonRules, mapper))
-                .addNextVisitor(new UserClassMappingVisitor(mapper))
                 .addWriter(new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS))
                 .build()
                 .runAndGetBytecode();
+
         return filteredBytes;
     }
 

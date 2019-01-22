@@ -24,10 +24,10 @@ public class AVMClassVerifierMojo extends AVMLocalBaseMojo {
     }
 
     @Override
-    protected void execute(ClassLoader avmClassloader, Object localAvmInstance) throws MojoExecutionException {
+    protected void execute(ClassLoader avmClassloader, Object classVerfierImpl) throws MojoExecutionException {
 
         try {
-            Method verifyMethod = localAvmInstance.getClass().getMethod("verify", String.class, String.class);
+            Method verifyMethod = classVerfierImpl.getClass().getMethod("verify", String.class, String.class);
 
             String outputDir = project.getBuild().getOutputDirectory();
 
@@ -43,17 +43,13 @@ public class AVMClassVerifierMojo extends AVMLocalBaseMojo {
 
                 getLog().debug("Let's verify class : " + className);
 
-                try {
-                    verifyMethod.invoke(className, fullPath);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    //throw new MojoExecutionException("Avm verification failed for class : " + path, e);
-                }
+
+                verifyMethod.invoke(classVerfierImpl, className, fullPath);
+
             }
 
-
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new MojoExecutionException("AVM verification failed", e);
         }
 
     }
@@ -69,8 +65,8 @@ public class AVMClassVerifierMojo extends AVMLocalBaseMojo {
             Class clazz = avmClassloader.loadClass("org.aion4j.maven.avm.local.AVMClassVerifier");
             Constructor localAvmVerifierConstructor = clazz.getConstructor();
 
-            Object localAvmVerifierInstance = localAvmVerifierConstructor.newInstance();
-            return localAvmVerifierInstance;
+            Object classVerifierInstance = localAvmVerifierConstructor.newInstance();
+            return classVerifierInstance;
         } catch (Exception e) {
             getLog().debug("Error creating LocalAvmNode instance", e);
             throw new LocalAVMException(e);
