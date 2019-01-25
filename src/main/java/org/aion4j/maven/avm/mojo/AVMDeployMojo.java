@@ -32,15 +32,18 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
 
         try {
 
-            final Method deployMethod = localAvmInstance.getClass().getMethod("deploy", String.class);
+            String deployer = System.getProperty("address");
 
-            final Object[] args = new Object[1];
+            final Method deployMethod = localAvmInstance.getClass().getMethod("deploy", String.class, String.class);
+
+            final Object[] args = new Object[2];
             args[0] = new String[]{dappJar};
+            args[1] = deployer;
 
             getLog().info(String.format("Deploying %s to the embedded Avm ...", getDappJar()));
             getLog().info("Avm storage path : " + getStoragePath());
 
-            Object response = deployMethod.invoke(localAvmInstance, dappJar);
+            Object response = deployMethod.invoke(localAvmInstance, dappJar, deployer);
 
             Method getAddressMethod = response.getClass().getMethod("getAddress");
             Method getEnergyUsed = response.getClass().getMethod("getEnergyUsed");
@@ -50,6 +53,7 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
             getLog().info("****************  Dapp deployment status ****************");
             getLog().info("Dapp address: " + dappAddress);
             getLog().info("Energy used: " + getEnergyUsed.invoke(response));
+            getLog().info("Deployer Address: " + getDefaultAddress());
             getLog().info("*********************************************************");
 
             getLog()

@@ -26,7 +26,7 @@ import java.nio.file.Paths;
 
 public class LocalAvmNode {
 
-    private org.aion.vm.api.interfaces.Address defaultDeployer = KernelInterfaceImpl.PREMINED_ADDRESS;
+    private org.aion.vm.api.interfaces.Address defaultAddress; // = KernelInterfaceImpl.PREMINED_ADDRESS;
     Block block = new Block(new byte[32], 1, Helpers.randomAddress(), System.currentTimeMillis(), new byte[0]);
 
     private  VirtualMachine avm;
@@ -35,9 +35,11 @@ public class LocalAvmNode {
     private long energyLimit = 100000000; //TODO Needs to configured by the project
     private long energyPrice = 1L;  //TODO Needs to be configured by the project
 
-    public LocalAvmNode(String storagePath) {
+    public LocalAvmNode(String storagePath, String senderAddress) {
         if(storagePath.isEmpty())
             throw new LocalAVMException("Storage path cannot be null for embedded Avm deployment");
+
+        defaultAddress = AvmAddress.wrap(Helpers.hexStringToBytes(senderAddress));
 
         init(storagePath);
     }
@@ -48,9 +50,9 @@ public class LocalAvmNode {
         kernel = new KernelInterfaceImpl(storagePathFile);
 
         //Open account
-        if(kernel.getBalance(defaultDeployer) == null || kernel.getBalance(defaultDeployer) == BigInteger.ZERO) {
-            kernel.createAccount(defaultDeployer);
-            kernel.adjustBalance(defaultDeployer, BigInteger.valueOf(100000000000000L));
+        if(kernel.getBalance(defaultAddress) == null || kernel.getBalance(defaultAddress) == BigInteger.ZERO) {
+            kernel.createAccount(defaultAddress);
+            kernel.adjustBalance(defaultAddress, BigInteger.valueOf(100000000000000L));
 
             System.out.println("Create default account");
         }
@@ -59,7 +61,19 @@ public class LocalAvmNode {
     }
 
     public DeployResponse deploy(String jarFilePath) throws DeploymentFailedException {
-        TransactionContext txContext = createDeployTransaction(jarFilePath, defaultDeployer, BigInteger.ZERO);
+        return deploy(jarFilePath, null);
+    }
+
+    public DeployResponse deploy(String jarFilePath, String deployer) throws DeploymentFailedException {
+
+        Address deployerAddress = null;
+
+        if(deployer == null || deployer.isEmpty())
+            deployerAddress = defaultAddress;
+        else
+            deployerAddress = AvmAddress.wrap(Helpers.hexStringToBytes(deployer));
+
+        TransactionContext txContext = createDeployTransaction(jarFilePath, deployerAddress, BigInteger.ZERO);
 
         DeployResponse deployResponse = createDApp(txContext);
 
@@ -73,7 +87,7 @@ public class LocalAvmNode {
         Address senderAddress = null;
 
         if(sender == null || sender.isEmpty())
-            senderAddress = defaultDeployer;
+            senderAddress = defaultAddress;
         else
             senderAddress = AvmAddress.wrap(Helpers.hexStringToBytes(sender));
 
@@ -168,6 +182,31 @@ public class LocalAvmNode {
         Transaction callTransaction = Transaction.call(sender, contract, biasedNonce.longValue(), BigInteger.ZERO, arguments, energyLimit, energyPrice);
         return new TransactionContextImpl(callTransaction, block);
 
+    }
+
+    public void createAccountWithBalance(String address, BigInteger balance) {
+
+        Address account = AvmAddress.wrap(Helpers.hexStringToBytes(address));
+
+        //Open account
+        if(kernel.getBalance(account) == null || kernel.getBalance(account) == BigInteger.ZERO) {
+            kernel.createAccount(account);
+            kernel.adjustBalance(account, balance);
+
+            System.out.println(String.format("Create account %s with balance %d", address, balance.longValue()));
+        }
+    }
+
+    public BigInteger getBalance(String address) {
+
+        Address account = AvmAddress.wrap(Helpers.hexStringToBytes(address));
+
+        BigInteger balance = kernel.getBalance(account);
+
+        if(balance == null)
+            return BigInteger.ZERO;
+        else
+            return balance;
     }
 
     private static void verifyStorageExists(String storageRoot) {

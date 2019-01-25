@@ -27,7 +27,7 @@ public class AVMCallMajo extends AVMLocalRuntimeBaseMojo {
             final Object[] args = new Object[5];
 
             String contract = System.getProperty("contract");
-            String sender = System.getProperty("sender");
+            String sender = System.getProperty("address");
             String method = System.getProperty("method");
             String methodArgs = System.getProperty("args");
             String value = System.getProperty("value");
@@ -95,8 +95,8 @@ public class AVMCallMajo extends AVMLocalRuntimeBaseMojo {
 
     private void printHelp() {
         getLog().info("Usage:");
-        getLog().info("./mvnw  aion4j:call [-Dcontract=<contract_address>] [-Dsender=<sender_address>]  -Dmethod=<method_name> [-Dvalue=<value>] [-Dargs=<method_args>]");
+        getLog().info("./mvnw  aion4j:call [-Dcontract=<contract_address>] [-Daddress=<sender_address>]  -Dmethod=<method_name> [-Dvalue=<value>] [-Dargs=<method_args>]");
         getLog().info("Example:");
-        getLog().info("./mvnw aion4j:call -Dcontract=0x1122334455667788112233445566778811223344556677881122334455667788 -Dsender=0xa003ddd...  -Dmethod=transfer -Dargs=\"-A 0x1122334455667788112233445566778811223344556677881122334455667788 -J 100\"\n");
+        getLog().info("./mvnw aion4j:call -Dcontract=0x1122334455667788112233445566778811223344556677881122334455667788 -Daddress=0xa003ddd...  -Dmethod=transfer -Dargs=\"-A 0x1122334455667788112233445566778811223344556677881122334455667788 -J 100\"\n");
     }
 }

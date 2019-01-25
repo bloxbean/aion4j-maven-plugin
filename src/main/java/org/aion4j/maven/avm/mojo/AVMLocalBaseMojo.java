@@ -18,6 +18,13 @@ public abstract class AVMLocalBaseMojo extends AVMBaseMojo {
 
     public void execute() throws MojoExecutionException {
 
+        if(isLocal()) {
+            executeLocalAVM();
+        }
+
+    }
+
+    private void executeLocalAVM() throws MojoExecutionException {
         getLog().info("----------- AVM classpath Urls --------------");
         URL urlsForClassLoader = null;
         try {
@@ -73,7 +80,6 @@ public abstract class AVMLocalBaseMojo extends AVMBaseMojo {
 
             Thread.currentThread().setContextClassLoader(originalClassLoader);
         }
-
     }
 
     //Get the maven plugin jar file location to solve parent->child classloader issue
