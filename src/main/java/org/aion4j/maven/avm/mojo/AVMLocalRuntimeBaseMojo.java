@@ -4,10 +4,9 @@ import org.aion4j.maven.avm.exception.LocalAVMException;
 import org.apache.maven.plugin.MojoExecutionException;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public abstract class AVMLocalRuntimeBaseMojo extends AVMLocalBaseMojo {
+public abstract class AVMLocalRuntimeBaseMojo extends AVMAbstractBaseMojo {
 
     @Override
     protected Object getLocalAvmImplInstance(ClassLoader avmClassloader) {
@@ -25,7 +24,7 @@ public abstract class AVMLocalRuntimeBaseMojo extends AVMLocalBaseMojo {
 
     }
 
-    protected void postExecute(Object localAvmInstance) throws MojoExecutionException {
+    protected void postExecuteLocalAvm(Object localAvmInstance) throws MojoExecutionException {
 
         try {
             Method shutDownMethod = localAvmInstance.getClass().getMethod("shutdown");

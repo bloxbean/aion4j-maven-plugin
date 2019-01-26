@@ -12,7 +12,7 @@ import java.math.BigInteger;
 public class AVMCreateAccountMojo extends AVMLocalRuntimeBaseMojo {
 
     @Override
-    protected void preexecute() throws MojoExecutionException {
+    protected void preexecuteLocalAvm() throws MojoExecutionException {
 
         if (!isLocal())
             throw new MojoExecutionException("create-account is only supported for local Avm during development.");
@@ -20,7 +20,7 @@ public class AVMCreateAccountMojo extends AVMLocalRuntimeBaseMojo {
 
 
     @Override
-    protected void execute(ClassLoader avmClassloader, Object localAvmInstance) throws MojoExecutionException {
+    protected void executeLocalAvm(ClassLoader avmClassloader, Object localAvmInstance) throws MojoExecutionException {
 
         try {
 

@@ -12,12 +12,12 @@ import java.math.BigInteger;
 public class AVMCallMajo extends AVMLocalRuntimeBaseMojo {
 
     @Override
-    protected void preexecute() throws MojoExecutionException {
+    protected void preexecuteLocalAvm() throws MojoExecutionException {
         //don nothing
     }
 
     @Override
-    protected void execute(ClassLoader avmClassloader, Object localAvmInstance) throws MojoExecutionException {
+    protected void executeLocalAvm(ClassLoader avmClassloader, Object localAvmInstance) throws MojoExecutionException {
 
         try {
 

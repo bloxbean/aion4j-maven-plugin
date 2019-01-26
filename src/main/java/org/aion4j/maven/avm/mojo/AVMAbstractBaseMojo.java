@@ -4,8 +4,6 @@ import org.aion4j.maven.avm.local.LocalAvmNode;
 import org.apache.maven.plugin.MojoExecutionException;
 
 import java.io.File;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -13,13 +11,15 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.CodeSource;
 
-public abstract class AVMLocalBaseMojo extends AVMBaseMojo {
+public abstract class AVMAbstractBaseMojo extends AVMBaseMojo {
 
 
     public void execute() throws MojoExecutionException {
 
         if(isLocal()) {
             executeLocalAVM();
+        } else {
+            executeRemote();
         }
 
     }
@@ -68,7 +68,7 @@ public abstract class AVMLocalBaseMojo extends AVMBaseMojo {
             localAvmInstance = getLocalAvmImplInstance(classLoader);
 
             //call abstract method
-            execute(classLoader, localAvmInstance);
+            executeLocalAvm(classLoader, localAvmInstance);
 
         } catch (MojoExecutionException ex) {
             throw ex;
@@ -76,14 +76,14 @@ public abstract class AVMLocalBaseMojo extends AVMBaseMojo {
             throw new MojoExecutionException("Avm maven execution failed", ex);
         } finally {
 
-            postExecute(localAvmInstance);
+            postExecuteLocalAvm(localAvmInstance);
 
             Thread.currentThread().setContextClassLoader(originalClassLoader);
         }
     }
 
     //Get the maven plugin jar file location to solve parent->child classloader issue
-    private URL getLocalAVMNodeClassJarLocation() {
+    protected URL getLocalAVMNodeClassJarLocation() {
         CodeSource src = LocalAvmNode.class.getProtectionDomain().getCodeSource();
         if (src != null) {
             URL jar = src.getLocation();
@@ -93,9 +93,14 @@ public abstract class AVMLocalBaseMojo extends AVMBaseMojo {
         return null;
     }
 
-    protected abstract void preexecute() throws MojoExecutionException;
-    protected abstract void execute(ClassLoader avmClassloader, Object localAvmInstance) throws MojoExecutionException;
-    protected abstract void postExecute(Object localAvmInstance) throws MojoExecutionException;
+    //Only needed for remote kernel support
+    protected void executeRemote() throws MojoExecutionException {
+
+    }
+
+    protected abstract void preexecuteLocalAvm() throws MojoExecutionException;
+    protected abstract void executeLocalAvm(ClassLoader avmClassloader, Object localAvmInstance) throws MojoExecutionException;
+    protected abstract void postExecuteLocalAvm(Object localAvmInstance) throws MojoExecutionException;
     protected abstract Object getLocalAvmImplInstance(ClassLoader avmClassloader);
 
 }

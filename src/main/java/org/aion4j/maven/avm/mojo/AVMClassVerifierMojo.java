@@ -7,7 +7,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,15 +15,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Mojo(name = "class-verifier", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, defaultPhase = LifecyclePhase.COMPILE)
-public class AVMClassVerifierMojo extends AVMLocalBaseMojo {
+public class AVMClassVerifierMojo extends AVMAbstractBaseMojo {
 
     @Override
-    protected void preexecute() throws MojoExecutionException {
+    protected void preexecuteLocalAvm() throws MojoExecutionException {
 
     }
 
     @Override
-    protected void execute(ClassLoader avmClassloader, Object classVerfierImpl) throws MojoExecutionException {
+    protected void executeLocalAvm(ClassLoader avmClassloader, Object classVerfierImpl) throws MojoExecutionException {
 
         try {
             Method verifyMethod = classVerfierImpl.getClass().getMethod("verify", String.class, String.class);
@@ -55,7 +54,7 @@ public class AVMClassVerifierMojo extends AVMLocalBaseMojo {
     }
 
     @Override
-    protected void postExecute(Object localAvmInstance) throws MojoExecutionException {
+    protected void postExecuteLocalAvm(Object localAvmInstance) throws MojoExecutionException {
 
     }
 

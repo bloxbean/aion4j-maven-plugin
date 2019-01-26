@@ -1,4 +1,193 @@
 package org.aion4j.maven.avm.remote;
 
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
+import com.mashape.unirest.request.HttpRequestWithBody;
+import com.mashape.unirest.request.body.MultipartBody;
+import org.aion4j.maven.avm.exception.AVMRuntimeException;
+import org.apache.maven.plugin.logging.Log;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class RemoteAVMNode {
+    //test account 0xa052de3423a1e77f4c5f8500564e3601759143b7c0e652a7012d35eb67b283ca
+    //0xa0c40d2bb3e0248b16f4f1bd5735dc22cd84b580bbc301f8cebc83e25030c6ea
+
+    private String web3RpcUrl;
+
+    private Log log;
+
+    public RemoteAVMNode(String web3RpcUrl, Log log) {
+        this.web3RpcUrl = web3RpcUrl;
+        this.log = log;
+    }
+
+    public boolean unlock(String address, String password) {
+
+        try {
+
+            JSONObject jo = getJsonHeader("personal_unlockAccount");
+
+            List<String> params = new ArrayList();
+            params.add(address);
+            params.add(password);
+            params.add("600");
+
+            jo.put("params", params);
+
+            HttpResponse<JsonNode> jsonResponse = getHttpRequest()
+                    .body(jo)
+                    .asJson();
+
+            JsonNode jsonNode = jsonResponse.getBody();
+
+            if(jsonNode == null)
+                return false;
+
+            return jsonNode.getObject().getBoolean("result");
+        } catch (UnirestException e) {
+            throw new AVMRuntimeException("Web3Rpc call failed for unlock account", e);
+        }
+    }
+
+    public String deploy(String address, String dappJarContent, long gas, long gasPrice) {
+        try {
+
+            JSONObject jo = getJsonHeader("eth_sendTransaction");
+            //jo.put("id", 45);
+
+            List<JSONObject> params = new ArrayList();
+
+            JSONArray paramArray = new JSONArray();
+
+            JSONObject txnJo = new JSONObject();
+            txnJo.put("from", address);
+            txnJo.put("gas", gas);
+            txnJo.put("gasPrice", gasPrice);
+            txnJo.put("type", 0xf);
+            txnJo.put("data", dappJarContent);
+
+            paramArray.put(txnJo);
+
+            jo.put("params", paramArray);
+
+            log.debug("Txn Object : " + jo.toString());
+
+            HttpResponse<JsonNode> jsonResponse = getHttpRequest()
+                    .body(jo)
+                    .asJson();
+
+            JsonNode jsonNode = jsonResponse.getBody();
+
+            if(jsonNode == null)
+                return null;
+
+            log.info("Response from Aion kernel: " + jsonNode.toString());
+
+            JSONObject jsonObject = jsonNode.getObject();
+
+            String error = getError(jsonObject);
+
+            if(error == null) {
+                return jsonObject.optString("result");
+            } else {
+                throw new AVMRuntimeException("Dapp deployment failed. Reason: " + error);
+            }
+
+        } catch (UnirestException e) {
+            throw new AVMRuntimeException("Web3Rpc call failed for unlock account", e);
+        }
+    }
+
+    public String getBalance(String address) {
+
+        try {
+
+            JSONObject jo = getJsonHeader("eth_getBalance");
+
+            List<String> params = new ArrayList();
+            params.add(address);
+            params.add("latest");
+
+            jo.put("params", params);
+
+            HttpResponse<JsonNode> jsonResponse = getHttpRequest()
+                    .body(jo)
+                    .asJson();
+
+            JsonNode jsonNode = jsonResponse.getBody();
+
+            if(jsonNode == null)
+                return null;
+
+            log.info("Response from Aion kernel: " + jsonNode.toString());
+
+            JSONObject jsonObject = jsonNode.getObject();
+
+            String error = getError(jsonObject);
+
+            if(error == null) {
+                return jsonObject.optString("result");
+            } else {
+                throw new AVMRuntimeException("get-balance failed. Reason: " + error);
+            }
+
+        } catch (UnirestException e) {
+            throw new AVMRuntimeException("Web3Rpc call failed for unlock account", e);
+        }
+    }
+
+    private String getError(JSONObject jsonObject) {
+        JSONObject error = jsonObject.optJSONObject("error");
+
+        if(error != null)
+            return error.toString();
+        else
+            return null;
+    }
+
+
+    public String getLatestBlock() {
+
+        try {
+
+            JSONObject jo = getJsonHeader("eth_blocknumber");
+            jo.put("params", Collections.EMPTY_LIST);
+            jo.put("id", 42);
+
+            HttpResponse<JsonNode> jsonResponse = getHttpRequest()
+                    .body(jo)
+                    .asJson();
+
+            JsonNode jsonNode = jsonResponse.getBody();
+
+            Object blockNumber = jsonNode.getObject().get("result");
+
+            return blockNumber != null? blockNumber.toString(): null;
+        } catch (UnirestException e) {
+            throw new AVMRuntimeException("Web3Rpc call failed for unlock account", e);
+        }
+    }
+
+    private JSONObject getJsonHeader(String method) {
+        JSONObject jo = new JSONObject();
+        jo.put("jsonrpc", "2.0");
+        jo.put("method", method);
+        return jo;
+    }
+
+
+    private HttpRequestWithBody getHttpRequest() {
+        return Unirest.post(web3RpcUrl)
+                .header("accept", "application/json");
+
+        //.queryString("apiKey", "123")
+    }
 }

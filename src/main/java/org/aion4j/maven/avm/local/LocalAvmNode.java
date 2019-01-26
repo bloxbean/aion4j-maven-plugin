@@ -209,6 +209,19 @@ public class LocalAvmNode {
             return balance;
     }
 
+    //Called for remote
+    public static String getBytesForDeploy(String dappJarPath) {
+        try {
+            Path path = Paths.get(dappJarPath);
+            byte[] jar = Files.readAllBytes(path);
+            return Helpers.bytesToHexString(
+                    new CodeAndArguments(jar, new byte[0]).encodeToBytes());
+        } catch (IOException e) {
+            System.out.println(e.toString());
+            return null;
+        }
+    }
+
     private static void verifyStorageExists(String storageRoot) {
         File directory = new File(storageRoot);
         if (!directory.isDirectory()) {
