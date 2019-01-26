@@ -126,7 +126,7 @@ public class RemoteAVMNode {
             txnJo.put("gas", gas);
             txnJo.put("gasPrice", gasPrice);
            // txnJo.put("type", 0xf);
-            txnJo.put("data", callData);
+            txnJo.put("data", "0x" + callData);
 
             paramArray.put(txnJo);
 
@@ -180,7 +180,7 @@ public class RemoteAVMNode {
             txnJo.put("gas", gas);
             txnJo.put("gasPrice", gasPrice);
             // txnJo.put("type", 0xf);
-            txnJo.put("data", callData);
+            txnJo.put("data", "0x" + callData);
 
             paramArray.put(txnJo);
 
@@ -384,6 +384,87 @@ public class RemoteAVMNode {
 
         } catch (UnirestException e) {
             throw new AVMRuntimeException("New account creation failed", e);
+        }
+    }
+
+    public String getLogs(String fromBlock, String toBlock, String addresses, String topics, String blockHash) {
+        try {
+
+            log.info("Getting logs");
+
+            JSONObject jo = getJsonHeader("eth_getLogs");
+            //jo.put("id", 45);
+
+            List<JSONObject> params = new ArrayList();
+
+
+            JSONObject filters = new JSONObject();
+
+            if(fromBlock != null && !fromBlock.trim().isEmpty())
+                filters.put("fromBlock", fromBlock);
+
+            if(toBlock != null && !toBlock.trim().isEmpty())
+                filters.put("toBlock", toBlock);
+
+            if(addresses != null && !addresses.trim().isEmpty()) {
+                //split addresses
+                String[] addArray = addresses.split(",");
+
+                JSONArray jsonArray = new JSONArray();
+                for(String address: addArray) {
+                    jsonArray.put(address.trim());
+                }
+
+                filters.put("address", jsonArray);
+            }
+
+            if(topics != null && !topics.trim().isEmpty()) {
+                //split topics
+                String[] topicsArray = topics.split(",");
+
+                JSONArray jsonArray = new JSONArray();
+                for(String topic: topicsArray) {
+                    jsonArray.put(topic);
+                }
+
+                filters.put("topics", jsonArray);
+            }
+
+            if(blockHash != null && !blockHash.isEmpty()) {
+                filters.put("blockhash", blockHash);
+
+            }
+
+            params.add(filters);
+
+
+            jo.put("params", params);
+
+            log.info("Web3Rpc request data: " + jo.toString());
+
+            HttpResponse<JsonNode> jsonResponse = getHttpRequest()
+                    .body(jo)
+                    .asJson();
+
+            JsonNode jsonNode = jsonResponse.getBody();
+
+            if(jsonNode == null)
+                return null;
+
+            log.info("Response from Aion kernel: " + jsonNode.toString());
+
+            JSONObject jsonObject = jsonNode.getObject();
+
+            String error = getError(jsonObject);
+
+            if(error == null) {
+                return jsonObject.toString();
+            } else {
+                throw new AVMRuntimeException("getLogs() failed. Reason: " + error);
+            }
+
+        } catch (UnirestException e) {
+            throw new AVMRuntimeException("getLogs() failed", e);
         }
     }
 

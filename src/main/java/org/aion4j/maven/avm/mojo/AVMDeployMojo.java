@@ -68,7 +68,7 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
                     .info(String.format("%s deployed successfully to the embedded AVM.", getDappJar()));
 
             //Update deploy status properties
-            DeployResultConfig.updateDeployAddress(getStoragePath() , dappAddress);
+            DeployResultConfig.updateDeployAddress(project.getName(), getStoragePath() , dappAddress);
 
         } catch (Exception ex) {
             getLog()

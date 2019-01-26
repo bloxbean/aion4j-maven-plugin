@@ -76,7 +76,7 @@ public class AVMCallMajo extends AVMLocalRuntimeBaseMojo {
         if(contract == null || contract.isEmpty()) {
 
             if(isLocal()) {
-                String lastDeployAddress = DeployResultConfig.getLastDeployedAddress(getStoragePath());
+                String lastDeployAddress = DeployResultConfig.getLastDeployedAddress(project.getName(), getStoragePath());
 
                 if (lastDeployAddress == null || lastDeployAddress.isEmpty()) {
                     getLog().error("Contract address is missing. You need to deploy the contract first using aion4j:deploy." +

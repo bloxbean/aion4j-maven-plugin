@@ -9,24 +9,24 @@ public class DeployResultConfig {
 
     public static String DEPLOY_ADDRESS = "deploy.address";
 
-    public static void updateDeployAddress(String targetFolder, String address) {
+    public static void updateDeployAddress(String projectName, String targetFolder, String address) {
         Properties props = DeployResultConfig.readResults(targetFolder);
 
         if(props == null)
             props = new Properties();
 
-        props.setProperty(DEPLOY_ADDRESS, address);
+        props.setProperty(getDeployAddressVariable(projectName), address);
 
         writeResults(targetFolder, props);
     }
 
-    public static String getLastDeployedAddress(String targetFolder) {
+    public static String getLastDeployedAddress(String projectName, String targetFolder) {
         Properties props = DeployResultConfig.readResults(targetFolder);
 
         if(props == null)
             props = new Properties();
 
-        return props.getProperty(DEPLOY_ADDRESS);
+        return props.getProperty(getDeployAddressVariable(projectName));
     }
 
     public static void writeResults(String targetFolder, Properties props) {
@@ -83,6 +83,10 @@ public class DeployResultConfig {
             }
 
         }
+    }
+
+    private static String getDeployAddressVariable(String projectName) {
+        return projectName + "." + DEPLOY_ADDRESS;
     }
 
 }
