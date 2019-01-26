@@ -1,5 +1,6 @@
 package org.aion4j.maven.avm.mojo;
 
+import org.aion4j.maven.avm.remote.RemoteAVMNode;
 import org.aion4j.maven.avm.util.ConfigUtil;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -14,8 +15,6 @@ public class AVMCreateAccountMojo extends AVMLocalRuntimeBaseMojo {
     @Override
     protected void preexecuteLocalAvm() throws MojoExecutionException {
 
-        if (!isLocal())
-            throw new MojoExecutionException("create-account is only supported for local Avm during development.");
     }
 
 
@@ -52,4 +51,20 @@ public class AVMCreateAccountMojo extends AVMLocalRuntimeBaseMojo {
         }
     }
 
+    @Override
+    protected void executeRemote() throws MojoExecutionException {
+        String password = ConfigUtil.getPropery("password");
+
+        RemoteAVMNode remoteAVMNode = new RemoteAVMNode(getWeb3RpcUrl(), getLog());
+
+        try {
+            String newAddress = remoteAVMNode.createAccount(password);
+
+            getLog().info(String.format("Account creation successful"));
+            getLog().info("Address : " + newAddress);
+
+        } catch (Exception e) {
+            throw new MojoExecutionException("Account creation failed", e);
+        }
+    }
 }

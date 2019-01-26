@@ -12,8 +12,8 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
 
-@Mojo(name = "call", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
-public class AVMCallMajo extends AVMLocalRuntimeBaseMojo {
+@Mojo(name = "send-txn", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
+public class AVMSendTxnMojo extends AVMLocalRuntimeBaseMojo {
 
     private String contract;
     private String method;
@@ -29,38 +29,7 @@ public class AVMCallMajo extends AVMLocalRuntimeBaseMojo {
 
     @Override
     protected void executeLocalAvm(ClassLoader avmClassloader, Object localAvmInstance) throws MojoExecutionException {
-
-        try {
-
-            final Method callMethod = localAvmInstance.getClass()
-                    .getMethod("call", String.class, String.class, String.class, String.class, BigInteger.class);
-
-            parseArgs();
-
-            getLog().info(String.format("Calling contract method ..."));
-
-
-            Object response = callMethod.invoke(localAvmInstance, contract, sender, method, methodArgs, valueB);
-
-            Method getDataMethod = response.getClass().getMethod("getData");
-            Method getEnergyUsed = response.getClass().getMethod("getEnergyUsed");
-
-            Object data = getDataMethod.invoke(response);
-
-            getLog().info("****************  Method call result  ****************");
-            getLog().info("Data       : " + data);
-            getLog().info("Energy used: " + getEnergyUsed.invoke(response));
-            getLog().info("*********************************************************");
-
-            getLog()
-                    .info(String.format("Method call successful"));
-
-        } catch (Exception ex) {
-            getLog()
-                    .error(String.format("Method call failed"),
-                            ex);
-            throw new MojoExecutionException("Method call failed", ex);
-        }
+        throw new MojoExecutionException("For local Avm mode, use aion4j:call goal to send transaction");
 
     }
 
@@ -116,9 +85,9 @@ public class AVMCallMajo extends AVMLocalRuntimeBaseMojo {
 
     private void printHelp() {
         getLog().info("Usage:");
-        getLog().info("./mvnw  aion4j:call [-Dcontract=<contract_address>] [-Daddress=<sender_address>]  -Dmethod=<method_name> [-Dvalue=<value>] [-Dargs=<method_args>]");
+        getLog().info("./mvnw  aion4j:send-txn [-Dcontract=<contract_address>] [-Daddress=<sender_address>]  -Dmethod=<method_name> [-Dvalue=<value>] [-Dargs=<method_args>]");
         getLog().info("Example:");
-        getLog().info("./mvnw aion4j:call -Dcontract=0x1122334455667788112233445566778811223344556677881122334455667788 -Daddress=0xa003ddd...  -Dmethod=transfer -Dargs=\"-A 0x1122334455667788112233445566778811223344556677881122334455667788 -J 100\"\n");
+        getLog().info("./mvnw aion4j:send-txn -Dcontract=0x1122334455667788112233445566778811223344556677881122334455667788 -Daddress=0xa003ddd...  -Dmethod=transfer -Dargs=\"-A 0x1122334455667788112233445566778811223344556677881122334455667788 -J 100\"\n");
     }
 
     @Override
@@ -143,21 +112,21 @@ public class AVMCallMajo extends AVMLocalRuntimeBaseMojo {
 
             String encodedMethodCall = (String)enocodeCallMethod.invoke(null, method, args);
 
-            //getLog().info("Encoded method call data: " + encodedMethodCall);
+            getLog().info("Encoded method call data: " + encodedMethodCall);
 
             RemoteAVMNode remoteAVMNode = new RemoteAVMNode(web3RpcUrl, getLog());
 
-            String retData = remoteAVMNode.call(contract, sender, encodedMethodCall, valueB, 2000000, 100000000000L);
+            String retData = remoteAVMNode.sendTransaction(contract, sender, encodedMethodCall, valueB, 2000000, 100000000000L);
 
-            getLog().info("****************  Method call result  ****************");
-            getLog().info("Data       :" + retData);
+            getLog().info("****************  Contract Txn result  ****************");
+            getLog().info("Transaction receipt       :" + retData);
             getLog().info("******************************************************");
 
         } catch (Exception ex) {
             getLog()
-                    .error(String.format("Method call failed"),
+                    .error(String.format("Contract method transaction failed"),
                             ex);
-            throw new MojoExecutionException("Method call failed", ex);
+            throw new MojoExecutionException("Contract method transaction failed", ex);
         }
 
     }

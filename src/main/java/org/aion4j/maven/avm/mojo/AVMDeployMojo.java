@@ -1,7 +1,5 @@
 package org.aion4j.maven.avm.mojo;
 
-import org.aion4j.maven.avm.exception.LocalAVMException;
-import org.aion4j.maven.avm.local.LocalAvmNode;
 import org.aion4j.maven.avm.remote.RemoteAVMNode;
 import org.aion4j.maven.avm.util.ConfigUtil;
 import org.aion4j.maven.avm.util.DeployResultConfig;
@@ -12,8 +10,6 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -79,111 +75,26 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
         }
     }
 
-    //executed when remote kernel
-    //@Override
-    protected void executeRemote1() throws MojoExecutionException {
-
-        URL urlsForClassLoader = null;
-        try {
-
-            if (!new File(getAvmLibDir() + File.separator + "avm.jar").exists()) {
-                getLog()
-                        .error("avm.jar not found. Please make sure avm.jar exists in avm lib folder."
-                                + "\n You can also execution aion4j:init-lib maven goal to copy default jars to avm lib folder.");
-
-                throw new MojoExecutionException("avm.jar is not found in " + getAvmLibDir());
-            }
-
-            urlsForClassLoader = new File(getAvmLibDir() + File.separator + "avm.jar")
-                    .toURI().toURL();
-            getLog().info(urlsForClassLoader.toURI().toString());
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-
-        ClassLoader classLoader = new URLClassLoader(new URL[]{urlsForClassLoader});
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        PrintStream ps = new PrintStream(baos);
-        // IMPORTANT: Save the old System.out!
-        PrintStream oldPs = System.out;
-        // Tell Java to use your special stream
-        System.setOut(ps);
-
-        try {
-
-            Class clazz = classLoader.loadClass("org.aion.cli.AvmCLI");
-            final Method method = clazz.getMethod("main", String[].class);
-
-            final Object[] args = new Object[1];
-            args[0] = new String[] { "bytes", dappJar};
-
-            method.invoke(null, args);
-
-            String result = baos.toString();
-
-            System.setOut(oldPs);
-
-            getLog().info(String.format("%s deployed successfully to the embedded AVM.", getDappJar()));
-
-        } catch (Exception e) {
-            getLog().error(String.format("%s could not be deployed to the embedded AVM.", getDappJar()), e);
-            throw new MojoExecutionException("Dapp jar deployment failed", e);
-        } finally {
-            System.setOut(oldPs);
-        }
-    }
-
+    //execute when remote kernel
     @Override
     protected void executeRemote() throws MojoExecutionException {
 
-        String web3RpcUrl = ConfigUtil.getPropery("web3rpc.url");
-
-        if(web3RpcUrl == null || web3RpcUrl.isEmpty()) {
-            getLog().error("web3rpc.url cannot be null. Please set it through -D option in maven commandline.");
-            throw new MojoExecutionException("Invalid args");
+        //check if dAppJar exists
+        Path path = Paths.get(getDappJar());
+        if (!Files.exists(path)) {
+            throw new MojoExecutionException(String.format("Dapp jar file doesn't exist : %s \n"
+                    + "Please make sure you have built the project.", dappJar));
         }
+
+        String web3RpcUrl = getWeb3RpcUrl();
 
         String address = ConfigUtil.getPropery("address");
 
-        getLog().info("----------- AVM classpath Urls --------------");
-        URL urlsForClassLoader = null;
-        try {
-
-            if (!new File(getAvmLibDir() + File.separator + "avm.jar").exists()) {
-                getLog()
-                        .error("avm.jar not found. Please make sure avm.jar exists in avm lib folder."
-                                + "\n You can also execution aion4j:init-lib maven goal to copy default jars to avm lib folder.");
-
-                throw new MojoExecutionException("avm.jar is not found in " + getAvmLibDir());
-            }
-
-            urlsForClassLoader = new File(getAvmLibDir() + File.separator + "avm.jar")
-                    .toURI().toURL();
-            getLog().info(urlsForClassLoader.toURI().toString());
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-
-        URL pluginJar = getLocalAVMNodeClassJarLocation();
-        if (pluginJar != null) {
-            try {
-                getLog().info(pluginJar.toURI().toString());
-            } catch (URISyntaxException e) {
-                e.printStackTrace();
-            }
-        }
-
-        getLog().info("----------- AVM classpath Urls Ends --------------");
-
-        ClassLoader avmClassLoader = new URLClassLoader(new URL[]{urlsForClassLoader, pluginJar});
+        String password = ConfigUtil.getPropery("password");
 
         try {
-            Class localAvmClazz = avmClassLoader.loadClass("org.aion4j.maven.avm.local.LocalAvmNode");
+
+            Class localAvmClazz = getLocalAVMClass();
 
             Method getBytesMethod = localAvmClazz.getMethod("getBytesForDeploy", String.class);
 
@@ -194,6 +105,17 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
             }
 
             RemoteAVMNode remoteAVMNode = new RemoteAVMNode(web3RpcUrl, getLog());
+
+            if(password != null && !password.isEmpty()) {
+                boolean status = remoteAVMNode.unlock(address, password);
+
+                if(status) {
+                   getLog().info("Account unlocked successfully");
+                } else {
+
+                }
+            }
+
             String txHash = remoteAVMNode.deploy(address, hexCode,  5000000, 100000000000L);
 
             getLog().info("Dapp deployed successfully. Tx# : " + txHash);

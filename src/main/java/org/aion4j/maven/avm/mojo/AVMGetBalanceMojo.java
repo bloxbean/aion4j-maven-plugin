@@ -2,6 +2,7 @@ package org.aion4j.maven.avm.mojo;
 
 import org.aion4j.maven.avm.remote.RemoteAVMNode;
 import org.aion4j.maven.avm.util.ConfigUtil;
+import org.aion4j.maven.avm.util.CryptoUtil;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 
@@ -14,8 +15,6 @@ public class AVMGetBalanceMojo extends AVMLocalRuntimeBaseMojo {
     @Override
     protected void preexecuteLocalAvm() throws MojoExecutionException {
 
-        if (!isLocal())
-            throw new MojoExecutionException("get-balance is only supported for local Avm during development.");
     }
 
     @Override
@@ -49,15 +48,9 @@ public class AVMGetBalanceMojo extends AVMLocalRuntimeBaseMojo {
 
     @Override
     protected void executeRemote() throws MojoExecutionException {
-        String web3RpcUrl = ConfigUtil.getPropery("web3rpc.url");
+        String web3RpcUrl = getWeb3RpcUrl();
 
-        if(web3RpcUrl == null || web3RpcUrl.isEmpty()) {
-            getLog().error("web3rpc.url cannot be null");
-            printRemoteHelp();
-            throw new MojoExecutionException("Invalid args");
-        }
-
-        String address = ConfigUtil.getPropery("address");
+        String address = getAddress();
 
         if(address == null || address.isEmpty()) {
             printRemoteHelp();
@@ -75,8 +68,10 @@ public class AVMGetBalanceMojo extends AVMLocalRuntimeBaseMojo {
 
             BigInteger balance = new BigInteger(balanceInHex, 16);
 
-            getLog().info( "Address         : " + address);
-            getLog().info(String.format("Balance         : " + balance));
+            Double aionValue = CryptoUtil.convertAmpToAion(balance);
+
+            getLog().info(String.format("Address   :  %s", address));
+            getLog().info(String.format("Balance   :  %s (%s Aion)", balance, String.format("%.12f",aionValue)));
         } else {
             getLog().info("Balance not found for the account");
         }
@@ -84,6 +79,6 @@ public class AVMGetBalanceMojo extends AVMLocalRuntimeBaseMojo {
 
     private void printRemoteHelp() {
         getLog().error("Usage:");
-        getLog().error("mvn aion4j:get-balance -Dweb3rpc.url=http://host:port -Daddress=<address> -Dpassword=<password>");
+        getLog().error("mvn aion4j:get-balance -Dweb3rpc.url=http://host:port -Daddress=<address>");
     }
 }

@@ -1,6 +1,8 @@
 package org.aion4j.maven.avm.mojo;
 
+import org.aion4j.maven.avm.util.ConfigUtil;
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
@@ -70,5 +72,47 @@ public abstract class AVMBaseMojo extends AbstractMojo {
             return true;
         else
             return false;
+    }
+
+    //Only used for remote goals
+    protected String getWeb3RpcUrl() throws MojoExecutionException {
+        String web3RpcUrl = ConfigUtil.getPropery("web3rpc.url");
+
+        if(web3RpcUrl == null || web3RpcUrl.isEmpty()) {
+            getLog().error("web3rpc.url cannot be null. Please set it through -D option in maven commandline.");
+            throw new MojoExecutionException("Invalid args");
+        }
+
+        return web3RpcUrl;
+    }
+
+    protected String getAddress() throws MojoExecutionException {
+        return ConfigUtil.getPropery("address");
+    }
+
+    protected long getGas() {
+        String gasString = ConfigUtil.getPropery("gas");
+
+        try {
+            if (gasString != null && !gasString.isEmpty()) {
+                return Long.parseLong(gasString.trim());
+            } else
+                return 0;
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    protected long getGasPrice() {
+        String getPriceString = ConfigUtil.getPropery("gasPrice");
+
+        try {
+            if (getPriceString != null && !getPriceString.isEmpty()) {
+                return Long.parseLong(getPriceString.trim());
+            } else
+                return 0;
+        } catch (Exception e) {
+            return 0;
+        }
     }
 }

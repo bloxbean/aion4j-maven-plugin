@@ -178,6 +178,9 @@ public class LocalAvmNode {
 
         byte[] arguments = ABIEncoder.encodeMethodArguments(method, args);
 
+//        String callData = Helpers.bytesToHexString(arguments);
+//        System.out.println("******** Call data: " + callData);
+
         BigInteger biasedNonce = kernel.getNonce(sender);//.add(BigInteger.valueOf(nonceBias));
         Transaction callTransaction = Transaction.call(sender, contract, biasedNonce.longValue(), BigInteger.ZERO, arguments, energyLimit, energyPrice);
         return new TransactionContextImpl(callTransaction, block);
@@ -220,6 +223,11 @@ public class LocalAvmNode {
             System.out.println(e.toString());
             return null;
         }
+    }
+
+    //called from remote impl to encode method call args
+    public static String encodeMethodCall(String method, Object[] args) {
+        return Helpers.bytesToHexString(ABIEncoder.encodeMethodArguments(method, args));
     }
 
     private static void verifyStorageExists(String storageRoot) {

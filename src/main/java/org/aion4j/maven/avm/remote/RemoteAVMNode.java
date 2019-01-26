@@ -42,6 +42,8 @@ public class RemoteAVMNode {
 
             jo.put("params", params);
 
+            log.info("Web3Rpc request data: " + jo.toString());
+
             HttpResponse<JsonNode> jsonResponse = getHttpRequest()
                     .body(jo)
                     .asJson();
@@ -53,7 +55,7 @@ public class RemoteAVMNode {
 
             return jsonNode.getObject().getBoolean("result");
         } catch (UnirestException e) {
-            throw new AVMRuntimeException("Web3Rpc call failed for unlock account", e);
+            throw new AVMRuntimeException("Web3Rpc call failed to unlock account", e);
         }
     }
 
@@ -102,9 +104,117 @@ public class RemoteAVMNode {
             }
 
         } catch (UnirestException e) {
-            throw new AVMRuntimeException("Web3Rpc call failed for unlock account", e);
+            throw new AVMRuntimeException("Dapp deployment failed", e);
         }
     }
+
+    public String call(String contract, String address, String callData, BigInteger value, long gas, long gasPrice) {
+        try {
+
+            log.info("Invoking method of the contract ...");
+
+
+            JSONObject jo = getJsonHeader("eth_call");
+            //jo.put("id", 45);
+
+            List<JSONObject> params = new ArrayList();
+
+            JSONArray paramArray = new JSONArray();
+
+            JSONObject txnJo = new JSONObject();
+            txnJo.put("from", address);
+            txnJo.put("to", contract);
+            txnJo.put("gas", gas);
+            txnJo.put("gasPrice", gasPrice);
+           // txnJo.put("type", 0xf);
+            txnJo.put("data", callData);
+
+            paramArray.put(txnJo);
+
+            jo.put("params", paramArray);
+
+            log.info("Web3Rpc request data: " + jo.toString());
+
+            HttpResponse<JsonNode> jsonResponse = getHttpRequest()
+                    .body(jo)
+                    .asJson();
+
+            JsonNode jsonNode = jsonResponse.getBody();
+
+            if(jsonNode == null)
+                return null;
+
+            log.info("Response from Aion kernel: " + jsonNode.toString());
+
+            JSONObject jsonObject = jsonNode.getObject();
+
+            String error = getError(jsonObject);
+
+            if(error == null) {
+                return jsonObject.optString("result");
+            } else {
+                throw new AVMRuntimeException("Contract method call failed. Reason: " + error);
+            }
+
+        } catch (UnirestException e) {
+            throw new AVMRuntimeException("Contract method call failed", e);
+        }
+    }
+
+    //contract transaction
+    public String sendTransaction(String contract, String address, String callData, BigInteger value, long gas, long gasPrice) {
+        try {
+
+            log.info("Sending contract transaction  ...");
+
+
+            JSONObject jo = getJsonHeader("eth_sendTransaction");
+            //jo.put("id", 45);
+
+            List<JSONObject> params = new ArrayList();
+
+            JSONArray paramArray = new JSONArray();
+
+            JSONObject txnJo = new JSONObject();
+            txnJo.put("from", address);
+            txnJo.put("to", contract);
+            txnJo.put("gas", gas);
+            txnJo.put("gasPrice", gasPrice);
+            // txnJo.put("type", 0xf);
+            txnJo.put("data", callData);
+
+            paramArray.put(txnJo);
+
+            jo.put("params", paramArray);
+
+            log.info("Web3Rpc request data: " + jo.toString());
+
+            HttpResponse<JsonNode> jsonResponse = getHttpRequest()
+                    .body(jo)
+                    .asJson();
+
+            JsonNode jsonNode = jsonResponse.getBody();
+
+            if(jsonNode == null)
+                return null;
+
+            log.info("Response from Aion kernel: " + jsonNode.toString());
+
+            JSONObject jsonObject = jsonNode.getObject();
+
+            String error = getError(jsonObject);
+
+            if(error == null) {
+                return jsonObject.optString("result");
+            } else {
+                throw new AVMRuntimeException("Contract transaction failed. Reason: " + error);
+            }
+
+        } catch (UnirestException e) {
+            throw new AVMRuntimeException("Contract transaction failed", e);
+        }
+    }
+
 
     public String getBalance(String address) {
 
@@ -117,6 +227,8 @@ public class RemoteAVMNode {
             params.add("latest");
 
             jo.put("params", params);
+
+            log.info("Web3Rpc request data: " + jo.toString());
 
             HttpResponse<JsonNode> jsonResponse = getHttpRequest()
                     .body(jo)
@@ -140,9 +252,142 @@ public class RemoteAVMNode {
             }
 
         } catch (UnirestException e) {
-            throw new AVMRuntimeException("Web3Rpc call failed for unlock account", e);
+            throw new AVMRuntimeException("Web3Rpc call failed for get balance", e);
         }
     }
+
+    public String transfer(String from, String to, BigInteger value, long gas, long gasPrice) {
+
+        try {
+
+            log.info("Sending transfer transaction  ...");
+
+            JSONObject jo = getJsonHeader("eth_sendTransaction");
+            //jo.put("id", 45);
+
+            List<JSONObject> params = new ArrayList();
+
+            JSONArray paramArray = new JSONArray();
+
+            JSONObject txnJo = new JSONObject();
+            txnJo.put("from", from);
+            txnJo.put("to", to);
+            txnJo.put("value", value);
+            txnJo.put("gas", gas);
+            txnJo.put("gasPrice", gasPrice);
+            // txnJo.put("type", 0xf);
+            txnJo.put("data", "");
+
+            paramArray.put(txnJo);
+
+            jo.put("params", paramArray);
+
+            log.info("Web3Rpc request data: " + jo.toString());
+
+            HttpResponse<JsonNode> jsonResponse = getHttpRequest()
+                    .body(jo)
+                    .asJson();
+
+            JsonNode jsonNode = jsonResponse.getBody();
+
+            if(jsonNode == null)
+                return null;
+
+            log.info("Response from Aion kernel: " + jsonNode.toString());
+
+            JSONObject jsonObject = jsonNode.getObject();
+
+            String error = getError(jsonObject);
+
+            if(error == null) {
+                return jsonObject.optString("result");
+            } else {
+                throw new AVMRuntimeException("Transfer transaction failed. Reason: " + error);
+            }
+
+        } catch (UnirestException e) {
+            throw new AVMRuntimeException("Transfer transaction failed", e);
+        }
+    }
+
+    public String getReceipt(String txHash) {
+
+        try {
+
+            JSONObject jo = getJsonHeader("eth_getTransactionReceipt");
+
+            List<String> params = new ArrayList();
+            params.add(txHash);
+
+            jo.put("params", params);
+
+            log.info("Web3Rpc request data: " + jo.toString());
+
+            HttpResponse<JsonNode> jsonResponse = getHttpRequest()
+                    .body(jo)
+                    .asJson();
+
+            JsonNode jsonNode = jsonResponse.getBody();
+
+            if(jsonNode == null)
+                return null;
+
+            log.info("Response from Aion kernel: " + jsonNode.toString());
+
+            JSONObject jsonObject = jsonNode.getObject();
+
+            String error = getError(jsonObject);
+
+            if(error == null) {
+                return jsonObject.toString();//jsonObject.optString("result");
+            } else {
+                throw new AVMRuntimeException("getRecipt call failed. Reason: " + error);
+            }
+
+        } catch (UnirestException e) {
+            throw new AVMRuntimeException("getReceipt call failed", e);
+        }
+    }
+
+    public String createAccount(String password) {
+
+        try {
+
+            JSONObject jo = getJsonHeader("personal_newAccount");
+
+            List<String> params = new ArrayList();
+            params.add(password);
+
+            jo.put("params", params);
+
+            log.info("Web3Rpc request data: " + jo.toString());
+
+            HttpResponse<JsonNode> jsonResponse = getHttpRequest()
+                    .body(jo)
+                    .asJson();
+
+            JsonNode jsonNode = jsonResponse.getBody();
+
+            if(jsonNode == null)
+                return null;
+
+            log.info("Response from Aion kernel: " + jsonNode.toString());
+
+            JSONObject jsonObject = jsonNode.getObject();
+
+            String error = getError(jsonObject);
+
+            if(error == null) {
+                return jsonObject.optString("result");
+            } else {
+                throw new AVMRuntimeException("New account creation failed: " + error);
+            }
+
+        } catch (UnirestException e) {
+            throw new AVMRuntimeException("New account creation failed", e);
+        }
+    }
+
 
     private String getError(JSONObject jsonObject) {
         JSONObject error = jsonObject.optJSONObject("error");
