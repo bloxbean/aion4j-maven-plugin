@@ -7,14 +7,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.PrintStream;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -37,7 +30,7 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
 
         try {
 
-            String deployer = System.getProperty("address");
+            String deployer = getAddress();
 
             final Method deployMethod = localAvmInstance.getClass().getMethod("deploy", String.class, String.class);
 
@@ -46,6 +39,12 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
             args[1] = deployer;
 
             getLog().info(String.format("Deploying %s to the embedded Avm ...", getDappJar()));
+
+            if(deployer != null && !deployer.trim().isEmpty())
+                getLog().info("Deployer address : " + deployer);
+            else
+                deployer = getDefaultAddress();
+
             getLog().info("Avm storage path : " + getStoragePath());
 
             Object response = deployMethod.invoke(localAvmInstance, dappJar, deployer);
@@ -58,7 +57,7 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
             getLog().info("****************  Dapp deployment status ****************");
             getLog().info("Dapp address: " + dappAddress);
             getLog().info("Energy used: " + getEnergyUsed.invoke(response));
-            getLog().info("Deployer Address: " + getDefaultAddress());
+            getLog().info("Deployer Address: " + deployer);
             getLog().info("*********************************************************");
 
             getLog()
@@ -88,7 +87,7 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
 
         String web3RpcUrl = getWeb3RpcUrl();
 
-        String address = ConfigUtil.getPropery("address");
+        String address = getAddress();
 
         String password = ConfigUtil.getPropery("password");
 

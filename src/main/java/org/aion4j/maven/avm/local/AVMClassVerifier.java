@@ -14,6 +14,12 @@ import java.util.Set;
 
 public class AVMClassVerifier {
 
+    private boolean isDebugMode;
+
+    public AVMClassVerifier(boolean debugMode) {
+        this.isDebugMode = debugMode;
+    }
+
     public void verify(String clazz, String path) throws IOException {
         commonFilterClass(clazz, path);
     }
@@ -28,7 +34,7 @@ public class AVMClassVerifier {
         PreRenameClassAccessRules singletonRules = createAccessRules(userClassDotNameSet);
         NamespaceMapper mapper = new NamespaceMapper(singletonRules);
         byte[] filteredBytes = new ClassToolchain.Builder(testBytes, 0)
-                .addNextVisitor(new RejectionClassVisitor(singletonRules, mapper))
+                .addNextVisitor(new RejectionClassVisitor(singletonRules, mapper, isDebugMode))
                 .addWriter(new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS))
                 .build()
                 .runAndGetBytecode();

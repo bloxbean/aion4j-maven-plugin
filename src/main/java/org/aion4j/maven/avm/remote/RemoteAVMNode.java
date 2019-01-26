@@ -5,7 +5,6 @@ import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.mashape.unirest.request.HttpRequestWithBody;
-import com.mashape.unirest.request.body.MultipartBody;
 import org.aion4j.maven.avm.exception.AVMRuntimeException;
 import org.apache.maven.plugin.logging.Log;
 import org.json.JSONArray;

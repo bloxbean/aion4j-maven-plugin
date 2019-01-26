@@ -1,7 +1,6 @@
 package org.aion4j.maven.avm.mojo;
 
 import org.aion4j.maven.avm.remote.RemoteAVMNode;
-import org.aion4j.maven.avm.util.ConfigUtil;
 import org.aion4j.maven.avm.util.CryptoUtil;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -24,7 +23,11 @@ public class AVMGetBalanceMojo extends AVMLocalRuntimeBaseMojo {
 
             final Method getBalanceMethod = localAvmInstance.getClass().getMethod("getBalance", String.class);
 
-            String address = ConfigUtil.getPropery("address");
+            String address = getAddress();
+
+            if(address == null || address.isEmpty()) {
+                address = getDefaultAddress();
+            }
 
             if(address == null || address.isEmpty()) {
                 getLog().error("Usage: \n ./mvnw aion4j:get-balance -Daddress=a0xxxxxxxxxx");

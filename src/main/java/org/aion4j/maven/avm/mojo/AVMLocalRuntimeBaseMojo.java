@@ -15,7 +15,12 @@ public abstract class AVMLocalRuntimeBaseMojo extends AVMAbstractBaseMojo {
             Class clazz = avmClassloader.loadClass("org.aion4j.maven.avm.local.LocalAvmNode");
             Constructor localAvmConstructor = clazz.getConstructor(String.class, String.class);
 
-            Object localAvmInstance = localAvmConstructor.newInstance(getStoragePath(), getDefaultAddress());
+            String address = getAddress();
+            //If address is not passed as -D or set as env variable use default address
+            if(address == null || address.trim().isEmpty())
+                address = getDefaultAddress();
+
+            Object localAvmInstance = localAvmConstructor.newInstance(getStoragePath(), address);
             return localAvmInstance;
         } catch (Exception e) {
             getLog().debug("Error creating LocalAvmNode instance", e);

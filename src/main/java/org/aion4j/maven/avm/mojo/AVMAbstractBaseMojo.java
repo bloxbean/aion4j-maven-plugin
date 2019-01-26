@@ -1,7 +1,6 @@
 package org.aion4j.maven.avm.mojo;
 
 import org.aion4j.maven.avm.local.LocalAvmNode;
-import org.aion4j.maven.avm.util.ConfigUtil;
 import org.apache.maven.plugin.MojoExecutionException;
 
 import java.io.File;

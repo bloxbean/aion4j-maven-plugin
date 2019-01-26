@@ -54,7 +54,7 @@ public class LocalAvmNode {
             kernel.createAccount(defaultAddress);
             kernel.adjustBalance(defaultAddress, BigInteger.valueOf(100000000000000L));
 
-            System.out.println("Create default account");
+            System.out.println(String.format("Created default account %s with balance %s", defaultAddress, BigInteger.valueOf(100000000000000L) ));
         }
 
         avm = CommonAvmFactory.buildAvmInstance(kernel);
@@ -158,7 +158,7 @@ public class LocalAvmNode {
             throw new DeploymentFailedException("deploy : Invalid location of Dapp jar");
         }
 
-        Transaction createTransaction = Transaction.create(sender, kernel.getNonce(sender).longValue(),
+        Transaction createTransaction = Transaction.create(sender, kernel.getNonce(sender),
             value, new CodeAndArguments(jar, null).encodeToBytes(), energyLimit, energyPrice);
 
         return new TransactionContextImpl(createTransaction, block);
@@ -182,7 +182,7 @@ public class LocalAvmNode {
 //        System.out.println("******** Call data: " + callData);
 
         BigInteger biasedNonce = kernel.getNonce(sender);//.add(BigInteger.valueOf(nonceBias));
-        Transaction callTransaction = Transaction.call(sender, contract, biasedNonce.longValue(), BigInteger.ZERO, arguments, energyLimit, energyPrice);
+        Transaction callTransaction = Transaction.call(sender, contract, biasedNonce, BigInteger.ZERO, arguments, energyLimit, energyPrice);
         return new TransactionContextImpl(callTransaction, block);
 
     }
