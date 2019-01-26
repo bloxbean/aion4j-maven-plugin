@@ -23,8 +23,8 @@ public abstract class AVMBaseMojo extends AbstractMojo {
     @Parameter(property = "storage-path", defaultValue = "${project.build.directory}/storage")
     protected String storagePath;
 
-    @Parameter(property = "storage-path", defaultValue = "a025f4fd54064e869f158c1b4eb0ed34820f67e60ee80a53b469f725efc06378")
-    protected String defaultAddress; //Pre-mine address
+    @Parameter(property = "local-default-address", defaultValue = "a025f4fd54064e869f158c1b4eb0ed34820f67e60ee80a53b469f725efc06378")
+    protected String localDefaultAddress; //Pre-mine address
 
 
     public String getAvmLibDir() {
@@ -59,12 +59,12 @@ public abstract class AVMBaseMojo extends AbstractMojo {
         this.storagePath = storagePath;
     }
 
-    public String getDefaultAddress() {
-        return defaultAddress;
+    public String getLocalDefaultAddress() {
+        return localDefaultAddress;
     }
 
-    public void setDefaultAddress(String defaultAddress) {
-        this.defaultAddress = defaultAddress;
+    public void setLocalDefaultAddress(String localDefaultAddress) {
+        this.localDefaultAddress = localDefaultAddress;
     }
 
     public boolean isLocal() {

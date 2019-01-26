@@ -15,6 +15,10 @@ import java.nio.file.Paths;
 @Mojo(name = "deploy", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
 
+    //Needed for remote
+    private long defaultGas = 5000000;
+    private long defaultGasPrice = 100000000000L;
+
     @Override
     protected void preexecuteLocalAvm() throws MojoExecutionException{
         //check if dAppJar exists
@@ -43,7 +47,7 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
             if(deployer != null && !deployer.trim().isEmpty())
                 getLog().info("Deployer address : " + deployer);
             else
-                deployer = getDefaultAddress();
+                deployer = getLocalDefaultAddress();
 
             getLog().info("Avm storage path : " + getStoragePath());
 
@@ -91,6 +95,15 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
 
         String password = ConfigUtil.getPropery("password");
 
+        //Get gas & gas price
+        long gas = getGas();
+        if(gas == 0)
+            gas = defaultGas;
+
+        long gasPrice = getGasPrice();
+        if(gasPrice == 0)
+            gasPrice = defaultGasPrice;
+
         try {
 
             Class localAvmClazz = getLocalAVMClass();
@@ -115,7 +128,7 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
                 }
             }
 
-            String txHash = remoteAVMNode.deploy(address, hexCode,  5000000, 100000000000L);
+            String txHash = remoteAVMNode.deploy(address, hexCode,  gas, gasPrice);
 
             getLog().info("Dapp deployed successfully. Tx# : " + txHash);
 

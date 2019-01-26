@@ -26,7 +26,7 @@ public class AVMGetBalanceMojo extends AVMLocalRuntimeBaseMojo {
             String address = getAddress();
 
             if(address == null || address.isEmpty()) {
-                address = getDefaultAddress();
+                address = getLocalDefaultAddress();
             }
 
             if(address == null || address.isEmpty()) {

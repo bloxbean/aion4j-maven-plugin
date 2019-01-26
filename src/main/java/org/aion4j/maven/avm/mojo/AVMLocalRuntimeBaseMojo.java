@@ -18,7 +18,7 @@ public abstract class AVMLocalRuntimeBaseMojo extends AVMAbstractBaseMojo {
             String address = getAddress();
             //If address is not passed as -D or set as env variable use default address
             if(address == null || address.trim().isEmpty())
-                address = getDefaultAddress();
+                address = getLocalDefaultAddress();
 
             Object localAvmInstance = localAvmConstructor.newInstance(getStoragePath(), address);
             return localAvmInstance;

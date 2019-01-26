@@ -12,8 +12,11 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
 
-@Mojo(name = "send-txn", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
+@Mojo(name = "contract-txn", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class AVMSendTxnMojo extends AVMLocalRuntimeBaseMojo {
+
+    private long defaultGas = 2000000;
+    private long defaultGasPrice = 100000000000L;
 
     private String contract;
     private String method;
@@ -96,6 +99,15 @@ public class AVMSendTxnMojo extends AVMLocalRuntimeBaseMojo {
 
         String web3RpcUrl = getWeb3RpcUrl();
 
+        //Get gas & gas price
+        long gas = getGas();
+        if(gas == 0)
+            gas = defaultGas;
+
+        long gasPrice = getGasPrice();
+        if(gasPrice == 0)
+            gasPrice = defaultGasPrice;
+
         try {
             Class localAvmClazz = getLocalAVMClass();
             //Lets do method call encoding
@@ -116,7 +128,7 @@ public class AVMSendTxnMojo extends AVMLocalRuntimeBaseMojo {
 
             RemoteAVMNode remoteAVMNode = new RemoteAVMNode(web3RpcUrl, getLog());
 
-            String retData = remoteAVMNode.sendTransaction(contract, sender, encodedMethodCall, valueB, 2000000, 100000000000L);
+            String retData = remoteAVMNode.sendTransaction(contract, sender, encodedMethodCall, valueB, gas, gasPrice);
 
             getLog().info("****************  Contract Txn result  ****************");
             getLog().info("Transaction receipt       :" + retData);
