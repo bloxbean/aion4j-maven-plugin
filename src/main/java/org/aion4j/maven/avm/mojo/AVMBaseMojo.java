@@ -80,7 +80,7 @@ public abstract class AVMBaseMojo extends AbstractMojo {
 
         if(web3RpcUrl == null || web3RpcUrl.isEmpty()) {
             getLog().error("web3rpc.url cannot be null. Please set it through -D option in maven commandline.");
-            throw new MojoExecutionException("Invalid args");
+            throw new MojoExecutionException("Invalid args. Please set web3rpc.url value through -D option or environment variable.");
         }
 
         return web3RpcUrl;

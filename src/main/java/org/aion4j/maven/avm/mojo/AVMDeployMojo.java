@@ -95,6 +95,12 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
 
         String password = ConfigUtil.getPropery("password");
 
+        if(address == null || address.isEmpty()) {
+            printRemoteHelp();
+            getLog().error("Deployer address cannot be null. Please set it through -D option in maven commandline.");
+            throw new MojoExecutionException("Invalid args. Please set deployer address through -D option or environment variable.");
+        }
+
         //Get gas & gas price
         long gas = getGas();
         if(gas == 0)
@@ -137,6 +143,11 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
             throw new MojoExecutionException("Failed deployment for dapp : " + dappJar, e);
         }
 
+    }
+
+    private void printRemoteHelp() {
+        getLog().error("Usage:");
+        getLog().error("mvn aion4j:deploy -Dweb3rpc.url=<web3rpcUrl> [-Daddress=<address>] [-Dpassword=<password>]\n");
     }
 
 }
