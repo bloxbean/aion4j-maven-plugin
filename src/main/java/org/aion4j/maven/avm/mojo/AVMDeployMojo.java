@@ -65,7 +65,7 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
             getLog().info("*********************************************************");
 
             getLog()
-                    .info(String.format("%s deployed successfully to the embedded AVM.", getDappJar()));
+                    .info(String.format("%s was deployed successfully to the embedded AVM.", getDappJar()));
 
             //Update deploy status properties
             DeployResultConfig.updateDeployAddress(project.getName(), getStoragePath() , dappAddress);
@@ -136,7 +136,8 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
 
             String txHash = remoteAVMNode.deploy(address, hexCode,  gas, gasPrice);
 
-            getLog().info("Dapp deployed successfully. Tx# : " + txHash);
+            getLog().info(String.format("%s was deployed successfully.", dappJar));
+            getLog().info(String.format("Transaction # : %s", txHash));
 
         } catch (Exception e) {
             e.printStackTrace();

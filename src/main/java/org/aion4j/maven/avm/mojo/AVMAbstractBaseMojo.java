@@ -49,7 +49,7 @@ public abstract class AVMAbstractBaseMojo extends AVMBaseMojo {
         URL pluginJar = getLocalAVMNodeClassJarLocation();
         if (pluginJar != null) {
             try {
-                getLog().info(pluginJar.toURI().toString());
+                getLog().debug(pluginJar.toURI().toString());
             } catch (URISyntaxException e) {
                 e.printStackTrace();
             }
