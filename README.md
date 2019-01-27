@@ -15,6 +15,7 @@ Following maven goals has been implemented in this plugin :
 
 For all the supported goals, check this [page](https://github.com/satran004/aion4j-maven-plugin/wiki/Aion4j-Maven-Plugin---Goals).
 
+[Quick Start Guide](https://github.com/satran004/aion4j-maven-plugin/wiki/Aion4j-Maven-Plugin----Quick-Start-Guide)
 
 **Requirement**
 
