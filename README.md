@@ -50,23 +50,25 @@ $>  ./mvnw integration-test
 2. Add aion4j plugin to "&lt;plugins&gt;" section of  pom.xml
 ```
 <plugin>
-        <groupId>org.aion4j</groupId>
-        <artifactId>aion4j-maven-plugin</artifactId>
-        <version>${aion4j.plugin.version}</version>
-        <configuration>
-          <avmLibDir>${avm.lib.dir}</avmLibDir>
-        </configuration>
-        <executions>
+      <groupId>org.aion4j</groupId>
+      <artifactId>aion4j-maven-plugin</artifactId>
+      <version>${aion4j.plugin.version}</version>
+      <configuration>
+         <mode>local</mode>
+         <avmLibDir>${avm.lib.dir}</avmLibDir>
+         <localDefaultAddress>0xa092de3423a1e77f4c5f8500564e3601759143b7c0e652a7012d35eb67b283ca</localDefaultAddress>  
+      </configuration>
+      <executions>
           <execution>
-            <goals>
-              <goal>clean</goal>
-              <goal>init</goal>
-              <goal>deploy</goal>
-              <goal>prepack</goal>
-            </goals>
+           <goals>
+             <goal>clean</goal>
+             <goal>init</goal>
+             <goal>class-verifier</goal>
+             <goal>prepack</goal>
+           </goals>
           </execution>
-        </executions>
-</plugin>
+      </executions>
+ </plugin>
 ```
 
 3. Add avm compile time dependencies to "&lt;dependencies&gt;" section.
