@@ -107,9 +107,12 @@ public class LocalAvmNode {
 
             byte[] retData = result.getReturnData();
 
-            Object retObj = ABIDecoder.decodeOneObject(retData);
-
-            response.setData(retObj);
+            if(retData != null) {
+                Object retObj = ABIDecoder.decodeOneObject(retData);
+                response.setData(retObj);
+            } else {
+                response.setData(null);
+            }
 
             response.setEnergyUsed(((AvmTransactionResult) result).getEnergyUsed());
             response.setStatusMessage(result.getResultCode().toString());
