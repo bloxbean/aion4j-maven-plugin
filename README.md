@@ -7,13 +7,13 @@ Following maven goals has been implemented in this plugin :
 1. aion4j:clean - Default phase for this goal is "clean". To clean storage folder in case of embedded AVM deployment. 
 2. aion4j:deploy - Deploy the contract / dapp jar to an embedded AVM. This goal needs to invoked explicitely from the command line.
 3. aion4j:call - Call contract method 
-4. aion4j:init - Default phase for this goal is "initialize". It initializes the project with required AVM dependencies. Currently it copies all required avm jars to a lib folder under project's folder. You can also manually create this lib folder or point to an existing avm lib folder through the plugin's configuration parameter.
-5. aion4j:prepack - Default phase "prepare-package". Copy org-aion-avm-userlib.jar's classes to target folder for packaging with dapp's jar.
+4. aion4j:contract-txn
+5. aion4j:init - Default phase for this goal is "initialize". It initializes the project with required AVM dependencies. Currently it copies all required avm jars to a lib folder under project's folder. You can also manually create this lib folder or point to an existing avm lib folder through the plugin's configuration parameter.
+6. aion4j:prepack - Default phase "prepare-package". Copy org-aion-avm-userlib.jar's classes to target folder for packaging with dapp's jar.
+7. aion4j:class-verifier - To verify JCL whiltelist classes in the contract
+8. aion4j:deploy - Extend the deploy goal for remote deployment.
 
-***To Do:***
-
-1. aion4j:verify - To verify JCL whiltelist classes in the contract
-2. aion4j: deploy - Extend the deploy goal for remote deployment.
+For all the supported goals, check this [page](https://github.com/satran004/aion4j-maven-plugin/wiki/Aion4j-Maven-Plugin---Goals).
 
 
 **Requirement**
