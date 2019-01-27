@@ -71,6 +71,8 @@ $>  ./mvnw integration-test
  </plugin>
 ```
 
+"mode" can be local or remote.
+
 3. Add avm compile time dependencies to "&lt;dependencies&gt;" section.
 ```
 <dependency>
