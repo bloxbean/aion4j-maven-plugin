@@ -1,5 +1,6 @@
 package org.aion4j.maven.avm.mojo;
 
+import com.google.common.base.VerifyException;
 import org.aion4j.maven.avm.exception.LocalAVMException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -11,6 +12,7 @@ import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,6 +37,8 @@ public class AVMClassVerifierMojo extends AVMAbstractBaseMojo {
             Path source = Paths.get(outputDir);
             List<Path> paths = Files.walk(source).filter(f -> f.toFile().getName().endsWith(".class")).collect(Collectors.toList());
 
+            List<VerificationError> errors = new ArrayList<>();
+
             for(Path path: paths) {
                 String fullPath = path.toAbsolutePath().toString();
                 String fileName = path.toFile().getName();
@@ -46,9 +50,25 @@ public class AVMClassVerifierMojo extends AVMAbstractBaseMojo {
                 try {
                     verifyMethod.invoke(classVerfierImpl, className, fullPath);
                 } catch (Exception e) {
-                    throw new MojoExecutionException("AVM erfication failed for class : " + fullPath, e);
+                    errors.add(new VerificationError(e, fullPath));
+                    //throw new MojoExecutionException("AVM erfication failed for class : " + fullPath, e);
+                }
+            }
+
+            if(errors.size() > 0) {
+
+                getLog().error("AVM verification failed with the following reasons:");
+
+                for(VerificationError ve: errors) {
+                    try {
+                        getLog().error(String.format("Verification failed for %s, error: %s", ve.file, ve.exception.getCause().getMessage()));
+                        getLog().debug(String.format("Verification failed for %s", ve.file), ve.exception);
+                    } catch (Exception e) {
+                        getLog().error(ve.exception); //Just for safer side, incase ve.exception.getCause() returns null
+                    }
                 }
 
+                throw new MojoExecutionException("AVM Verification failed");
             }
 
         } catch (Exception e) {
@@ -73,6 +93,16 @@ public class AVMClassVerifierMojo extends AVMAbstractBaseMojo {
         } catch (Exception e) {
             getLog().debug("Error creating LocalAvmNode instance", e);
             throw new LocalAVMException(e);
+        }
+    }
+
+    class VerificationError {
+        public Exception exception;
+        public String file;
+
+        public VerificationError(Exception ex, String file) {
+            this.exception = ex;
+            this.file = file;
         }
     }
 }
