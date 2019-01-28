@@ -29,7 +29,7 @@ public class AVMCreateAccountMojo extends AVMLocalRuntimeBaseMojo {
 
             if(addressToCreate == null || addressToCreate.isEmpty() || balance == null || balance.isEmpty()) {
                 getLog().error("Usage:\n mvn -Daddress a0xxxxx -Dbalance=2000000000");
-                throw new MojoExecutionException("Account can not be created. Invalid input args.");
+                throw new MojoExecutionException("Account can not be created. Invalid input args. Usage:\n mvn -Daddress a0xxxxx -Dbalance=2000000000");
             }
 
 //            final Object[] args = new Object[2];
@@ -38,9 +38,13 @@ public class AVMCreateAccountMojo extends AVMLocalRuntimeBaseMojo {
 
             Object response = createAccountMethod.invoke(localAvmInstance, addressToCreate, new BigInteger(balance.trim()));
 
-            getLog().info(String.format("Account creation successful"));
-            getLog().info("Address: " + addressToCreate);
-            getLog().info("Balance: " + balance.trim());
+            if((boolean)response) {
+                getLog().info(String.format("Account creation successful"));
+                getLog().info("Address: " + addressToCreate);
+                getLog().info("Balance: " + balance.trim());
+            } else{
+                getLog().info("Account creation failed. Please check if account exists");
+            }
 
 
         } catch (Exception ex) {

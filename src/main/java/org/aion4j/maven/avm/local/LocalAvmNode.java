@@ -190,7 +190,7 @@ public class LocalAvmNode {
 
     }
 
-    public void createAccountWithBalance(String address, BigInteger balance) {
+    public boolean createAccountWithBalance(String address, BigInteger balance) {
 
         Address account = AvmAddress.wrap(Helpers.hexStringToBytes(address));
 
@@ -200,6 +200,10 @@ public class LocalAvmNode {
             kernel.adjustBalance(account, balance);
 
             System.out.println(String.format("Create account %s with balance %d", address, balance.longValue()));
+            return true;
+        } else {
+            System.out.println("Account already exists");
+            return false;
         }
     }
 
