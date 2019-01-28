@@ -17,7 +17,7 @@ public class AVMGetReceiptMojo extends AVMBaseMojo {
             throw new MojoExecutionException("aion4j:get-receipt is only supported for remote Aion kernel");
         }
 
-        String web3RpcUrl = getWeb3RpcUrl();
+        String web3RpcUrl = resolveWeb3rpcUrl();
         String txHash = ConfigUtil.getPropery("txHash");
 
         if(txHash == null || txHash.isEmpty()) {

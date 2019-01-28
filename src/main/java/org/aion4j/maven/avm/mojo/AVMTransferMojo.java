@@ -22,7 +22,7 @@ public class AVMTransferMojo extends AVMBaseMojo {
             throw new MojoExecutionException("aion4j:transfer is only supported for remote Aion kernel");
         }
 
-        String web3RpcUrl = getWeb3RpcUrl();
+        String web3RpcUrl = resolveWeb3rpcUrl();
 
         long gas = getGas();
         if(gas == 0)

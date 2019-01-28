@@ -26,6 +26,8 @@ public abstract class AVMBaseMojo extends AbstractMojo {
     @Parameter(property = "local-default-address", defaultValue = "a025f4fd54064e869f158c1b4eb0ed34820f67e60ee80a53b469f725efc06378")
     protected String localDefaultAddress; //Pre-mine address
 
+    @Parameter(property = "web3rpcUrl", defaultValue = "")
+    protected String web3rpcUrl;
 
     public String getAvmLibDir() {
         return avmLibDir;
@@ -67,6 +69,15 @@ public abstract class AVMBaseMojo extends AbstractMojo {
         this.localDefaultAddress = localDefaultAddress;
     }
 
+    //This method should not be called directly from goals. Instead resolveWeb3rpcUrl() is the right one.
+    public String getWeb3rpcUrl() {
+        return web3rpcUrl;
+    }
+
+    public void setWeb3rpcUrl(String web3rpcUrl) {
+        this.web3rpcUrl = web3rpcUrl;
+    }
+
     public boolean isLocal() {
         if("local".equals(getMode()))
             return true;
@@ -75,14 +86,21 @@ public abstract class AVMBaseMojo extends AbstractMojo {
     }
 
     //Only used for remote goals
-    protected String getWeb3RpcUrl() throws MojoExecutionException {
+    protected String resolveWeb3rpcUrl() throws MojoExecutionException {
         String web3RpcUrl = ConfigUtil.getPropery("web3rpc.url");
 
+        //check if it's configured in pom.xml
+        if(web3RpcUrl == null || web3RpcUrl.isEmpty())
+            web3RpcUrl = getWeb3rpcUrl();
+
         if(web3RpcUrl == null || web3RpcUrl.isEmpty()) {
-            getLog().error("web3rpc.url cannot be null. Please set it through -D option in maven commandline.");
-            throw new MojoExecutionException("Invalid args. Please set web3rpc.url value through -D option or environment variable.");
+            getLog().error("web3rpc.url cannot be null. Please set it through -Dweb3rpc.url in maven command line or environment variable as web3rpc_url or " +
+                    "in plugin configuration as web3rpcUrl property.");
+            throw new MojoExecutionException("Invalid args. web3rpc.url cannot be null. Please set it through -Dweb3rpc.url in maven command line  or environment variable as web3rpc_url or " +
+                   "in plugin configuration as web3rpcUrl property.");
         }
 
+        getLog().info("web3rpc.url is set to " + web3RpcUrl);
         return web3RpcUrl;
     }
 

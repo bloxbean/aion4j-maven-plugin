@@ -1,7 +1,6 @@
 package org.aion4j.maven.avm.mojo;
 
 import org.aion4j.maven.avm.remote.RemoteAVMNode;
-import org.aion4j.maven.avm.util.ConfigUtil;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -17,7 +16,7 @@ public class AVMGetLogsMojo extends AVMBaseMojo {
             throw new MojoExecutionException("aion4j:get-logs is only supported for remote Aion kernel");
         }
 
-        String web3RpcUrl = getWeb3RpcUrl();
+        String web3RpcUrl = resolveWeb3rpcUrl();
 
         String fromBlock = System.getProperty("fromBlock");
         String toBlock = System.getProperty("toBlock");

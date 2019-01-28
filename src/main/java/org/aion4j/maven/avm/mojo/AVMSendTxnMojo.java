@@ -97,7 +97,7 @@ public class AVMSendTxnMojo extends AVMLocalRuntimeBaseMojo {
     protected void executeRemote() throws MojoExecutionException {
         parseArgs();
 
-        String web3RpcUrl = getWeb3RpcUrl();
+        String web3RpcUrl = resolveWeb3rpcUrl();
 
         //Get gas & gas price
         long gas = getGas();

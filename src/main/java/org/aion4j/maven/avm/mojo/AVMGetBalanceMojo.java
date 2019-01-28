@@ -51,7 +51,7 @@ public class AVMGetBalanceMojo extends AVMLocalRuntimeBaseMojo {
 
     @Override
     protected void executeRemote() throws MojoExecutionException {
-        String web3RpcUrl = getWeb3RpcUrl();
+        String web3RpcUrl = resolveWeb3rpcUrl();
 
         String address = getAddress();
 

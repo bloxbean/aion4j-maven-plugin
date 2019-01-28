@@ -125,7 +125,7 @@ public class AVMCallMajo extends AVMLocalRuntimeBaseMojo {
     protected void executeRemote() throws MojoExecutionException {
         parseArgs();
 
-        String web3RpcUrl = getWeb3RpcUrl();
+        String web3RpcUrl = resolveWeb3rpcUrl();
 
         try {
             Class localAvmClazz = getLocalAVMClass();

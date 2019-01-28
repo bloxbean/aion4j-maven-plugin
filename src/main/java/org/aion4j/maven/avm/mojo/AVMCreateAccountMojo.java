@@ -54,7 +54,7 @@ public class AVMCreateAccountMojo extends AVMLocalRuntimeBaseMojo {
     protected void executeRemote() throws MojoExecutionException {
         String password = ConfigUtil.getPropery("password");
 
-        RemoteAVMNode remoteAVMNode = new RemoteAVMNode(getWeb3RpcUrl(), getLog());
+        RemoteAVMNode remoteAVMNode = new RemoteAVMNode(resolveWeb3rpcUrl(), getLog());
 
         try {
             String newAddress = remoteAVMNode.createAccount(password);

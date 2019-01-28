@@ -89,7 +89,7 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
                     + "Please make sure you have built the project.", dappJar));
         }
 
-        String web3RpcUrl = getWeb3RpcUrl();
+        String web3RpcUrl = resolveWeb3rpcUrl();
 
         String address = getAddress();
 
