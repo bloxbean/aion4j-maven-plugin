@@ -72,7 +72,7 @@ public class RemoteAVMNode {
             txnJo.put("from", address);
             txnJo.put("gas", gas);
             txnJo.put("gasPrice", gasPrice);
-            txnJo.put("type", 0xf);
+            txnJo.put("type", "0xf");
             txnJo.put("data", dappJarContent);
 
             paramArray.put(txnJo);
