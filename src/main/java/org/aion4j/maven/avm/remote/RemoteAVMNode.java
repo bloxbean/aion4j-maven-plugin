@@ -235,6 +235,9 @@ public class RemoteAVMNode {
 
             JsonNode jsonNode = jsonResponse.getBody();
 
+            if(log.isDebugEnabled())
+                log.debug("Get status code >>> " + jsonResponse.getStatus());
+
             if(jsonNode == null)
                 return null;
 
@@ -511,7 +514,8 @@ public class RemoteAVMNode {
 
     private HttpRequestWithBody getHttpRequest() {
         return Unirest.post(web3RpcUrl)
-                .header("accept", "application/json");
+                .header("accept", "application/json")
+                .header("Content-Type", "application/json");
 
         //.queryString("apiKey", "123")
     }
