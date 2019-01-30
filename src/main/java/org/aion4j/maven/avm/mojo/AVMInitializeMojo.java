@@ -34,11 +34,16 @@ public class AVMInitializeMojo extends AVMBaseMojo {
             }
         }
 
+        //only copy version file if the libraries are copied from bundled version
+        boolean bundledVersion = false;
+
         if (!checkIfLibExists(AVM_JAR)) {
             getLog().info(String
                 .format("%s doesn't exist. Copying the default %s to %s folder.", AVM_JAR, AVM_JAR,
                     getAvmLibDir()));
             copyLibJar(AVM_JAR, AVM_RESOURCE_FOLDER + File.separator + AVM_JAR, getAvmLibDir());
+
+            bundledVersion = true;
         }
 
         if (!checkIfLibExists(AVM_API_JAR)) {
@@ -57,7 +62,7 @@ public class AVMInitializeMojo extends AVMBaseMojo {
                 getAvmLibDir());
         }
 
-        if (!checkIfLibExists(VERSION_FILE)) {
+        if (!checkIfLibExists(VERSION_FILE) && bundledVersion) {
             getLog().info(String
                 .format("%s doesn't exist. Copying the default %s to %s folder.", VERSION_FILE,
                     VERSION_FILE, getAvmLibDir()));
