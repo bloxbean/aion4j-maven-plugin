@@ -17,12 +17,12 @@ public class AVMUnlockMojo extends AVMBaseMojo {
             throw new MojoExecutionException("aion4j:unlock is only supported for remote Aion kernel");
         }
 
-        String web3RpcUrl = ConfigUtil.getPropery("web3rpc.url");
+        String web3RpcUrl = resolveWeb3rpcUrl();
 
         if(web3RpcUrl == null || web3RpcUrl.isEmpty()) {
             getLog().error("web3rpc.url cannot be null");
             printHelp();
-            throw new MojoExecutionException("Invalid args");
+            throw new MojoExecutionException("Invalid args - web3rpc.url cannot be null");
         }
 
         String address = ConfigUtil.getPropery("address");
@@ -30,7 +30,7 @@ public class AVMUnlockMojo extends AVMBaseMojo {
 
         if(address == null || address.isEmpty() || password == null || password.isEmpty()) {
             printHelp();
-            throw new MojoExecutionException("Invalid args");
+            throw new MojoExecutionException("Invalid args - address / password is empty");
         }
 
 
