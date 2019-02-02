@@ -53,6 +53,18 @@
             <version>3.5.2</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>net.i2p.crypto</groupId>
+            <artifactId>eddsa</artifactId>
+            <version>0.3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.aion</groupId>
+            <artifactId>libAionApi</artifactId>
+            <version>0.1.15</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/libAionApi-v0.1.15.715b87b-19-01-17.jar</systemPath>
+        </dependency>
 
         <!-- Needed only for plugin compilation -->
         <dependency>
