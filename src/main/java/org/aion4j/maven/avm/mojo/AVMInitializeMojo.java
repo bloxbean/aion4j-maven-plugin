@@ -10,7 +10,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 
-@Mojo(name = "init", defaultPhase = LifecyclePhase.INITIALIZE)
+@Mojo(name = "init", defaultPhase = LifecyclePhase.VALIDATE)
 public class AVMInitializeMojo extends AVMBaseMojo {
 
     private final static String AVM_RESOURCE_FOLDER = "/lib/avm";
