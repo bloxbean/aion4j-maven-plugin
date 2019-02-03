@@ -7,17 +7,24 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
-@Mojo(name = "class-verifier", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, defaultPhase = LifecyclePhase.PREPARE_PACKAGE)
+@Mojo(name = "class-verifier", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, defaultPhase = LifecyclePhase.COMPILE)
 public class AVMClassVerifierMojo extends AVMAbstractBaseMojo {
+
+    private final static String AVM_USERLIB_JAR = "org-aion-avm-userlib.jar";
 
     @Override
     protected void preexecuteLocalAvm() throws MojoExecutionException {
@@ -41,7 +48,11 @@ public class AVMClassVerifierMojo extends AVMAbstractBaseMojo {
 
 
             List<String> inputClasses = new ArrayList<>();
-            //Update inputClasses. All classes in target/classes folder, including userlib classes
+
+            List<String> userLibClasses = getUserlibApiClasses();
+            inputClasses.addAll(userLibClasses);
+
+            //Update inputClasses. All classes in target/classes folder.
             for(Path path: paths) {
                 String inputDotClassName = getClassNameWithDot(outputPath, path);
 
@@ -54,6 +65,9 @@ public class AVMClassVerifierMojo extends AVMAbstractBaseMojo {
 
                 inputClasses.add(inputDotClassName);
             }
+
+            if(getLog().isDebugEnabled())
+                getLog().info("Input classes for verification: " + inputClasses);
 
             //Invoke verifier's setInptClasses method
             setInputclassesMethod.invoke(classVerfierImpl, inputClasses);
@@ -116,6 +130,48 @@ public class AVMClassVerifierMojo extends AVMAbstractBaseMojo {
         inputDotClassName = inputDotClassName.replace(File.separator, ".");
 
         return inputDotClassName;
+    }
+
+    private List<String> getUserlibApiClasses() {
+        String libFolderPath = getAvmLibDir();
+        File libFolder = new File(libFolderPath);
+
+        File userLibJarFile = new File(libFolder, AVM_USERLIB_JAR);
+
+        if(!userLibJarFile.exists()) {
+            getLog().error(AVM_USERLIB_JAR + " not found in " + libFolder.getAbsolutePath());
+            return Collections.EMPTY_LIST;
+        }
+
+        List<String> userLibClasses = new ArrayList<>();
+        try (JarFile jar = new JarFile(userLibJarFile)) {
+
+            Enumeration<JarEntry> entries = jar.entries();
+
+            while(entries.hasMoreElements()) {
+                JarEntry entry = entries.nextElement();
+                String classNameWithSlash = entry.getName();
+
+                if(!classNameWithSlash.endsWith(".class"))
+                    continue;
+                else
+                    classNameWithSlash = classNameWithSlash.substring(0, classNameWithSlash.length() - 6); //remove .class ext
+
+
+                //exp: org.test.HelloAvm
+                String classNameWithDot = classNameWithSlash.replace("/", ".");
+                classNameWithDot = classNameWithDot.replace("\\", ".");
+
+                userLibClasses.add(classNameWithDot);
+            }
+
+
+        } catch (IOException e) {
+            getLog().error("Failed reading " + AVM_USERLIB_JAR, e);
+            return Collections.EMPTY_LIST;
+        }
+
+        return userLibClasses;
     }
 
     @Override
