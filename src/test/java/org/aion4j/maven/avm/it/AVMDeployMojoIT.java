@@ -21,5 +21,7 @@ public class AVMDeployMojoIT extends BaseTestHelper {
         verifier.executeGoal("aion4j:init");
         verifier.executeGoal("aion4j:deploy");
 
+        verifier.verifyTextInLog("dapp.jar was deployed successfully to the embedded AVM");
+
     }
 }

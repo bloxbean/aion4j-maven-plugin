@@ -9,7 +9,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 
-@Mojo(name = "prepack", defaultPhase = LifecyclePhase.PROCESS_CLASSES)
+@Mojo(name = "prepack", defaultPhase = LifecyclePhase.PREPARE_PACKAGE)
 public class AVMPrepackMojo extends AVMBaseMojo {
 
     private final static String AVM_USERLIB_JAR = "org-aion-avm-userlib.jar";

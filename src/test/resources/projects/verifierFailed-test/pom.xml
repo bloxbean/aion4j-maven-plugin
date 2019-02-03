@@ -1,0 +1,61 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.aion4j.maven.avm.testing</groupId>
+    <artifactId>verifierFailed-test</artifactId>
+    <packaging>jar</packaging>
+    <version>1.0</version>
+
+    <properties>
+        <maven.compiler.source>10</maven.compiler.source>
+        <maven.compiler.target>10</maven.compiler.target>
+        <aion4jPluginVersion>xxx</aion4jPluginVersion>
+        <avm.lib.dir>${basedir}/libtest</avm.lib.dir>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.aion</groupId>
+            <artifactId>avm</artifactId>
+            <version>0.0.1</version>
+            <scope>system</scope>
+            <systemPath>${avm.lib.dir}/avm.jar</systemPath>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.aion4j</groupId>
+                <artifactId>aion4j-maven-plugin</artifactId>
+                <version>${aion4jPluginVersion}</version>
+                <configuration>
+                    <avmLibDir>${avm.lib.dir}</avmLibDir>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>clean</goal>
+                            <goal>init</goal>
+                            <goal>prepack</goal>
+                            <goal>class-verifier</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M3</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.surefire</groupId>
+                        <artifactId>surefire-junit47</artifactId>
+                        <version>3.0.0-M3</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

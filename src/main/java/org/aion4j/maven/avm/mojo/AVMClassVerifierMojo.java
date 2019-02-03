@@ -1,6 +1,5 @@
 package org.aion4j.maven.avm.mojo;
 
-import com.google.common.base.VerifyException;
 import org.aion4j.maven.avm.exception.LocalAVMException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -68,7 +67,7 @@ public class AVMClassVerifierMojo extends AVMAbstractBaseMojo {
 
                 String className = getClassNameWithDot(outputPath, path);
 
-                if(className.startsWith("org.aion") || className.equals("module-info") ) //No need to verify if classname starts with org.aion
+                if(className.startsWith("org.aion.avm") || className.equals("module-info") ) //No need to verify if classname starts with org.aion
                     continue;
 
                 getLog().debug("Let's verify class : " + className);
