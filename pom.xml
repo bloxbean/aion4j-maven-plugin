@@ -116,6 +116,9 @@
             <plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>3.0.0-M3</version>
+                <configuration>
+                    <argLine>-Dplugin.version=${version}</argLine>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
