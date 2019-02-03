@@ -10,14 +10,21 @@ import org.objectweb.asm.ClassWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class AVMClassVerifier {
 
     private boolean isDebugMode;
+    private List<String> inputClasses;
 
     public AVMClassVerifier(boolean debugMode) {
         this.isDebugMode = debugMode;
+    }
+
+    public void setInputClasses(List<String> inputClasses) {
+        this.inputClasses = inputClasses;
     }
 
     public void verify(String clazz, String path) throws IOException {
@@ -30,11 +37,12 @@ public class AVMClassVerifier {
     }
 
     private byte[] commonFilterBytes(String classDotName, byte[] testBytes) throws IOException {
-        Set<String> userClassDotNameSet = Set.of(classDotName);
+        Set<String> userClassDotNameSet = new HashSet<>(inputClasses);
         PreRenameClassAccessRules singletonRules = createAccessRules(userClassDotNameSet);
         NamespaceMapper mapper = new NamespaceMapper(singletonRules);
         byte[] filteredBytes = new ClassToolchain.Builder(testBytes, 0)
                 .addNextVisitor(new RejectionClassVisitor(singletonRules, mapper, isDebugMode))
+                .addNextVisitor(new UserClassMappingVisitor(mapper, isDebugMode))
                 .addWriter(new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS))
                 .build()
                 .runAndGetBytecode();
