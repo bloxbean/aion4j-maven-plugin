@@ -77,7 +77,6 @@ public class AVMSendTxnMojo extends AVMLocalRuntimeBaseMojo {
         getLog().info("Method           : " + method);
         getLog().info("Arguments        : " + methodArgs);
 
-        BigInteger valueB = null;
         if(value == null || value.isEmpty())
             valueB = BigInteger.ZERO;
         else {

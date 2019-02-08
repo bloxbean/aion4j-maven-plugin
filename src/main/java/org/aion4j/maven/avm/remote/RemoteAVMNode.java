@@ -127,6 +127,9 @@ public class RemoteAVMNode {
             txnJo.put("gasPrice", gasPrice);
            // txnJo.put("type", 0xf);
             txnJo.put("data", "0x" + callData);
+            if(value != null) {
+                txnJo.put("value", value);
+            }
 
             paramArray.put(txnJo);
 
@@ -181,6 +184,9 @@ public class RemoteAVMNode {
             txnJo.put("gasPrice", gasPrice);
             // txnJo.put("type", 0xf);
             txnJo.put("data", "0x" + callData);
+            if(value != null) {
+                txnJo.put("value", value);
+            }
 
             paramArray.put(txnJo);
 

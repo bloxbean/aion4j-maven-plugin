@@ -183,9 +183,8 @@ public class LocalAvmNode {
 
 //        String callData = Helpers.bytesToHexString(arguments);
 //        System.out.println("******** Call data: " + callData);
-
         BigInteger biasedNonce = kernel.getNonce(sender);//.add(BigInteger.valueOf(nonceBias));
-        Transaction callTransaction = Transaction.call(sender, contract, biasedNonce, BigInteger.ZERO, arguments, energyLimit, energyPrice);
+        Transaction callTransaction = Transaction.call(sender, contract, biasedNonce, value, arguments, energyLimit, energyPrice);
         return new TransactionContextImpl(callTransaction, block);
 
     }
