@@ -8,6 +8,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import java.lang.reflect.Method;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -95,10 +96,13 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
 
         String password = ConfigUtil.getPropery("password");
 
-        if(address == null || address.isEmpty()) {
-            printRemoteHelp();
-            getLog().error("Deployer address cannot be null. Please set it through -D option in maven commandline.");
-            throw new MojoExecutionException("Invalid args. Please set deployer address through -D option or environment variable.");
+        String pk = getPrivateKey();
+        if(pk == null || pk.isEmpty()) {
+            if (address == null || address.isEmpty()) {
+                printRemoteHelp();
+                getLog().error("Deployer address cannot be null. Please set it through -D option in maven commandline.");
+                throw new MojoExecutionException("Invalid args. Please set deployer address through -D option or environment variable.");
+            }
         }
 
         //Get gas & gas price
@@ -124,17 +128,23 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
 
             RemoteAVMNode remoteAVMNode = new RemoteAVMNode(web3RpcUrl, getLog());
 
-            if(password != null && !password.isEmpty()) {
-                boolean status = remoteAVMNode.unlock(address, password);
+            String txHash = null;
+            if(pk != null && !pk.isEmpty()) {
+                txHash = remoteAVMNode.sendRawTransaction(null, pk, hexCode, BigInteger.ZERO, gas, gasPrice);
+            } else {
 
-                if(status) {
-                   getLog().info("Account unlocked successfully");
-                } else {
+                if (password != null && !password.isEmpty()) {
+                    boolean status = remoteAVMNode.unlock(address, password);
 
+                    if (status) {
+                        getLog().info("Account unlocked successfully");
+                    } else {
+
+                    }
                 }
-            }
 
-            String txHash = remoteAVMNode.deploy(address, hexCode,  gas, gasPrice);
+                txHash = remoteAVMNode.deploy(address, hexCode, gas, gasPrice);
+            }
 
             getLog().info(String.format("%s was deployed successfully.", dappJar));
             getLog().info(String.format("Transaction # : %s", txHash));

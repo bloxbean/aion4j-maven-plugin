@@ -71,7 +71,7 @@ public class AVMSendTxnMojo extends AVMLocalRuntimeBaseMojo {
 
         getLog().info("Contract Address : " + contract);
 
-        if(sender != null)
+        if(sender != null && getPrivateKey() == null)
             getLog().info("Sender Address   : " + sender);
 
         getLog().info("Method           : " + method);
@@ -127,7 +127,14 @@ public class AVMSendTxnMojo extends AVMLocalRuntimeBaseMojo {
 
             RemoteAVMNode remoteAVMNode = new RemoteAVMNode(web3RpcUrl, getLog());
 
-            String retData = remoteAVMNode.sendTransaction(contract, sender, encodedMethodCall, valueB, gas, gasPrice);
+            String retData = null;
+
+            String pk = getPrivateKey();
+            if(pk == null || pk.isEmpty()) {
+                retData = remoteAVMNode.sendTransaction(contract, sender, encodedMethodCall, valueB, gas, gasPrice);
+            } else {
+                retData = remoteAVMNode.sendRawTransaction(contract, pk, encodedMethodCall, valueB, gas, gasPrice);
+            }
 
             getLog().info("****************  Contract Txn result  ****************");
             getLog().info("Transaction receipt       :" + retData);

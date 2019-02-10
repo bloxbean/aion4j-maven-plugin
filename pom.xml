@@ -53,6 +53,12 @@
             <version>3.5.2</version>
             <scope>provided</scope>
         </dependency>
+        <!-- Needed for tx signing -->
+        <dependency>
+            <groupId>net.i2p.crypto</groupId>
+            <artifactId>eddsa</artifactId>
+            <version>0.3.0</version>
+        </dependency>
 
         <!-- Needed only for plugin compilation -->
         <dependency>

@@ -133,4 +133,9 @@ public abstract class AVMBaseMojo extends AbstractMojo {
             return 0;
         }
     }
+
+    protected String getPrivateKey() {
+        String pk = ConfigUtil.getPropery("pk");
+        return pk;
+    }
 }

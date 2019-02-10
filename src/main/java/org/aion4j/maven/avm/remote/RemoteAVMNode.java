@@ -5,7 +5,10 @@ import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.mashape.unirest.request.HttpRequestWithBody;
+import org.aion.base.util.ByteUtil;
 import org.aion4j.maven.avm.exception.AVMRuntimeException;
+import org.aion4j.maven.avm.signing.SignedTransactionBuilder;
+import org.aion4j.maven.avm.signing.TxTool;
 import org.apache.maven.plugin.logging.Log;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -17,6 +20,7 @@ import java.util.List;
 
 public class RemoteAVMNode {
     //test account 0xa052de3423a1e77f4c5f8500564e3601759143b7c0e652a7012d35eb67b283ca
+    //0x5e444d8bf64f9f6d9022cd245341e69d8b51af793367df3894f260b958a0d72aa060fe4538c5ea49dab8ef4ac9fc24933b9b9b4ed37eb20e070e49ce0b05b6f8
     //0xa0c40d2bb3e0248b16f4f1bd5735dc22cd84b580bbc301f8cebc83e25030c6ea
 
     private String web3RpcUrl;
@@ -217,6 +221,121 @@ public class RemoteAVMNode {
 
         } catch (UnirestException e) {
             throw new AVMRuntimeException("Contract transaction failed", e);
+        }
+    }
+
+    //contract transaction
+    public String sendRawTransaction(String destination, String privateKey, String callData, BigInteger value, long gas, long gasPrice) {
+        try {
+
+            log.info("Signing transaction ...");
+
+            String senderAddress = SignedTransactionBuilder.getAionAddress(privateKey);
+            log.info("Sender address: " + senderAddress);
+
+            String nonceHex = getTransactionCount(senderAddress);
+            BigInteger nonce = BigInteger.ZERO;
+
+            if(nonceHex != null) {
+                nonce = ByteUtil.bytesToBigInteger(ByteUtil.hexStringToBytes(nonceHex));
+            }
+
+            log.info("Sender's nonce: " + nonce);
+
+            String signedTx = null;
+            try {
+               // signedTx = TxTool.signWithPvtKey(privateKey, destination, value, callData, "f", nonce, gas, gasPrice );
+                signedTx = SignedTransactionBuilder.signWithPvtKey(privateKey, destination, value, callData, nonce, gas, gasPrice);
+            } catch (Exception e) {
+                //log.error("Transaction sign failed ", e);
+                throw new AVMRuntimeException("Txn signing failed ", e);
+            }
+
+            log.info("Sending raw contract transaction  ...");
+
+            JSONObject jo = getJsonHeader("eth_sendRawTransaction");
+            //jo.put("id", 45);
+
+            if(!signedTx.startsWith("0x"))
+                signedTx = "0x" + signedTx;
+
+            List params = new ArrayList();
+            params.add(signedTx);
+
+            JSONArray paramArray = new JSONArray();
+
+            jo.put("params", params);
+
+            log.info("Web3Rpc request data: " + jo.toString());
+
+            HttpResponse<JsonNode> jsonResponse = getHttpRequest()
+                    .body(jo)
+                    .asJson();
+
+            JsonNode jsonNode = jsonResponse.getBody();
+
+            if(jsonNode == null)
+                return null;
+
+            log.info("Response from Aion kernel: " + jsonNode.toString());
+
+            JSONObject jsonObject = jsonNode.getObject();
+
+            String error = getError(jsonObject);
+
+            if(error == null) {
+                return jsonObject.optString("result");
+            } else {
+                throw new AVMRuntimeException("Transaction failed. Reason: " + error);
+            }
+
+        } catch (Exception e) {
+            throw new AVMRuntimeException("Transaction failed", e);
+        }
+    }
+
+    /**
+     * Get transaction count. Needed to get nonce of an address
+     * @param address
+     * @return
+     */
+    public String getTransactionCount(String address) {
+        try {
+
+            log.info("Get nonce ...");
+
+            JSONObject jo = getJsonHeader("eth_getTransactionCount");
+            List params = new ArrayList();
+            params.add(address);
+            params.add("latest");
+
+            jo.put("params", params);
+
+            log.info("Web3Rpc request data for getTransactionCount: " + jo.toString());
+
+            HttpResponse<JsonNode> jsonResponse = getHttpRequest()
+                    .body(jo)
+                    .asJson();
+
+            JsonNode jsonNode = jsonResponse.getBody();
+
+            if(jsonNode == null)
+                return null;
+
+            log.info("Response from Aion kernel for getTransactionCount: " + jsonNode.toString());
+
+            JSONObject jsonObject = jsonNode.getObject();
+
+            String error = getError(jsonObject);
+
+            if(error == null) {
+                return jsonObject.optString("result");
+            } else {
+                throw new AVMRuntimeException("Getting nonce for the address failed. Reason: " + error);
+            }
+
+        } catch (Exception e) {
+            throw new AVMRuntimeException("Getting nonce for the address failed. Reason: ", e);
         }
     }
 
