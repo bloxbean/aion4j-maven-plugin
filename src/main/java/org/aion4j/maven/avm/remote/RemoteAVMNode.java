@@ -386,6 +386,14 @@ public class RemoteAVMNode {
     public String transfer(String from, String to, BigInteger value, long gas, long gasPrice) {
 
         try {
+            String nonceHex = getTransactionCount(from);
+            BigInteger nonce = BigInteger.ZERO;
+
+            if(nonceHex != null) {
+                nonce = ByteUtil.bytesToBigInteger(ByteUtil.hexStringToBytes(nonceHex));
+            }
+
+            log.info("Sender's nonce: " + nonce);
 
             log.info("Sending transfer transaction  ...");
 
@@ -402,7 +410,8 @@ public class RemoteAVMNode {
             txnJo.put("value", value);
             txnJo.put("gas", gas);
             txnJo.put("gasPrice", gasPrice);
-            // txnJo.put("type", 0xf);
+            txnJo.put("nonce", nonceHex);
+
             txnJo.put("data", "");
 
             paramArray.put(txnJo);

@@ -234,7 +234,6 @@ public final class SignedTransactionBuilder {
         if(skString != null && skString.startsWith("0x"))
             skString = skString.substring(2);
 
-        System.out.println("pvt key: " + skString);
         String skEncoded = "302e020100300506032b657004220420" + skString;
         //System.out.println("length: " + hexToBytes(skEncoded).length );
         byte[] bytes = hexToBytes(skEncoded);

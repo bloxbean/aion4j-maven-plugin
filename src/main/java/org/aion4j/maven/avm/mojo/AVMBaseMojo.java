@@ -135,6 +135,9 @@ public abstract class AVMBaseMojo extends AbstractMojo {
     }
 
     protected String getPrivateKey() {
+        if(isLocal()) //Private key is disabled for embedded AVM.
+            return null;
+
         String pk = ConfigUtil.getPropery("pk");
         return pk;
     }

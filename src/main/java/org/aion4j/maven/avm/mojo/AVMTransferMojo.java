@@ -39,9 +39,23 @@ public class AVMTransferMojo extends AVMBaseMojo {
 
         String password = ConfigUtil.getPropery("password");
 
-        if(from == null || from.isEmpty() || to == null || to.isEmpty() || value == null || value.isEmpty()) {
+        String pk = getPrivateKey();
+
+        if(pk == null || pk.isEmpty()) { //Provide from if pk is not specified
+            if(from == null || from.isEmpty()) {
+                printHelp();
+                throw new MojoExecutionException("Invalid args:  \"from\" property is missing");
+            }
+        }
+
+        if(to == null || to.isEmpty()) {
             printHelp();
-            throw new MojoExecutionException("Invalid args");
+            throw new MojoExecutionException("Invalid args: \"to\" property is missing");
+        }
+
+        if(value == null || value.isEmpty()) {
+            printHelp();
+            throw new MojoExecutionException("Invalid args: \"value\" property is missing");
         }
 
         BigInteger valueInAmp = BigInteger.ZERO;
@@ -53,14 +67,22 @@ public class AVMTransferMojo extends AVMBaseMojo {
             throw new MojoExecutionException("Invalid value or amount. " + value, ex);
         }
 
+        String txReceipt = null;
+
+
         RemoteAVMNode remoteAVMNode = new RemoteAVMNode(web3RpcUrl, getLog());
 
-        if(password != null && !password.trim().isEmpty()) {
-            //unlock
-            remoteAVMNode.unlock(from, password);
-        }
+        if(pk != null && !pk.isEmpty()) {
+            txReceipt = remoteAVMNode.sendRawTransaction(to, pk, "", valueInAmp, gas, gasPrice);
+        } else {
 
-        String txReceipt = remoteAVMNode.transfer(from, to, valueInAmp, gas, gasPrice);
+            if (password != null && !password.trim().isEmpty()) {
+                //unlock
+                remoteAVMNode.unlock(from, password);
+            }
+
+            txReceipt = remoteAVMNode.transfer(from, to, valueInAmp, gas, gasPrice);
+        }
 
         if(txReceipt != null){
 
