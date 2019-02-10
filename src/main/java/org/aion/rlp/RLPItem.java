@@ -47,7 +47,7 @@ public class RLPItem implements RLPElement {
     private final byte[] rlpData;
 
     /**
-     * @Jay inside the RLP encode/decode logic, there is no difference between null obj and
+     * Jay inside the RLP encode/decode logic, there is no difference between null obj and
      * zero-byte array Therefore, put empty array when we see the input data is null
      *
      * @param rlpData
@@ -57,7 +57,7 @@ public class RLPItem implements RLPElement {
     }
 
     public byte[] getRLPData() {
-        // @Jay
+        // Jay
         // TODO: the ethereumJ implement the comment code piece, it will make
         // ambiguous with the null RLPItem and the
         // Empty byte array

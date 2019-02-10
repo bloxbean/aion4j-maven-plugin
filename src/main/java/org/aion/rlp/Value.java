@@ -148,7 +148,7 @@ public class Value {
     }
 
     /**
-     * @implNote If called for values that are not strings or byte arrays it will return an empty
+     * ImplNote If called for values that are not strings or byte arrays it will return an empty
      *     string.
      */
     public String asString() {
@@ -162,7 +162,7 @@ public class Value {
     }
 
     /**
-     * @implNote If called for values that are not strings or byte arrays it will return an empty
+     * ImplNote If called for values that are not strings or byte arrays it will return an empty
      *     byte array.
      */
     public byte[] asBytes() {

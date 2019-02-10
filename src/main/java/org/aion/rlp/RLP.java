@@ -183,7 +183,7 @@ public class RLP {
         return rlpList;
     }
 
-    /** @implNote Considers only encodings of one byte. */
+    /** ImplNote Considers only encodings of one byte. */
     public static RLPElement decode2OneItem(byte[] msgData, int startPos) {
         RLPList rlpList = new RLPList();
         fullTraverse(msgData, 0, startPos, startPos + 1, rlpList);
@@ -640,7 +640,7 @@ public class RLP {
     }
 
     /**
-     * @implNote The interpretation of long element here is anything that requires an non-empty
+     * ImplNote The interpretation of long element here is anything that requires an non-empty
      *     header and is not a list.
      */
     public static byte[] encodeLongElementHeader(int length) {
