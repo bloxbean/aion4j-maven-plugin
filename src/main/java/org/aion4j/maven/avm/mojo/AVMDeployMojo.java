@@ -2,7 +2,6 @@ package org.aion4j.maven.avm.mojo;
 
 import org.aion4j.maven.avm.remote.RemoteAVMNode;
 import org.aion4j.maven.avm.util.ConfigUtil;
-import org.aion4j.maven.avm.util.DeployResultConfig;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.ResolutionScope;
@@ -69,7 +68,7 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
                     .info(String.format("%s was deployed successfully to the embedded AVM.", getDappJar()));
 
             //Update deploy status properties
-            DeployResultConfig.updateDeployAddress(project.getName(), getStoragePath() , dappAddress);
+            getCache().updateDeployAddress(dappAddress);
 
         } catch (Exception ex) {
             getLog()
@@ -148,6 +147,9 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
 
             getLog().info(String.format("%s was deployed successfully.", dappJar));
             getLog().info(String.format("Transaction # : %s", txHash));
+
+            //Update TxReceipt status properties
+            getCache().updateDeployTxnReceipt(txHash);
 
         } catch (Exception e) {
             e.printStackTrace();

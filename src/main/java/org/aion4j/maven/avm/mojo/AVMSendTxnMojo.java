@@ -3,7 +3,6 @@ package org.aion4j.maven.avm.mojo;
 import org.aion4j.maven.avm.exception.CallFailedException;
 import org.aion4j.maven.avm.remote.RemoteAVMNode;
 import org.aion4j.maven.avm.util.ConfigUtil;
-import org.aion4j.maven.avm.util.DeployResultConfig;
 import org.aion4j.maven.avm.util.MethodCallArgsUtil;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -45,22 +44,23 @@ public class AVMSendTxnMojo extends AVMLocalRuntimeBaseMojo {
         methodArgs = ConfigUtil.getPropery("args");
         value = ConfigUtil.getPropery("value");
 
-        if(contract == null || contract.isEmpty()) {
+        if (contract == null || contract.isEmpty()) {
 
-            if(isLocal()) {
-                String lastDeployAddress = DeployResultConfig.getLastDeployedAddress(project.getName(), getStoragePath());
+            String lastDeployAddress = getCache().getLastDeployedAddress();
 
-                if (lastDeployAddress == null || lastDeployAddress.isEmpty()) {
-                    getLog().error("Contract address is missing. You need to deploy the contract first using aion4j:deploy." +
-                            "\n Also you can pass the contract address from commandline.");
-                    printHelp();
-                    throw new MojoExecutionException("Contract address is missing");
-                } else {
-                    contract = lastDeployAddress;
-                }
+            if (lastDeployAddress == null || lastDeployAddress.isEmpty()) {
+                getLog().error("Contract address is missing. You need to deploy the contract first using aion4j:deploy." +
+                        "\n Also you can pass the contract address from commandline.");
+                printHelp();
+                throw new MojoExecutionException("Contract address is missing");
             } else {
+                contract = lastDeployAddress;
+            }
+
+            if (lastDeployAddress == null || lastDeployAddress.isEmpty()) {
                 printHelp();
             }
+
         }
 
         if(method == null || method.isEmpty()) {
@@ -87,9 +87,9 @@ public class AVMSendTxnMojo extends AVMLocalRuntimeBaseMojo {
 
     private void printHelp() {
         getLog().info("Usage:");
-        getLog().info("./mvnw  aion4j:send-txn [-Dcontract=<contract_address>] [-Daddress=<sender_address>]  -Dmethod=<method_name> [-Dvalue=<value>] [-Dargs=<method_args>]");
+        getLog().info("./mvnw  aion4j:contract-txn [-Dcontract=<contract_address>] [-Daddress=<sender_address>]  -Dmethod=<method_name> [-Dvalue=<value>] [-Dargs=<method_args>]");
         getLog().info("Example:");
-        getLog().info("./mvnw aion4j:send-txn -Dcontract=0x1122334455667788112233445566778811223344556677881122334455667788 -Daddress=0xa003ddd...  -Dmethod=transfer -Dargs=\"-A 0x1122334455667788112233445566778811223344556677881122334455667788 -J 100\"\n");
+        getLog().info("./mvnw aion4j:contract-txn -Dcontract=0x1122334455667788112233445566778811223344556677881122334455667788 -Daddress=0xa003ddd...  -Dmethod=transfer -Dargs=\"-A 0x1122334455667788112233445566778811223344556677881122334455667788 -J 100\"\n");
     }
 
     @Override
@@ -135,6 +135,10 @@ public class AVMSendTxnMojo extends AVMLocalRuntimeBaseMojo {
             } else {
                 retData = remoteAVMNode.sendRawTransaction(contract, pk, encodedMethodCall, valueB, gas, gasPrice);
             }
+
+            //Update txn receipt for next call
+            if(retData != null && !retData.isEmpty())
+                getCache().updateTxnReceipt(retData);
 
             getLog().info("****************  Contract Txn result  ****************");
             getLog().info("Transaction receipt       :" + retData);

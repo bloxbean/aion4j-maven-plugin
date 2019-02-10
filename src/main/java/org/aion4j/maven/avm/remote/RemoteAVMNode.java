@@ -446,7 +446,7 @@ public class RemoteAVMNode {
         }
     }
 
-    public String getReceipt(String txHash) {
+    public JSONObject getReceipt(String txHash) {
 
         try {
 
@@ -475,7 +475,7 @@ public class RemoteAVMNode {
             String error = getError(jsonObject);
 
             if(error == null) {
-                return jsonObject.toString();//jsonObject.optString("result");
+                return jsonObject;//jsonObject.optString("result");
             } else {
                 throw new AVMRuntimeException("getRecipt call failed. Reason: " + error);
             }

@@ -1,6 +1,7 @@
 package org.aion4j.maven.avm.mojo;
 
 import org.aion4j.maven.avm.util.ConfigUtil;
+import org.aion4j.maven.avm.util.ResultCache;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -78,6 +79,8 @@ public abstract class AVMBaseMojo extends AbstractMojo {
         this.web3rpcUrl = web3rpcUrl;
     }
 
+    private ResultCache cache;
+
     public boolean isLocal() {
         if("local".equals(getMode()))
             return true;
@@ -140,5 +143,12 @@ public abstract class AVMBaseMojo extends AbstractMojo {
 
         String pk = ConfigUtil.getPropery("pk");
         return pk;
+    }
+
+    protected ResultCache getCache() {
+        if(cache == null)
+            cache = new ResultCache(project.getName(), isLocal()? getStoragePath(): project.getBuild().getOutputDirectory());
+
+        return cache;
     }
 }

@@ -3,7 +3,6 @@ package org.aion4j.maven.avm.mojo;
 import org.aion4j.maven.avm.exception.CallFailedException;
 import org.aion4j.maven.avm.remote.RemoteAVMNode;
 import org.aion4j.maven.avm.util.ConfigUtil;
-import org.aion4j.maven.avm.util.DeployResultConfig;
 import org.aion4j.maven.avm.util.MethodCallArgsUtil;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -78,18 +77,18 @@ public class AVMCallMajo extends AVMLocalRuntimeBaseMojo {
 
         if(contract == null || contract.isEmpty()) {
 
-            if(isLocal()) {
-                String lastDeployAddress = DeployResultConfig.getLastDeployedAddress(project.getName(), getStoragePath());
+            String lastDeployAddress = getCache().getLastDeployedAddress();
 
-                if (lastDeployAddress == null || lastDeployAddress.isEmpty()) {
-                    getLog().error("Contract address is missing. You need to deploy the contract first using aion4j:deploy." +
-                            "\n Also you can pass the contract address from commandline.");
-                    printHelp();
-                    throw new MojoExecutionException("Contract address is missing");
-                } else {
-                    contract = lastDeployAddress;
-                }
+            if (lastDeployAddress == null || lastDeployAddress.isEmpty()) {
+                getLog().error("Contract address is missing. You need to deploy the contract first using aion4j:deploy." +
+                        "\n Also you can pass the contract address from commandline.");
+                printHelp();
+                throw new MojoExecutionException("Contract address is missing");
             } else {
+                contract = lastDeployAddress;
+            }
+
+            if (lastDeployAddress == null || lastDeployAddress.isEmpty()) {
                 printHelp();
             }
         }

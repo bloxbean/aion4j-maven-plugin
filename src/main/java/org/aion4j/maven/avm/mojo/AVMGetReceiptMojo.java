@@ -5,6 +5,7 @@ import org.aion4j.maven.avm.util.ConfigUtil;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.json.JSONObject;
 
 //Only support remote kernel
 @Mojo(name = "get-receipt")
@@ -20,18 +21,40 @@ public class AVMGetReceiptMojo extends AVMBaseMojo {
         String web3RpcUrl = resolveWeb3rpcUrl();
         String txHash = ConfigUtil.getPropery("txHash");
 
+        String cachedTxHash = null;
         if(txHash == null || txHash.isEmpty()) {
-            printHelp();
-            throw new MojoExecutionException("Invalid args");
+
+            cachedTxHash = getCache().getLastTxnReceipt();
+
+            if(cachedTxHash == null || cachedTxHash.isEmpty()) {
+                printHelp();
+                throw new MojoExecutionException("Invalid args. \"txHash\" property is missing");
+            } else {
+                txHash = cachedTxHash;
+            }
         }
 
         try {
             RemoteAVMNode remoteAVMNode = new RemoteAVMNode(web3RpcUrl, getLog());
 
-            String receipt = remoteAVMNode.getReceipt(txHash);
+            JSONObject response = remoteAVMNode.getReceipt(txHash);
+
+            JSONObject resultObj = response.optJSONObject("result");
+
+            if(resultObj == null) {
+            } else {
+                String contractAddress = resultObj.optString("contractAddress");
+                if(contractAddress != null && !contractAddress.isEmpty()) {
+                    //Update contract address in cache.
+                    //Update deploy status properties
+                    getCache().updateDeployAddress(contractAddress);
+                } else {
+                }
+            }
 
             getLog().info("Txn Receipt: \n");
-            getLog().info(receipt);
+            getLog().info(response.toString());
+
         } catch (Exception e) {
             getLog().debug(e);
             throw new MojoExecutionException(e.getMessage(), e);
