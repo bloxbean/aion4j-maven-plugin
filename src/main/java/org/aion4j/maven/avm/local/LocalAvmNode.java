@@ -5,24 +5,25 @@ import org.aion.avm.api.ABIEncoder;
 import org.aion.avm.core.CommonAvmFactory;
 import org.aion.avm.core.util.CodeAndArguments;
 import org.aion.avm.core.util.Helpers;
+import org.aion.avm.core.util.StorageWalker;
 import org.aion.kernel.*;
-import org.aion.vm.api.interfaces.Address;
-import org.aion.vm.api.interfaces.TransactionContext;
-import org.aion.vm.api.interfaces.TransactionResult;
-import org.aion.vm.api.interfaces.VirtualMachine;
+import org.aion.vm.api.interfaces.*;
 import org.aion4j.maven.avm.api.CallResponse;
 import org.aion4j.maven.avm.api.DeployResponse;
 import org.aion4j.maven.avm.exception.CallFailedException;
 import org.aion4j.maven.avm.exception.DeploymentFailedException;
 import org.aion4j.maven.avm.exception.LocalAVMException;
+import org.aion4j.maven.avm.util.HexUtil;
 import org.aion4j.maven.avm.util.MethodCallArgsUtil;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 public class LocalAvmNode {
 
@@ -108,14 +109,19 @@ public class LocalAvmNode {
             byte[] retData = result.getReturnData();
 
             if(retData != null) {
-                Object retObj = ABIDecoder.decodeOneObject(retData);
-                response.setData(retObj);
+                try {
+                    Object retObj = ABIDecoder.decodeOneObject(retData);
+                    response.setData(retObj);
+                } catch (Exception e) {
+                    response.setData(HexUtil.bytesToHexString(retData));
+                }
             } else {
                 response.setData(null);
             }
 
             response.setEnergyUsed(((AvmTransactionResult) result).getEnergyUsed());
             response.setStatusMessage(result.getResultCode().toString());
+            printExecutionLog(txContext);
 
             return response;
         } else {
@@ -124,6 +130,31 @@ public class LocalAvmNode {
             //failed.
             throw new CallFailedException(String.format("Dapp call failed. Code: %s, Reason: %s",
                     result.getResultCode().toString(), resultData));
+        }
+    }
+
+    private void printExecutionLog(TransactionContext txContext) {
+        //Logs
+        List<IExecutionLog> executionLogs = txContext.getSideEffects().getExecutionLogs();
+        if(executionLogs != null && executionLogs.size() > 0) {
+            System.out.println("************************ Execution Logs ****************************");
+
+            executionLogs.forEach(exLog -> {
+                System.out.println("Hex Data: " + HexUtil.bytesToHexString(exLog.getData()));
+
+                if(exLog.getTopics() != null) {
+                    List<byte[]> topics = exLog.getTopics();
+
+                    if(topics != null) {
+                        for(byte[] topic: topics) {
+                            System.out.println("Topic: " + HexUtil.bytesToHexString(topic));
+                        }
+                    }
+                }
+                System.out.println("  ");
+            });
+
+            System.out.println("************************ Execution Logs ****************************\n");
         }
     }
 
@@ -218,6 +249,15 @@ public class LocalAvmNode {
             return balance;
     }
 
+    public void explore(String dappAddress, PrintStream printStream) throws Exception {
+
+        try {
+            StorageWalker.walkAllStaticsForDapp(printStream, kernel, AvmAddress.wrap(HexUtil.hexStringToBytes(dappAddress)));
+        } catch (Exception ex) {
+            throw new RuntimeException("Unable to explore storage for dApp : " + dappAddress, ex);
+        }
+    }
+
     //Called for remote
     public static String getBytesForDeploy(String dappJarPath) {
         try {
@@ -234,6 +274,15 @@ public class LocalAvmNode {
     //called from remote impl to encode method call args
     public static String encodeMethodCall(String method, Object[] args) {
         return Helpers.bytesToHexString(ABIEncoder.encodeMethodArguments(method, args));
+    }
+
+    //called for remote impl to decode hexstring to object
+    public static Object decodeResult(String hex) {
+        try {
+            return ABIDecoder.decodeOneObject(HexUtil.hexStringToBytes(hex));
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private static void verifyStorageExists(String storageRoot) {

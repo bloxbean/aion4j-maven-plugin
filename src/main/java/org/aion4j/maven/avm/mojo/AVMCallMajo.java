@@ -159,8 +159,14 @@ public class AVMCallMajo extends AVMLocalRuntimeBaseMojo {
 
             String retData = remoteAVMNode.call(contract, sender, encodedMethodCall, valueB, gas, gasPrice);
 
+            Object decodedValue = decodeCallResultForRemote(retData, localAvmClazz);
+
             getLog().info("****************  Method call result  ****************");
-            getLog().info("Data       :" + retData);
+            getLog().info("Data          :" + retData);
+
+            if(decodedValue != null)
+                getLog().info("Decoded value :" + decodedValue);
+
             getLog().info("******************************************************");
 
         } catch (Exception ex) {
@@ -170,5 +176,21 @@ public class AVMCallMajo extends AVMLocalRuntimeBaseMojo {
             throw new MojoExecutionException("Method call failed", ex);
         }
 
+    }
+
+    private Object decodeCallResultForRemote(String retData, Class localAvmClazz) {
+        if(retData == null || retData.isEmpty())
+            return null;
+
+        try {
+            Method decodeResultMethod = localAvmClazz.getMethod("decodeResult", String.class);
+            Object decodedValue = decodeResultMethod.invoke(null, retData);
+
+            return decodedValue;
+
+        } catch (Exception e) {
+            getLog().debug("Result decoding failed for data:  " + retData, e);
+            return null;
+        }
     }
 }
