@@ -3,7 +3,7 @@
     <groupId>org.aion4j</groupId>
     <artifactId>aion4j-maven-plugin</artifactId>
     <packaging>maven-plugin</packaging>
-    <version>0.4.5</version>
+    <version>0.4.6-SNAPSHOT</version>
     <name>aion4j-maven-plugin Maven Mojo</name>
     <description>Maven plugin for AVM based smart contract development on Aion blockchain</description>
     <url>https://github.com/satran004/aion4j-maven-plugin</url>
@@ -24,7 +24,7 @@
         <url>https://github.com/satran004/aion4j-maven-plugin/</url>
         <connection>scm:git:git@github.com:satran004/aion4j-maven-plugin.git</connection>
         <developerConnection>scm:git:git@github.com:satran004/aion4j-maven-plugin.git</developerConnection>
-      <tag>aion4j-maven-plugin-0.4.5</tag>
+      <tag>HEAD</tag>
   </scm>
 
     <properties>
