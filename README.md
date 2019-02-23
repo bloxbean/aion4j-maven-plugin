@@ -13,7 +13,7 @@ Following maven goals has been implemented in this plugin :
 7. aion4j:class-verifier - To verify JCL whiltelist classes in the contract
 8. aion4j:deploy - Extend the deploy goal for remote deployment.
 
-For all the supported goals, check this [page](https://github.com/satran004/aion4j-maven-plugin/wiki/Aion4j-Maven-Plugin---Goals).
+For all the supported goals, check this [page](https://github.com/satran004/aion4j-maven-plugin/wiki/Aion4j-Maven-Plugin---Goals-(In-Progress)).
 
 [Quick Start Guide](https://github.com/satran004/aion4j-maven-plugin/wiki/Quick-Start-with-embedded-AVM)
 
