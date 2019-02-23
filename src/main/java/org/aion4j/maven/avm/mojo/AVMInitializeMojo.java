@@ -41,7 +41,7 @@ public class AVMInitializeMojo extends AVMBaseMojo {
             getLog().info(String
                 .format("%s doesn't exist. Copying the default %s to %s folder.", AVM_JAR, AVM_JAR,
                     getAvmLibDir()));
-            copyLibJar(AVM_JAR, AVM_RESOURCE_FOLDER + File.separator + AVM_JAR, getAvmLibDir());
+            copyLibJar(AVM_JAR, AVM_RESOURCE_FOLDER + "/" + AVM_JAR, getAvmLibDir());
 
             bundledVersion = true;
         }
@@ -50,7 +50,7 @@ public class AVMInitializeMojo extends AVMBaseMojo {
             getLog().info(String
                 .format("%s doesn't exist. Copying the default %s to %s folder.", AVM_API_JAR,
                     AVM_API_JAR, getAvmLibDir()));
-            copyLibJar(AVM_API_JAR, AVM_RESOURCE_FOLDER + File.separator + AVM_API_JAR,
+            copyLibJar(AVM_API_JAR, AVM_RESOURCE_FOLDER + "/" + AVM_API_JAR,
                 getAvmLibDir());
         }
 
@@ -58,7 +58,7 @@ public class AVMInitializeMojo extends AVMBaseMojo {
             getLog().info(String
                 .format("%s doesn't exist. Copying the default %s to %s folder.", AVM_USERLIB_JAR,
                     AVM_USERLIB_JAR, getAvmLibDir()));
-            copyLibJar(AVM_USERLIB_JAR, AVM_RESOURCE_FOLDER + File.separator + AVM_USERLIB_JAR,
+            copyLibJar(AVM_USERLIB_JAR, AVM_RESOURCE_FOLDER + "/" + AVM_USERLIB_JAR,
                 getAvmLibDir());
         }
 
@@ -66,7 +66,7 @@ public class AVMInitializeMojo extends AVMBaseMojo {
             getLog().info(String
                 .format("%s doesn't exist. Copying the default %s to %s folder.", VERSION_FILE,
                     VERSION_FILE, getAvmLibDir()));
-            copyLibJar(VERSION_FILE, AVM_RESOURCE_FOLDER + File.separator + VERSION_FILE,
+            copyLibJar(VERSION_FILE, AVM_RESOURCE_FOLDER + "/" + VERSION_FILE,
                 getAvmLibDir());
         }
     }
