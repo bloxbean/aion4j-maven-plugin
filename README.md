@@ -33,12 +33,12 @@ $> ./mvnw initialize
 ```
 2. Compile the plugin
 ```
-$> ./mvnw clean install -DskipITs
+$> ./mvnw clean install
 ```
 
 3. Run integration tests
 ```
-$>  ./mvnw integration-test
+$>  ./mvnw integration-test -DskipITs=false
 ```
 
 **How to configure this plugin in a dapp maven project**
