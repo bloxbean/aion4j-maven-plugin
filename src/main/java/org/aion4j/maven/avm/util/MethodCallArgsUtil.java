@@ -1,7 +1,7 @@
 package org.aion4j.maven.avm.util;
 
 import org.aion.avm.core.util.Helpers;
-import org.aion.kernel.AvmAddress;
+import org.aion.types.Address;
 import org.aion4j.maven.avm.exception.MethodArgsParseException;
 import org.apache.maven.shared.utils.cli.CommandLineUtils;
 
@@ -37,7 +37,7 @@ public class MethodCallArgsUtil {
                     else if(type.equals("-D")) args.add(Double.valueOf(token));
                     else if(type.equals("-B")) args.add(Byte.valueOf(token));
                     else if(type.equals("-Z")) args.add(Boolean.valueOf(token));
-                    else if(type.equals("-A")) args.add(AvmAddress.wrap(Helpers.hexStringToBytes(token)));
+                    else if(type.equals("-A")) args.add(Address.wrap(Helpers.hexStringToBytes(token)));
                     else if(type.equals("-T")) args.add(token);
                 }
             }

@@ -2,11 +2,14 @@ package org.aion4j.maven.avm.local;
 
 import org.aion.avm.api.ABIDecoder;
 import org.aion.avm.api.ABIEncoder;
+import org.aion.avm.core.AvmConfiguration;
 import org.aion.avm.core.CommonAvmFactory;
 import org.aion.avm.core.util.CodeAndArguments;
 import org.aion.avm.core.util.Helpers;
 import org.aion.avm.core.util.StorageWalker;
+import org.aion.avm.tooling.StandardCapabilities;
 import org.aion.kernel.*;
+import org.aion.types.Address;
 import org.aion.vm.api.interfaces.*;
 import org.aion4j.maven.avm.api.CallResponse;
 import org.aion4j.maven.avm.api.DeployResponse;
@@ -27,7 +30,7 @@ import java.util.List;
 
 public class LocalAvmNode {
 
-    private org.aion.vm.api.interfaces.Address defaultAddress; // = KernelInterfaceImpl.PREMINED_ADDRESS;
+    private Address defaultAddress; // = KernelInterfaceImpl.PREMINED_ADDRESS;
     Block block = new Block(new byte[32], 1, Helpers.randomAddress(), System.currentTimeMillis(), new byte[0]);
 
     private  VirtualMachine avm;
@@ -40,7 +43,7 @@ public class LocalAvmNode {
         if(storagePath.isEmpty())
             throw new LocalAVMException("Storage path cannot be null for embedded Avm deployment");
 
-        defaultAddress = AvmAddress.wrap(Helpers.hexStringToBytes(senderAddress));
+        defaultAddress = Address.wrap(Helpers.hexStringToBytes(senderAddress));
 
         init(storagePath);
     }
@@ -58,7 +61,12 @@ public class LocalAvmNode {
             System.out.println(String.format("Created default account %s with balance %s", defaultAddress, BigInteger.valueOf(100000000000000L) ));
         }
 
-        avm = CommonAvmFactory.buildAvmInstance(kernel);
+        AvmConfiguration avmConfiguration = new AvmConfiguration();
+        avmConfiguration.enableVerboseConcurrentExecutor=getAvmConfigurationBooleanProps("enableVerboseConcurrentExecutor", false);
+        avmConfiguration.enableVerboseContractErrors=getAvmConfigurationBooleanProps("enableVerboseContractErrors", true);
+        avmConfiguration.preserveDebuggability=getAvmConfigurationBooleanProps("preserveDebuggability", true);
+
+        avm = CommonAvmFactory.buildAvmInstanceForConfiguration(new StandardCapabilities(), avmConfiguration);
     }
 
     public DeployResponse deploy(String jarFilePath) throws DeploymentFailedException {
@@ -72,7 +80,7 @@ public class LocalAvmNode {
         if(deployer == null || deployer.isEmpty())
             deployerAddress = defaultAddress;
         else
-            deployerAddress = AvmAddress.wrap(Helpers.hexStringToBytes(deployer));
+            deployerAddress = Address.wrap(Helpers.hexStringToBytes(deployer));
 
         TransactionContext txContext = createDeployTransaction(jarFilePath, deployerAddress, BigInteger.ZERO);
 
@@ -83,14 +91,14 @@ public class LocalAvmNode {
 
     public CallResponse call(String contract, String sender, String method, String argsString, BigInteger value) throws CallFailedException {
 
-        Address contractAddress = AvmAddress.wrap(Helpers.hexStringToBytes(contract));
+        Address contractAddress = Address.wrap(Helpers.hexStringToBytes(contract));
 
         Address senderAddress = null;
 
         if(sender == null || sender.isEmpty())
             senderAddress = defaultAddress;
         else
-            senderAddress = AvmAddress.wrap(Helpers.hexStringToBytes(sender));
+            senderAddress = Address.wrap(Helpers.hexStringToBytes(sender));
 
         Object[] args = null;
         try {
@@ -101,7 +109,7 @@ public class LocalAvmNode {
 
         TransactionContext txContext = createCallTransaction(contractAddress, senderAddress, method, args, value, energyLimit, energyPrice);
 
-        TransactionResult result = avm.run(new TransactionContext[]{txContext})[0].get();
+        TransactionResult result = avm.run(kernel, new TransactionContext[]{txContext})[0].get();
 
         if(result.getResultCode().isSuccess()) {
             CallResponse response = new CallResponse();
@@ -126,10 +134,17 @@ public class LocalAvmNode {
             return response;
         } else {
 
-            String resultData = Helpers.bytesToHexString(result.getReturnData());
-            //failed.
-            throw new CallFailedException(String.format("Dapp call failed. Code: %s, Reason: %s",
-                    result.getResultCode().toString(), resultData));
+            byte[] retData = result.getReturnData();
+            if(retData != null) {
+
+                String resultData = Helpers.bytesToHexString(retData);
+                //failed.
+                throw new CallFailedException(String.format("Dapp call failed. Code: %s, Reason: %s",
+                        result.getResultCode().toString(), resultData));
+            } else {
+                throw new CallFailedException(String.format("Dapp call failed. Code: %s, Reason: %s",
+                        result.getResultCode().toString(), retData));
+            }
         }
     }
 
@@ -160,7 +175,7 @@ public class LocalAvmNode {
 
     private DeployResponse createDApp(TransactionContext txContext) throws DeploymentFailedException {
 
-        TransactionResult result = avm.run(new TransactionContext[] {txContext})[0].get();
+        TransactionResult result = avm.run(kernel, new TransactionContext[] {txContext})[0].get();
 
         if(result.getResultCode().isSuccess()) {
             DeployResponse deployResponse = new DeployResponse();
@@ -195,7 +210,7 @@ public class LocalAvmNode {
         Transaction createTransaction = Transaction.create(sender, kernel.getNonce(sender),
             value, new CodeAndArguments(jar, null).encodeToBytes(), energyLimit, energyPrice);
 
-        return new TransactionContextImpl(createTransaction, block);
+        return TransactionContextImpl.forExternalTransaction(createTransaction, block);
 
     }
 
@@ -216,13 +231,13 @@ public class LocalAvmNode {
 //        System.out.println("******** Call data: " + callData);
         BigInteger biasedNonce = kernel.getNonce(sender);//.add(BigInteger.valueOf(nonceBias));
         Transaction callTransaction = Transaction.call(sender, contract, biasedNonce, value, arguments, energyLimit, energyPrice);
-        return new TransactionContextImpl(callTransaction, block);
+        return TransactionContextImpl.forExternalTransaction(callTransaction, block);
 
     }
 
     public boolean createAccountWithBalance(String address, BigInteger balance) {
 
-        Address account = AvmAddress.wrap(Helpers.hexStringToBytes(address));
+        Address account = Address.wrap(Helpers.hexStringToBytes(address));
 
         //Open account
         if(kernel.getBalance(account) == null || kernel.getBalance(account) == BigInteger.ZERO) {
@@ -239,7 +254,7 @@ public class LocalAvmNode {
 
     public BigInteger getBalance(String address) {
 
-        Address account = AvmAddress.wrap(Helpers.hexStringToBytes(address));
+        Address account = Address.wrap(Helpers.hexStringToBytes(address));
 
         BigInteger balance = kernel.getBalance(account);
 
@@ -252,7 +267,7 @@ public class LocalAvmNode {
     public void explore(String dappAddress, PrintStream printStream) throws Exception {
 
         try {
-            StorageWalker.walkAllStaticsForDapp(printStream, kernel, AvmAddress.wrap(HexUtil.hexStringToBytes(dappAddress)));
+            StorageWalker.walkAllStaticsForDapp(printStream, kernel, Address.wrap(HexUtil.hexStringToBytes(dappAddress)));
         } catch (Exception ex) {
             throw new RuntimeException("Unable to explore storage for dApp : " + dappAddress, ex);
         }
@@ -298,6 +313,23 @@ public class LocalAvmNode {
 
     public void shutdown() {
         avm.shutdown();
+    }
+
+    private static boolean getAvmConfigurationBooleanProps(String name, boolean defaultValue) {
+
+        String value = System.getProperty(name);
+
+        if(value != null && !value.isEmpty())
+            return Boolean.parseBoolean(value);
+        else {
+            name = name.replace(".", "_");
+            String envValue = System.getenv(name);
+
+            if(envValue == null)
+                return defaultValue;
+            else
+                return Boolean.parseBoolean(envValue);
+        }
     }
 
 }
