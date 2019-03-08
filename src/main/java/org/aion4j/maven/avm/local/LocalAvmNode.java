@@ -119,7 +119,12 @@ public class LocalAvmNode {
             if(retData != null) {
                 try {
                     Object retObj = ABIDecoder.decodeOneObject(retData);
-                    response.setData(retObj);
+
+                    if(retObj != null && retObj instanceof org.aion.avm.api.Address) {
+                        String addStr = HexUtil.bytesToHexString(((org.aion.avm.api.Address)retObj).unwrap());
+                        response.setData(addStr);
+                    } else
+                        response.setData(retObj);
                 } catch (Exception e) {
                     response.setData(HexUtil.bytesToHexString(retData));
                 }
@@ -307,7 +312,18 @@ public class LocalAvmNode {
     //called for remote impl to decode hexstring to object
     public static Object decodeResult(String hex) {
         try {
-            return ABIDecoder.decodeOneObject(HexUtil.hexStringToBytes(hex));
+
+            Object result = ABIDecoder.decodeOneObject(HexUtil.hexStringToBytes(hex));
+            if(result != null) {
+
+                if(result instanceof org.aion.avm.api.Address) {
+                    return HexUtil.bytesToHexString(((org.aion.avm.api.Address)result).unwrap());
+                } else
+                    return result.toString();
+
+            } else
+                return null;
+
         } catch (Exception e) {
             return null;
         }
