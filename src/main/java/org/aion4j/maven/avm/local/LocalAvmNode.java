@@ -63,8 +63,8 @@ public class LocalAvmNode {
 
         AvmConfiguration avmConfiguration = new AvmConfiguration();
         avmConfiguration.enableVerboseConcurrentExecutor=getAvmConfigurationBooleanProps("enableVerboseConcurrentExecutor", false);
-        avmConfiguration.enableVerboseContractErrors=getAvmConfigurationBooleanProps("enableVerboseContractErrors", true);
-        avmConfiguration.preserveDebuggability=getAvmConfigurationBooleanProps("preserveDebuggability", true);
+        avmConfiguration.enableVerboseContractErrors=getAvmConfigurationBooleanProps("enableVerboseContractErrors", false);
+        avmConfiguration.preserveDebuggability=getAvmConfigurationBooleanProps("preserveDebuggability", false);
 
         avm = CommonAvmFactory.buildAvmInstanceForConfiguration(new StandardCapabilities(), avmConfiguration);
     }
