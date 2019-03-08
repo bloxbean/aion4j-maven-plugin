@@ -286,6 +286,19 @@ public class LocalAvmNode {
         }
     }
 
+    //called from remote Impl
+    public static String encodeMethodCallWithArgsString(String method, String methodArgs) throws CallFailedException {
+
+        Object[] args = null;
+        try {
+            args = MethodCallArgsUtil.parseMethodArgs(methodArgs);
+        } catch (Exception e) {
+            throw new CallFailedException("Method argument parsing error", e);
+        }
+
+        return encodeMethodCall(method, args);
+    }
+
     //called from remote impl to encode method call args
     public static String encodeMethodCall(String method, Object[] args) {
         return Helpers.bytesToHexString(ABIEncoder.encodeMethodArguments(method, args));

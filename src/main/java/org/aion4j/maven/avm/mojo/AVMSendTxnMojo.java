@@ -111,17 +111,9 @@ public class AVMSendTxnMojo extends AVMLocalRuntimeBaseMojo {
             Class localAvmClazz = getLocalAVMClass();
             //Lets do method call encoding
 
-            Method enocodeCallMethod = localAvmClazz.getMethod("encodeMethodCall", String.class, Object[].class);
+            Method enocodeCallMethodWithArgsStr = localAvmClazz.getMethod("encodeMethodCallWithArgsString", String.class, String.class);
 
-            //Parse the commandline args
-            Object[] args = null;
-            try {
-                args = MethodCallArgsUtil.parseMethodArgs(methodArgs);
-            } catch (Exception e) {
-                throw new CallFailedException("Method argument parsing error", e);
-            }
-
-            String encodedMethodCall = (String)enocodeCallMethod.invoke(null, method, args);
+            String encodedMethodCall = (String)enocodeCallMethodWithArgsStr.invoke(null, method, methodArgs);
 
             getLog().info("Encoded method call data: " + encodedMethodCall);
 
