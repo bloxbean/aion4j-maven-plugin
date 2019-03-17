@@ -53,7 +53,10 @@ public class AVMGetReceiptMojo extends AVMBaseMojo {
             }
 
             getLog().info("Txn Receipt: \n");
-            getLog().info(response.toString());
+            if(resultObj != null) {
+                getLog().info(resultObj.toString(2));
+            } else
+                getLog().info(response.toString());
 
         } catch (Exception e) {
             getLog().debug(e);
