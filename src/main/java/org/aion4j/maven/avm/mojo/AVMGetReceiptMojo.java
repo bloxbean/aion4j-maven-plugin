@@ -1,7 +1,9 @@
 package org.aion4j.maven.avm.mojo;
 
+import org.aion4j.avm.helper.api.Log;
 import org.aion4j.avm.helper.remote.RemoteAVMNode;
 import org.aion4j.avm.helper.util.ConfigUtil;
+import org.aion4j.maven.avm.impl.DummyLog;
 import org.aion4j.maven.avm.impl.MavenLog;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -22,6 +24,9 @@ public class AVMGetReceiptMojo extends AVMBaseMojo {
         String web3RpcUrl = resolveWeb3rpcUrl();
         String txHash = ConfigUtil.getPropery("txHash");
 
+        String tail = ConfigUtil.getPropery("tail");
+        String silent = ConfigUtil.getPropery("silent");
+
         String cachedTxHash = null;
         if(txHash == null || txHash.isEmpty()) {
 
@@ -35,33 +40,59 @@ public class AVMGetReceiptMojo extends AVMBaseMojo {
             }
         }
 
-        try {
-            RemoteAVMNode remoteAVMNode = new RemoteAVMNode(web3RpcUrl, MavenLog.getLog(getLog()));
+        boolean enableTail = false;
+        if(tail != null && !tail.isEmpty())
+            enableTail = true;
 
-            JSONObject response = remoteAVMNode.getReceipt(txHash);
+        int counter = 0;
+        int maxCountrer = 1;
 
-            JSONObject resultObj = response.optJSONObject("result");
+        if(enableTail) maxCountrer = 15;
+        while(counter < maxCountrer) {
+            try {
 
-            if(resultObj == null) {
-            } else {
-                String contractAddress = resultObj.optString("contractAddress");
-                if(contractAddress != null && !contractAddress.isEmpty()) {
-                    //Update contract address in cache.
-                    //Update deploy status properties
-                    getCache().updateDeployAddress(contractAddress);
+                Log log = null;
+                if(enableTail && silent != null && !silent.isEmpty()) log = new DummyLog();
+                else log = MavenLog.getLog(getLog());
+
+                RemoteAVMNode remoteAVMNode = new RemoteAVMNode(web3RpcUrl, log);
+
+                JSONObject response = remoteAVMNode.getReceipt(txHash);
+                JSONObject resultObj = response.optJSONObject("result");
+
+                counter++;
+
+                if (resultObj == null) {
+                    if(enableTail) {
+                        getLog().info("Waiting for transaction to mine ...Trying (" + counter + " of " + maxCountrer + " times)");
+                        Thread.currentThread().sleep(9000);
+                        continue;
+                    }
                 } else {
+                    String contractAddress = resultObj.optString("contractAddress");
+                    if (contractAddress != null && !contractAddress.isEmpty()) {
+                        //Update contract address in cache.
+                        //Update deploy status properties
+                        getCache().updateDeployAddress(contractAddress);
+                    } else {
+                    }
                 }
+
+                getLog().info("Txn Receipt: \n");
+                if (resultObj != null) {
+                    getLog().info(resultObj.toString(2));
+                } else
+                    getLog().info(response.toString());
+
+                break;
+            } catch (Exception e) {
+                getLog().debug(e);
+                throw new MojoExecutionException(e.getMessage(), e);
             }
+        }
 
-            getLog().info("Txn Receipt: \n");
-            if(resultObj != null) {
-                getLog().info(resultObj.toString(2));
-            } else
-                getLog().info(response.toString());
-
-        } catch (Exception e) {
-            getLog().debug(e);
-            throw new MojoExecutionException(e.getMessage(), e);
+        if(counter == maxCountrer) {
+            getLog().info("Waited too much for the receipt. Something is wrong.");
         }
 
     }
