@@ -34,9 +34,15 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <skipITs>true</skipITs>
         <avm.version>local-plugin-version</avm.version>
+        <!--<avm.helper.verion>0.4.10-SNAPSHOT</avm.helper.verion>-->
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.aion4j</groupId>
+            <artifactId>avm-helper</artifactId>
+            <version>${version}</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-plugin-api</artifactId>
@@ -54,44 +60,13 @@
             <version>3.5.2</version>
             <scope>provided</scope>
         </dependency>
-        <!-- Needed for tx signing -->
-        <dependency>
-            <groupId>net.i2p.crypto</groupId>
-            <artifactId>eddsa</artifactId>
-            <version>0.3.0</version>
-        </dependency>
-
         <!-- Needed only for plugin compilation -->
-        <dependency>
-            <groupId>org.aion</groupId>
-            <artifactId>avm</artifactId>
-            <scope>provided</scope>
-            <version>${avm.version}</version>
-            <!--<systemPath>${project.basedir}/src/main/resources/lib/avm/avm.jar</systemPath>-->
-        </dependency>
-        <dependency>
-            <groupId>com.mashape.unirest</groupId>
-            <artifactId>unirest-java</artifactId>
-            <version>1.4.9</version>
-        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>3.8.1</version>
+            <version>4.12</version>
             <scope>test</scope>
         </dependency>
-        <!-- test dependencies -->
-        <!--<dependency>-->
-                   <!--<groupId>org.apache.maven.shared</groupId>-->
-                   <!--<artifactId>maven-verifier</artifactId>-->
-                   <!--<version>1.2</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.maven.plugin-testing</groupId>-->
-            <!--<artifactId>maven-plugin-testing-harness</artifactId>-->
-            <!--<version>3.3.0</version>-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.apache.maven.shared</groupId>
             <artifactId>maven-verifier</artifactId>
@@ -133,26 +108,6 @@
                             <goal>integration-test</goal>
                             <goal>verify</goal>
                         </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-install-plugin</artifactId>
-                <version>2.5.2</version>
-                <executions>
-                    <execution>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>install-file</goal>
-                        </goals>
-                        <configuration>
-                            <groupId>org.aion</groupId>
-                            <artifactId>avm</artifactId>
-                            <version>${avm.version}</version>
-                            <packaging>jar</packaging>
-                            <file>${project.basedir}/src/main/resources/lib/avm/avm.jar</file>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>

@@ -1,7 +1,7 @@
 package org.aion4j.maven.avm.mojo;
 
-import org.aion4j.maven.avm.util.ConfigUtil;
-import org.aion4j.maven.avm.util.ResultCache;
+import org.aion4j.avm.helper.util.ConfigUtil;
+import org.aion4j.avm.helper.util.ResultCache;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
