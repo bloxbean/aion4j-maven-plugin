@@ -18,6 +18,9 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
     //Needed for remote
     private long defaultGas = 5000000;
     private long defaultGasPrice = 100000000000L;
+    private String deployArgs;
+    private String value;
+    private BigInteger valueB;
 
     @Override
     protected void preexecuteLocalAvm() throws MojoExecutionException{
@@ -36,7 +39,10 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
 
             String deployer = getAddress();
 
-            final Method deployMethod = localAvmInstance.getClass().getMethod("deploy", String.class, String.class);
+            //parse other command line args
+            parseArgs();
+
+            final Method deployMethod = localAvmInstance.getClass().getMethod("deploy", String.class, String.class, String.class);
 
             final Object[] args = new Object[2];
             args[0] = new String[]{dappJar};
@@ -51,7 +57,7 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
 
             getLog().info("Avm storage path : " + getStoragePath());
 
-            Object response = deployMethod.invoke(localAvmInstance, dappJar, deployer);
+            Object response = deployMethod.invoke(localAvmInstance, dappJar, deployArgs, deployer);
 
             Method getAddressMethod = response.getClass().getMethod("getAddress");
             Method getEnergyUsed = response.getClass().getMethod("getEnergyUsed");
@@ -104,6 +110,9 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
             }
         }
 
+        //Parse other args
+        parseArgs();
+
         //Get gas & gas price
         long gas = getGas();
         if(gas == 0)
@@ -117,9 +126,9 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
 
             Class localAvmClazz = getLocalAVMClass();
 
-            Method getBytesMethod = localAvmClazz.getMethod("getBytesForDeploy", String.class);
+            Method getBytesMethod = localAvmClazz.getMethod("getBytesForDeploy", String.class, String.class);
 
-            String hexCode = (String)getBytesMethod.invoke(null, dappJar);
+            String hexCode = (String)getBytesMethod.invoke(null, dappJar, deployArgs);
 
             if(hexCode == null) {
                 throw new MojoExecutionException("Error getting dappJar content");
@@ -156,6 +165,19 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
             throw new MojoExecutionException("Failed deployment for dapp : " + dappJar, e);
         }
 
+    }
+
+    private void parseArgs() throws MojoExecutionException {
+        final Object[] args = new Object[5];
+
+        deployArgs = ConfigUtil.getPropery("args");
+        value = ConfigUtil.getPropery("value");
+
+        if(value == null || value.isEmpty())
+            valueB = BigInteger.ZERO;
+        else {
+            valueB = new BigInteger(value.trim());
+        }
     }
 
     private void printRemoteHelp() {

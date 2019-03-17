@@ -70,10 +70,10 @@ public class LocalAvmNode {
     }
 
     public DeployResponse deploy(String jarFilePath) throws DeploymentFailedException {
-        return deploy(jarFilePath, null);
+        return deploy(jarFilePath, null, null);
     }
 
-    public DeployResponse deploy(String jarFilePath, String deployer) throws DeploymentFailedException {
+    public DeployResponse deploy(String jarFilePath, String deployArgs, String deployer) throws DeploymentFailedException {
 
         Address deployerAddress = null;
 
@@ -82,7 +82,17 @@ public class LocalAvmNode {
         else
             deployerAddress = Address.wrap(Helpers.hexStringToBytes(deployer));
 
-        TransactionContext txContext = createDeployTransaction(jarFilePath, deployerAddress, BigInteger.ZERO);
+        //parse deploy args
+        byte[] deployArgsBytes = null;
+        if(deployArgs != null && !deployArgs.isEmpty()) {
+            try {
+                deployArgsBytes = encodeDeployArgsString(deployArgs);
+            } catch (CallFailedException e) {
+                throw new DeploymentFailedException("Deployment error", e);
+            }
+        }
+
+        TransactionContext txContext = createDeployTransaction(jarFilePath, deployArgsBytes, deployerAddress, BigInteger.ZERO);
 
         DeployResponse deployResponse = createDApp(txContext);
 
@@ -201,7 +211,7 @@ public class LocalAvmNode {
         }
     }
 
-    private TransactionContext createDeployTransaction(String jarPath, Address sender, BigInteger value)
+    private TransactionContext createDeployTransaction(String jarPath, byte[] deployArgs, Address sender, BigInteger value)
         throws DeploymentFailedException {
 
         Path path = Paths.get(jarPath);
@@ -213,7 +223,7 @@ public class LocalAvmNode {
         }
 
         Transaction createTransaction = Transaction.create(sender, kernel.getNonce(sender),
-            value, new CodeAndArguments(jar, null).encodeToBytes(), energyLimit, energyPrice);
+            value, new CodeAndArguments(jar, deployArgs).encodeToBytes(), energyLimit, energyPrice);
 
         return TransactionContextImpl.forExternalTransaction(createTransaction, block);
 
@@ -278,13 +288,34 @@ public class LocalAvmNode {
         }
     }
 
+    //Encode deployment args from command line str to byte[]. Needed during deployment.
+    public static byte[] encodeDeployArgsString(String deployArgs) throws CallFailedException {
+        Object[] args = null;
+
+        try {
+            args = MethodCallArgsUtil.parseMethodArgs(deployArgs);
+        } catch (Exception e) {
+            throw new CallFailedException("Deploy arument parsing error", e);
+        }
+
+        return null;
+        //TODO Fix later.... for now just return null for deployArgs return ABIEncoder.encodeOneObject(args);
+    }
+
     //Called for remote
-    public static String getBytesForDeploy(String dappJarPath) {
+    public static String getBytesForDeploy(String dappJarPath, String deployArgsStr) throws CallFailedException {
         try {
             Path path = Paths.get(dappJarPath);
             byte[] jar = Files.readAllBytes(path);
+
+            byte[] deployArgsBytes = null;
+            if(deployArgsStr != null && !deployArgsStr.isEmpty())
+                deployArgsBytes = encodeDeployArgsString(deployArgsStr);
+
+            if(deployArgsBytes == null) deployArgsBytes = new byte[0];
+
             return Helpers.bytesToHexString(
-                    new CodeAndArguments(jar, new byte[0]).encodeToBytes());
+                    new CodeAndArguments(jar, deployArgsBytes).encodeToBytes());
         } catch (IOException e) {
             System.out.println(e.toString());
             return null;
