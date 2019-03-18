@@ -1,6 +1,6 @@
 package org.aion4j.maven.avm.mojo;
 
-import org.aion4j.maven.avm.exception.LocalAVMException;
+import org.aion4j.avm.helper.exception.LocalAVMException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -182,7 +182,7 @@ public class AVMClassVerifierMojo extends AVMAbstractBaseMojo {
     @Override
     protected Object getLocalAvmImplInstance(ClassLoader avmClassloader)  {
         try{
-            Class clazz = avmClassloader.loadClass("org.aion4j.maven.avm.local.AVMClassVerifier");
+            Class clazz = avmClassloader.loadClass("org.aion4j.avm.helper.local.AVMClassVerifier");
             Constructor localAvmVerifierConstructor = clazz.getConstructor(boolean.class);
 
             Object classVerifierInstance = localAvmVerifierConstructor.newInstance(isLocal());

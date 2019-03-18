@@ -1,7 +1,8 @@
 package org.aion4j.maven.avm.mojo;
 
-import org.aion4j.maven.avm.remote.RemoteAVMNode;
-import org.aion4j.maven.avm.util.CryptoUtil;
+import org.aion4j.avm.helper.remote.RemoteAVMNode;
+import org.aion4j.avm.helper.util.CryptoUtil;
+import org.aion4j.maven.avm.impl.MavenLog;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 
@@ -61,7 +62,7 @@ public class AVMGetBalanceMojo extends AVMLocalRuntimeBaseMojo {
         }
 
 
-        RemoteAVMNode remoteAVMNode = new RemoteAVMNode(web3RpcUrl, getLog());
+        RemoteAVMNode remoteAVMNode = new RemoteAVMNode(web3RpcUrl, MavenLog.getLog(getLog()));
 
         String balanceInHex = remoteAVMNode.getBalance(address);
 

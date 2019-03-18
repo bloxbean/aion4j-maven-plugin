@@ -1,6 +1,6 @@
 package org.aion4j.maven.avm.mojo;
 
-import org.aion4j.maven.avm.exception.LocalAVMException;
+import org.aion4j.avm.helper.exception.LocalAVMException;
 import org.apache.maven.plugin.MojoExecutionException;
 
 import java.lang.reflect.Constructor;
@@ -12,7 +12,7 @@ public abstract class AVMLocalRuntimeBaseMojo extends AVMAbstractBaseMojo {
     protected Object getLocalAvmImplInstance(ClassLoader avmClassloader) {
 
         try {
-            Class clazz = avmClassloader.loadClass("org.aion4j.maven.avm.local.LocalAvmNode");
+            Class clazz = avmClassloader.loadClass("org.aion4j.avm.helper.local.LocalAvmNode");
             Constructor localAvmConstructor = clazz.getConstructor(String.class, String.class);
 
             //String address = getAddress();

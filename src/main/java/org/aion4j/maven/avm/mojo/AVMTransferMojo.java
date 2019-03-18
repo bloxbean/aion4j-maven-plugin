@@ -1,7 +1,8 @@
 package org.aion4j.maven.avm.mojo;
 
-import org.aion4j.maven.avm.remote.RemoteAVMNode;
-import org.aion4j.maven.avm.util.ConfigUtil;
+import org.aion4j.avm.helper.remote.RemoteAVMNode;
+import org.aion4j.avm.helper.util.ConfigUtil;
+import org.aion4j.maven.avm.impl.MavenLog;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -70,7 +71,7 @@ public class AVMTransferMojo extends AVMBaseMojo {
         String txReceipt = null;
 
 
-        RemoteAVMNode remoteAVMNode = new RemoteAVMNode(web3RpcUrl, getLog());
+        RemoteAVMNode remoteAVMNode = new RemoteAVMNode(web3RpcUrl, MavenLog.getLog(getLog()));
 
         if(pk != null && !pk.isEmpty()) {
             txReceipt = remoteAVMNode.sendRawTransaction(to, pk, "", valueInAmp, gas, gasPrice);

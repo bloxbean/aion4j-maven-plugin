@@ -1,7 +1,8 @@
 package org.aion4j.maven.avm.mojo;
 
-import org.aion4j.maven.avm.remote.RemoteAVMNode;
-import org.aion4j.maven.avm.util.ConfigUtil;
+import org.aion4j.avm.helper.remote.RemoteAVMNode;
+import org.aion4j.avm.helper.util.ConfigUtil;
+import org.aion4j.maven.avm.impl.MavenLog;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 
@@ -58,7 +59,7 @@ public class AVMCreateAccountMojo extends AVMLocalRuntimeBaseMojo {
     protected void executeRemote() throws MojoExecutionException {
         String password = ConfigUtil.getPropery("password");
 
-        RemoteAVMNode remoteAVMNode = new RemoteAVMNode(resolveWeb3rpcUrl(), getLog());
+        RemoteAVMNode remoteAVMNode = new RemoteAVMNode(resolveWeb3rpcUrl(), MavenLog.getLog(getLog()));
 
         try {
             String newAddress = remoteAVMNode.createAccount(password);

@@ -1,7 +1,8 @@
 package org.aion4j.maven.avm.mojo;
 
-import org.aion4j.maven.avm.remote.RemoteAVMNode;
-import org.aion4j.maven.avm.util.ConfigUtil;
+import org.aion4j.avm.helper.remote.RemoteAVMNode;
+import org.aion4j.avm.helper.util.ConfigUtil;
+import org.aion4j.maven.avm.impl.MavenLog;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.ResolutionScope;
@@ -134,7 +135,7 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
                 throw new MojoExecutionException("Error getting dappJar content");
             }
 
-            RemoteAVMNode remoteAVMNode = new RemoteAVMNode(web3RpcUrl, getLog());
+            RemoteAVMNode remoteAVMNode = new RemoteAVMNode(web3RpcUrl, MavenLog.getLog(getLog()));
 
             String txHash = null;
             if(pk != null && !pk.isEmpty()) {

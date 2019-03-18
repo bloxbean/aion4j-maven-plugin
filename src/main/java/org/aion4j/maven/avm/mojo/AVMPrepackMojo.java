@@ -2,7 +2,7 @@ package org.aion4j.maven.avm.mojo;
 
 import java.io.File;
 import java.io.IOException;
-import org.aion4j.maven.avm.util.ZipUtil;
+import org.aion4j.avm.helper.util.ZipUtil;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;

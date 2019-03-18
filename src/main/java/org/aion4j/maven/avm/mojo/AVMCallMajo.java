@@ -1,9 +1,11 @@
 package org.aion4j.maven.avm.mojo;
 
-import org.aion4j.maven.avm.exception.CallFailedException;
-import org.aion4j.maven.avm.remote.RemoteAVMNode;
-import org.aion4j.maven.avm.util.ConfigUtil;
-import org.aion4j.maven.avm.util.MethodCallArgsUtil;
+import org.aion4j.avm.helper.api.Log;
+import org.aion4j.avm.helper.exception.CallFailedException;
+import org.aion4j.avm.helper.remote.RemoteAVMNode;
+import org.aion4j.avm.helper.util.ConfigUtil;
+import org.aion4j.avm.helper.util.MethodCallArgsUtil;
+import org.aion4j.maven.avm.impl.MavenLog;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.ResolutionScope;
@@ -147,7 +149,7 @@ public class AVMCallMajo extends AVMLocalRuntimeBaseMojo {
 
             //getLog().info("Encoded method call data: " + encodedMethodCall);
 
-            RemoteAVMNode remoteAVMNode = new RemoteAVMNode(web3RpcUrl, getLog());
+            RemoteAVMNode remoteAVMNode = new RemoteAVMNode(web3RpcUrl, MavenLog.getLog(getLog()));
 
             String retData = remoteAVMNode.call(contract, sender, encodedMethodCall, valueB, gas, gasPrice);
 
@@ -185,4 +187,5 @@ public class AVMCallMajo extends AVMLocalRuntimeBaseMojo {
             return null;
         }
     }
+
 }

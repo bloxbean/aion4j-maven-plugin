@@ -1,6 +1,6 @@
 package org.aion4j.maven.avm.mojo;
 
-import org.aion4j.maven.avm.local.LocalAvmNode;
+import org.aion4j.avm.helper.local.LocalAvmNode;
 import org.apache.maven.plugin.MojoExecutionException;
 
 import java.io.File;
@@ -131,7 +131,7 @@ public abstract class AVMAbstractBaseMojo extends AVMBaseMojo {
         ClassLoader avmClassLoader = new URLClassLoader(new URL[]{urlsForClassLoader, pluginJar});
 
         try {
-            Class localAvmClazz = avmClassLoader.loadClass("org.aion4j.maven.avm.local.LocalAvmNode");
+            Class localAvmClazz = avmClassLoader.loadClass("org.aion4j.avm.helper.local.LocalAvmNode");
             return localAvmClazz;
         } catch (ClassNotFoundException e) {
             getLog().debug(e);
