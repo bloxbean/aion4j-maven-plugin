@@ -34,14 +34,14 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <skipITs>true</skipITs>
         <avm.version>local-plugin-version</avm.version>
-        <!--<avm.helper.verion>0.4.10-SNAPSHOT</avm.helper.verion>-->
+        <avm.helper.verion>0.5.0-beta1</avm.helper.verion>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.aion4j</groupId>
             <artifactId>avm-helper</artifactId>
-            <version>${version}</version>
+            <version>${avm.helper.verion}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
