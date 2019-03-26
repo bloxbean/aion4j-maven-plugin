@@ -27,7 +27,7 @@ public class AVMExploreMojo extends AVMLocalRuntimeBaseMojo {
             String deployedAddress = getCache().getLastDeployedAddress();
 
             if(deployedAddress == null || deployedAddress.isEmpty()) {
-                throw new MojoExecutionException("deployedAddress can not be empty. Please make sure the dapp has already been deployed");
+                throw new MojoExecutionException("deployedAddress can not be empty. Please make sure the contract has already been deployed");
             }
 
             ByteArrayOutputStream stream = new ByteArrayOutputStream();

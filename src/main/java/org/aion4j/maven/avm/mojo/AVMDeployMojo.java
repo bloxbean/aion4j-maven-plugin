@@ -28,7 +28,7 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
         //check if dAppJar exists
         Path path = Paths.get(getDappJar());
         if (!Files.exists(path)) {
-            throw new MojoExecutionException(String.format("Dapp jar file doesn't exist : %s \n"
+            throw new MojoExecutionException(String.format("Contract jar file doesn't exist : %s \n"
                     + "Please make sure you have built the project.", dappJar));
         }
     }
@@ -66,7 +66,7 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
             String dappAddress = (String)getAddressMethod.invoke(response);
 
             getLog().info("****************  Dapp deployment status ****************");
-            getLog().info("Dapp address: " + dappAddress);
+            getLog().info("Contract Address: " + dappAddress);
             getLog().info("Energy used: " + getEnergyUsed.invoke(response));
             getLog().info("Deployer Address: " + deployer);
             getLog().info("*********************************************************");
@@ -81,7 +81,7 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
             getLog()
                     .error(String.format("%s could not be deployed to the embedded AVM.", getDappJar()),
                             ex);
-            throw new MojoExecutionException("Dapp jar deployment failed", ex);
+            throw new MojoExecutionException("Contract jar deployment failed", ex);
         }
     }
 
@@ -92,7 +92,7 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
         //check if dAppJar exists
         Path path = Paths.get(getDappJar());
         if (!Files.exists(path)) {
-            throw new MojoExecutionException(String.format("Dapp jar file doesn't exist : %s \n"
+            throw new MojoExecutionException(String.format("Contract jar file doesn't exist : %s \n"
                     + "Please make sure you have built the project.", dappJar));
         }
 
@@ -132,7 +132,7 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
             String hexCode = (String)getBytesMethod.invoke(null, dappJar, deployArgs);
 
             if(hexCode == null) {
-                throw new MojoExecutionException("Error getting dappJar content");
+                throw new MojoExecutionException("Error getting contract jar content");
             }
 
             RemoteAVMNode remoteAVMNode = new RemoteAVMNode(web3RpcUrl, MavenLog.getLog(getLog()));
@@ -163,7 +163,7 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw new MojoExecutionException("Failed deployment for dapp : " + dappJar, e);
+            throw new MojoExecutionException("Failed deployment for contract : " + dappJar, e);
         }
 
     }
