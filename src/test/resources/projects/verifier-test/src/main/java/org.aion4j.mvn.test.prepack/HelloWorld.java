@@ -1,8 +1,9 @@
 package org.aion4j.mvn.test.prepack;
 
 
-import org.aion.avm.api.ABIDecoder;
-import org.aion.avm.api.ABIEncoder;
+import org.aion.avm.userlib.abi.ABIDecoder;
+import org.aion.avm.userlib.abi.ABIEncoder;
+import org.aion.avm.tooling.abi.Callable;
 import org.aion.avm.api.Address;
 import org.aion.avm.api.BlockchainRuntime;
 import org.aion.avm.api.Result;
@@ -260,11 +261,6 @@ public class HelloWorld {
 
 //list
 
-
-    public static byte[] main() {
-
-        return ABIDecoder.decodeAndRunWithClass(HelloWorld.class, BlockchainRuntime.getData());
-    }
 
 
 }
