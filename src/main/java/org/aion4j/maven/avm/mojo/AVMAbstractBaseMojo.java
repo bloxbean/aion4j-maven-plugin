@@ -25,7 +25,7 @@ public abstract class AVMAbstractBaseMojo extends AVMBaseMojo {
     }
 
     private void executeLocalAVM() throws MojoExecutionException {
-        getLog().info("----------- AVM classpath Urls --------------");
+        getLog().debug("----------- AVM classpath Urls --------------");
         URL urlsForClassLoader = null;
         try {
 
@@ -39,7 +39,7 @@ public abstract class AVMAbstractBaseMojo extends AVMBaseMojo {
 
             urlsForClassLoader = new File(getAvmLibDir() + File.separator + "avm.jar")
                     .toURI().toURL();
-            getLog().info(urlsForClassLoader.toURI().toString());
+            getLog().debug(urlsForClassLoader.toURI().toString());
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (URISyntaxException e) {
@@ -55,7 +55,7 @@ public abstract class AVMAbstractBaseMojo extends AVMBaseMojo {
             }
         }
 
-        getLog().info("----------- AVM classpath Urls Ends --------------");
+        getLog().debug("----------- AVM classpath Urls Ends --------------");
 
         ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
         ClassLoader classLoader = new URLClassLoader(new URL[]{urlsForClassLoader, pluginJar});
@@ -96,7 +96,7 @@ public abstract class AVMAbstractBaseMojo extends AVMBaseMojo {
     //This method is used from remote kernel implementation. If the remote implementation wants to use LocalAVMLibraries and call
     //some static methods. Exp: Encoding of method call etc. This method should not be called for local / embedded AVM support.
     protected Class getLocalAVMClass() throws MojoExecutionException{
-        getLog().info("----------- AVM classpath Urls --------------");
+        getLog().debug("----------- AVM classpath Urls --------------");
         URL urlsForClassLoader = null;
         try {
 
@@ -110,7 +110,7 @@ public abstract class AVMAbstractBaseMojo extends AVMBaseMojo {
 
             urlsForClassLoader = new File(getAvmLibDir() + File.separator + "avm.jar")
                     .toURI().toURL();
-            getLog().info(urlsForClassLoader.toURI().toString());
+            getLog().debug(urlsForClassLoader.toURI().toString());
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (URISyntaxException e) {
@@ -120,13 +120,13 @@ public abstract class AVMAbstractBaseMojo extends AVMBaseMojo {
         URL pluginJar = getLocalAVMNodeClassJarLocation();
         if (pluginJar != null) {
             try {
-                getLog().info(pluginJar.toURI().toString());
+                getLog().debug(pluginJar.toURI().toString());
             } catch (URISyntaxException e) {
                 e.printStackTrace();
             }
         }
 
-        getLog().info("----------- AVM classpath Urls Ends --------------");
+        getLog().debug("----------- AVM classpath Urls Ends --------------");
 
         ClassLoader avmClassLoader = new URLClassLoader(new URL[]{urlsForClassLoader, pluginJar});
 
