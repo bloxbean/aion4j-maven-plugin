@@ -12,6 +12,7 @@ Following maven goals has been implemented in this plugin :
 6. aion4j:prepack - Default phase "prepare-package". Copy org-aion-avm-userlib.jar's classes to target folder for packaging with dapp's jar.
 7. aion4j:class-verifier - To verify JCL whiltelist classes in the contract
 8. aion4j:deploy - Extend the deploy goal for remote deployment.
+9. aion4j:postpack - Post process the jar after build. Example: Abi Compile to process @Callable annotation. Default phase "package"
 
 For all the supported goals, check this [page](https://github.com/satran004/aion4j-maven-plugin/wiki/Aion4j-Maven-Plugin---Goals-(In-Progress)).
 
