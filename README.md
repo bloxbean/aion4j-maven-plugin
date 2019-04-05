@@ -69,6 +69,7 @@ $>  ./mvnw integration-test -DskipITs=false
              <goal>init</goal>
              <goal>class-verifier</goal>
              <goal>prepack</goal>
+             <goal>postpack</goal>
            </goals>
           </execution>
       </executions>
