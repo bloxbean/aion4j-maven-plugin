@@ -2,7 +2,7 @@ package org.aion4j.mvn.test.prepack;
 
 import org.aion.avm.userlib.abi.ABIDecoder;
 import org.aion.avm.tooling.abi.Callable;
-import org.aion.avm.api.BlockchainRuntime;
+import avm.BlockchainRuntime;
 
 public class HelloWorld {
 

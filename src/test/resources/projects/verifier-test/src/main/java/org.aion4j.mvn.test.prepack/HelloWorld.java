@@ -1,12 +1,9 @@
 package org.aion4j.mvn.test.prepack;
 
-
-import org.aion.avm.userlib.abi.ABIDecoder;
-import org.aion.avm.userlib.abi.ABIEncoder;
 import org.aion.avm.tooling.abi.Callable;
-import org.aion.avm.api.Address;
-import org.aion.avm.api.BlockchainRuntime;
-import org.aion.avm.api.Result;
+import avm.Address;
+import avm.BlockchainRuntime;
+import avm.Result;
 
 import org.aion.avm.userlib.AionList;
 import org.aion.avm.userlib.AionMap;
@@ -118,17 +115,17 @@ public class HelloWorld {
     }
 
 
-    public static void callAnotherContract(Address toContractAddress) {
-        byte[] data = ABIEncoder.encodeMethodArguments("callThisFunction");
-        BlockchainRuntime.call(toContractAddress, BigInteger.valueOf(0), data , BlockchainRuntime.getRemainingEnergy());
-    }
-
-    public static void callAnotherContractWithArg(Address toContractAddress /*
-    0x0ffbb6ea1c53f1b7fe028404c110be12e3e0105001a5697d52c222fda9a39219*/, String newString) {
-        byte[] data = ABIEncoder.encodeMethodArguments("changeSomething", newString);
-        BlockchainRuntime.call(toContractAddress, BigInteger.valueOf(0), data , BlockchainRuntime.getRemainingEnergy());
-        //emitEvent();
-    }
+//    public static void callAnotherContract(Address toContractAddress) {
+//        byte[] data = ABIUtil.encodeMethodArguments("callThisFunction");
+//        BlockchainRuntime.call(toContractAddress, BigInteger.valueOf(0), data , BlockchainRuntime.getRemainingEnergy());
+//    }
+//
+//    public static void callAnotherContractWithArg(Address toContractAddress /*
+//    0x0ffbb6ea1c53f1b7fe028404c110be12e3e0105001a5697d52c222fda9a39219*/, String newString) {
+//        byte[] data = ABIUtil.encodeMethodArguments("changeSomething", newString);
+//        BlockchainRuntime.call(toContractAddress, BigInteger.valueOf(0), data , BlockchainRuntime.getRemainingEnergy());
+//        //emitEvent();
+//    }
 
     //In Solidity:  address newContract = new Contract(data)
     public static Address createNewContract(byte[] dappData) {

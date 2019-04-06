@@ -1,15 +1,21 @@
-package org.aion4j.mvn.test.call;
+package contract;
 
 import org.aion.avm.userlib.abi.ABIDecoder;
 import org.aion.avm.tooling.abi.Callable;
-import org.aion.avm.api.Address;
-import org.aion.avm.api.BlockchainRuntime;
+import avm.Address;
+import avm.BlockchainRuntime;
 
 public class HelloWorld
 {
     private static String owner;
     static {
-        owner = (String) ABIDecoder.decodeOneObject(BlockchainRuntime.getData());
+        ABIDecoder decoder = new ABIDecoder(BlockchainRuntime.getData());
+        owner = decoder.decodeOneString();
+    }
+
+    @Callable
+    public static String getOwner() {
+        return owner;
     }
 
     @Callable
@@ -28,12 +34,12 @@ public class HelloWorld
     }
 
     @Callable
-    public static int[] testIntArray(int[] iarr) {
+    public static int[] testIntArray1(int[] iarr) {
         return iarr;
     }
 
     @Callable
-    public static String[] testArray(String[] sarr, int[] iarr, String name, Address[] aadd, short[] shorts, float[] floats, double[] doubles, boolean[] bo, byte[] b) {
+    public static String[] testArray2(String[] sarr, int[] iarr, String name, Address[] aadd, short[] shorts, float[] floats, double[] doubles, boolean[] bo, byte[] b) {
 
         BlockchainRuntime.println("String ---");
         for(String s: sarr) {
@@ -58,7 +64,7 @@ public class HelloWorld
     }
 
     @Callable
-    public static String[] testArray(String[] sarr) {
+    public static String[] testArray3(String[] sarr) {
         return sarr;
     }
 

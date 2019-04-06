@@ -5,8 +5,9 @@ import org.apache.maven.it.util.ResourceExtractor;
 import org.junit.Ignore;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
-@Ignore
 public class AVMCallMojoIT extends BaseTestHelper {
 
     public void testCallPlugin() throws Exception {
@@ -21,13 +22,17 @@ public class AVMCallMojoIT extends BaseTestHelper {
 
         verifier.addCliOption("-Daion4jPluginVersion=" + getPluginVersion());
         verifier.executeGoal("aion4j:init");
-        verifier.executeGoal("clean");
-        verifier.executeGoal("package");
-        verifier.executeGoal("aion4j:deploy");
-        verifier.setEnvironmentVariable("args", "-T test");
+        List<String> goals = new ArrayList<>();
+        //goals.add("aion4j:init");
+        goals.add("package");
+        goals.add("aion4j:deploy");
+        goals.add("aion4j:call");
 
+        verifier.setEnvironmentVariable("method", "getOwner");
+        verifier.setEnvironmentVariable("args", "-T Alice");
+        verifier.executeGoals(goals);
 
-        verifier.verifyTextInLog("dapp.jar was deployed successfully to the embedded AVM");
-
+        verifier.verifyTextInLog("was deployed successfully to the embedded AVM");
+        verifier.verifyTextInLog("Data       : Alice");
     }
 }
