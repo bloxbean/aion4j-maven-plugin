@@ -22,10 +22,10 @@ public class AVMGetReceiptMojo extends AVMBaseMojo {
         }
 
         String web3RpcUrl = resolveWeb3rpcUrl();
-        String txHash = ConfigUtil.getPropery("txHash");
+        String txHash = ConfigUtil.getProperty("txHash");
 
-        String tail = ConfigUtil.getPropery("tail");
-        String silent = ConfigUtil.getPropery("silent");
+        String tail = ConfigUtil.getProperty("tail");
+        String silent = ConfigUtil.getProperty("silent");
 
         String cachedTxHash = null;
         if(txHash == null || txHash.isEmpty()) {

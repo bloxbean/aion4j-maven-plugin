@@ -71,11 +71,11 @@ public class AVMCallMajo extends AVMLocalRuntimeBaseMojo {
     private void parseArgs() throws MojoExecutionException {
         final Object[] args = new Object[5];
 
-        contract = ConfigUtil.getPropery("contract");
-        sender = ConfigUtil.getPropery("address");
-        method = ConfigUtil.getPropery("method");
-        methodArgs = ConfigUtil.getPropery("args");
-        value = ConfigUtil.getPropery("value");
+        contract = ConfigUtil.getProperty("contract");
+        sender = ConfigUtil.getProperty("address");
+        method = ConfigUtil.getProperty("method");
+        methodArgs = ConfigUtil.getProperty("args");
+        value = ConfigUtil.getProperty("value");
 
         if(contract == null || contract.isEmpty()) {
 

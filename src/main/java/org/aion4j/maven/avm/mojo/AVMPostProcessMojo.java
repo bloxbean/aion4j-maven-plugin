@@ -1,5 +1,6 @@
 package org.aion4j.maven.avm.mojo;
 
+import static org.aion4j.avm.helper.util.ConfigUtil.*;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -36,28 +37,67 @@ public class AVMPostProcessMojo extends AVMAbstractBaseMojo {
         }
 
         backupOriginalJar(Paths.get(getDappJar()));
-        abiCompile(getLocalAVMClass());
+
+        byte[] jarBytes = readJarContent();
+
+        byte[] compileBytes = abiCompile(getLocalAVMClass(), jarBytes);
+        jarBytes = optimizeJar(getLocalAVMClass(), compileBytes, getAvmConfigurationBooleanProps(PRESERVE_DEBUGGABILITY, false));
+
+        writeJarContent(jarBytes);
     }
 
-    private void abiCompile(Class localAvmClazz) throws MojoExecutionException {
-
+    private byte[] readJarContent() throws MojoExecutionException{
         try {
-            getLog().info("Post processing the jar >> " + dappJar);
-
-            Method compileJarBytesMethod = localAvmClazz.getMethod("compileJarBytes", byte[].class);
-
             Path dAppJarPath = Paths.get(getDappJar());
             byte[] jarBytes = Files.readAllBytes(dAppJarPath);
+            return jarBytes;
+        } catch (Exception e) {
+            getLog().error(String.format("Error reading contract jar content : " + getDappJar() ),e);
+            throw new MojoExecutionException("Error reading contract jar content: " + getDappJar(), e);
+        }
+    }
 
+    private void writeJarContent(byte[] bytes) throws MojoExecutionException {
+        try {
+            Path compileJarPath = Paths.get(getDappJar());
+            Files.write(compileJarPath, bytes);
+        } catch (Exception e) {
+            getLog().error(String.format("Error writing contract jar content : " + getDappJar() ),e);
+            throw new MojoExecutionException("Error writing contract jar content : " + getDappJar(), e);
+        }
+    }
+
+    private byte[] abiCompile(Class localAvmClazz, byte[] jarBytes) throws MojoExecutionException {
+
+        try {
+            getLog().info("Post compile the jar >> " + dappJar);
+            Method compileJarBytesMethod = localAvmClazz.getMethod("compileJarBytes", byte[].class);
             byte[] compiledBytes = (byte[]) compileJarBytesMethod.invoke(null, jarBytes );
 
-            Path compileJarPath = Paths.get(getDappJar());
-            Files.write(compileJarPath, compiledBytes);
+            return compiledBytes;
         } catch (Exception ex) {
             getLog()
-                    .error(String.format("Contract Jar post processing failed"),
+                    .error(String.format("Contract Jar post compilation failed"),
                             ex);
-            throw new MojoExecutionException("Contract Jar post processing failed", ex);
+            throw new MojoExecutionException("Contract Jar post compilation failed", ex);
+        }
+    }
+
+    private byte[] optimizeJar(Class localAvmClazz, byte[] jarBytes, boolean debugMode) throws MojoExecutionException {
+
+        try {
+            getLog().info("Optimizing the jar content >> " + dappJar);
+
+            Method optimizeJarBytesMethod = localAvmClazz.getMethod("optimizeJarBytes", byte[].class, boolean.class);
+
+            byte[] optimizedBytes = (byte[]) optimizeJarBytesMethod.invoke(null, jarBytes, debugMode );
+
+            return optimizedBytes;
+        } catch (Exception ex) {
+            getLog()
+                    .error(String.format("Contract Jar optimization failed"),
+                            ex);
+            throw new MojoExecutionException("Contract Jar optimization failed", ex);
         }
     }
 

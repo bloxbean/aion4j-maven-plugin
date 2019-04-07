@@ -25,8 +25,8 @@ public class AVMCreateAccountMojo extends AVMLocalRuntimeBaseMojo {
 
             final Method createAccountMethod = localAvmInstance.getClass().getMethod("createAccountWithBalance", String.class, BigInteger.class);
 
-            String addressToCreate = ConfigUtil.getPropery("address");
-            String balance = ConfigUtil.getPropery("balance");
+            String addressToCreate = ConfigUtil.getProperty("address");
+            String balance = ConfigUtil.getProperty("balance");
 
             if(addressToCreate == null || addressToCreate.isEmpty() || balance == null || balance.isEmpty()) {
                 getLog().error("Usage:\n mvn -Daddress a0xxxxx -Dbalance=2000000000");
@@ -57,7 +57,7 @@ public class AVMCreateAccountMojo extends AVMLocalRuntimeBaseMojo {
 
     @Override
     protected void executeRemote() throws MojoExecutionException {
-        String password = ConfigUtil.getPropery("password");
+        String password = ConfigUtil.getProperty("password");
 
         RemoteAVMNode remoteAVMNode = new RemoteAVMNode(resolveWeb3rpcUrl(), MavenLog.getLog(getLog()));
 

@@ -90,7 +90,7 @@ public abstract class AVMBaseMojo extends AbstractMojo {
 
     //Only used for remote goals
     protected String resolveWeb3rpcUrl() throws MojoExecutionException {
-        String web3RpcUrl = ConfigUtil.getPropery("web3rpc.url");
+        String web3RpcUrl = ConfigUtil.getProperty("web3rpc.url");
 
         //check if it's configured in pom.xml
         if(web3RpcUrl == null || web3RpcUrl.isEmpty())
@@ -108,11 +108,11 @@ public abstract class AVMBaseMojo extends AbstractMojo {
     }
 
     protected String getAddress() throws MojoExecutionException {
-        return ConfigUtil.getPropery("address");
+        return ConfigUtil.getProperty("address");
     }
 
     protected long getGas() {
-        String gasString = ConfigUtil.getPropery("gas");
+        String gasString = ConfigUtil.getProperty("gas");
 
         try {
             if (gasString != null && !gasString.isEmpty()) {
@@ -125,7 +125,7 @@ public abstract class AVMBaseMojo extends AbstractMojo {
     }
 
     protected long getGasPrice() {
-        String getPriceString = ConfigUtil.getPropery("gasPrice");
+        String getPriceString = ConfigUtil.getProperty("gasPrice");
 
         try {
             if (getPriceString != null && !getPriceString.isEmpty()) {
@@ -141,7 +141,7 @@ public abstract class AVMBaseMojo extends AbstractMojo {
         if(isLocal()) //Private key is disabled for embedded AVM.
             return null;
 
-        String pk = ConfigUtil.getPropery("pk");
+        String pk = ConfigUtil.getProperty("pk");
         return pk;
     }
 

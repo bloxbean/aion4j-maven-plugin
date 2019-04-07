@@ -34,11 +34,11 @@ public class AVMTransferMojo extends AVMBaseMojo {
             gasPrice = defaultGasPrice;
 
 
-        String from = ConfigUtil.getPropery("from");
-        String to = ConfigUtil.getPropery("to");
-        String value = ConfigUtil.getPropery("value");
+        String from = ConfigUtil.getProperty("from");
+        String to = ConfigUtil.getProperty("to");
+        String value = ConfigUtil.getProperty("value");
 
-        String password = ConfigUtil.getPropery("password");
+        String password = ConfigUtil.getProperty("password");
 
         String pk = getPrivateKey();
 

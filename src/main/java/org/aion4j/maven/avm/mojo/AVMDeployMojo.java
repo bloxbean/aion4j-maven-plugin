@@ -100,7 +100,7 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
 
         String address = getAddress();
 
-        String password = ConfigUtil.getPropery("password");
+        String password = ConfigUtil.getProperty("password");
 
         String pk = getPrivateKey();
         if(pk == null || pk.isEmpty()) {
@@ -171,8 +171,8 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
     private void parseArgs() throws MojoExecutionException {
         final Object[] args = new Object[5];
 
-        deployArgs = ConfigUtil.getPropery("args");
-        value = ConfigUtil.getPropery("value");
+        deployArgs = ConfigUtil.getProperty("args");
+        value = ConfigUtil.getProperty("value");
 
         if(value == null || value.isEmpty())
             valueB = BigInteger.ZERO;

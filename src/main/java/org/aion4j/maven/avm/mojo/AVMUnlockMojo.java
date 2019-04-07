@@ -26,8 +26,8 @@ public class AVMUnlockMojo extends AVMBaseMojo {
             throw new MojoExecutionException("Invalid args - web3rpc.url cannot be null");
         }
 
-        String address = ConfigUtil.getPropery("address");
-        String password = ConfigUtil.getPropery("password");
+        String address = ConfigUtil.getProperty("address");
+        String password = ConfigUtil.getProperty("password");
 
         if(address == null || address.isEmpty() || password == null || password.isEmpty()) {
             printHelp();
