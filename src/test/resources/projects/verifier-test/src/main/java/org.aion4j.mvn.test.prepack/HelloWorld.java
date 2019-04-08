@@ -2,7 +2,7 @@ package org.aion4j.mvn.test.prepack;
 
 import org.aion.avm.tooling.abi.Callable;
 import avm.Address;
-import avm.BlockchainRuntime;
+import avm.Blockchain;
 import avm.Result;
 
 import org.aion.avm.userlib.AionList;
@@ -28,7 +28,7 @@ public class HelloWorld {
 
     //Solidity: modifier
     private static void onlyOwner() {
-        BlockchainRuntime.require(BlockchainRuntime.getCaller().equals(owner));
+        Blockchain.require(Blockchain.getCaller().equals(owner));
     }
 
 
@@ -49,10 +49,10 @@ public class HelloWorld {
 
     //In Solidy: consturctor
     static{
-        contractAddress = BlockchainRuntime.getAddress();
-        owner = BlockchainRuntime.getCaller();
-        timestamp = BlockchainRuntime.getBlockTimestamp();
-        blockNumber = BlockchainRuntime.getBlockNumber();
+        contractAddress = Blockchain.getAddress();
+        owner = Blockchain.getCaller();
+        timestamp = Blockchain.getBlockTimestamp();
+        blockNumber = Blockchain.getBlockNumber();
     }
 
 
@@ -64,7 +64,7 @@ public class HelloWorld {
         try{
             return divisionException(dividend, divisor); //nrgUsed=73949
         } catch (IllegalArgumentException ex) {
-            BlockchainRuntime.println(ex.getMessage());
+            Blockchain.println(ex.getMessage());
             return Float.POSITIVE_INFINITY; //nrgUsed=67140
         }
     } //nrgUsed=73949
@@ -74,14 +74,14 @@ public class HelloWorld {
         if(divisor == 0) {
             throw new IllegalArgumentException("Divisor cannot be ZERO!");//nrgUsed=67140
         }
-        BlockchainRuntime.println("The result is: " + dividend/divisor);
+        Blockchain.println("The result is: " + dividend/divisor);
         return dividend/divisor; //nrgUsed=73635
     }
 
     //In Solidity: selfdestruct(address)
     public static void destructTheContract(Address beneficiary) {
         onlyOwner();
-        BlockchainRuntime.selfDestruct(beneficiary);
+        Blockchain.selfDestruct(beneficiary);
     } //nrgUsed=72082
 
    /* public static void sortList() {
@@ -100,38 +100,38 @@ public class HelloWorld {
     //Solidity: address.transfer  ->value
     public static void transfer(Address to, long value) {
         onlyOwner();
-        Result result = BlockchainRuntime.call(to, BigInteger.valueOf(value), new byte[0] , BlockchainRuntime.getRemainingEnergy());
+        Result result = Blockchain.call(to, BigInteger.valueOf(value), new byte[0] , Blockchain.getRemainingEnergy());
         if (result.isSuccess()) {
-            BlockchainRuntime.println("Transfer succeeded. " + BlockchainRuntime.getBalance(to) + " " + BlockchainRuntime.getBalanceOfThisContract());
+            Blockchain.println("Transfer succeeded. " + Blockchain.getBalance(to) + " " + Blockchain.getBalanceOfThisContract());
         } else {
-            BlockchainRuntime.println("Transfer failed.");
+            Blockchain.println("Transfer failed.");
         }
     }
 
     //Solidity: address.call().value().gas()
     public static void call(Address to, long value, byte[] data, long energyLimit) {
         onlyOwner();
-        BlockchainRuntime.call(to, BigInteger.valueOf(value), data, energyLimit); //nrgUsed=68445
+        Blockchain.call(to, BigInteger.valueOf(value), data, energyLimit); //nrgUsed=68445
     }
 
 
 //    public static void callAnotherContract(Address toContractAddress) {
 //        byte[] data = ABIUtil.encodeMethodArguments("callThisFunction");
-//        BlockchainRuntime.call(toContractAddress, BigInteger.valueOf(0), data , BlockchainRuntime.getRemainingEnergy());
+//        Blockchain.call(toContractAddress, BigInteger.valueOf(0), data , Blockchain.getRemainingEnergy());
 //    }
 //
 //    public static void callAnotherContractWithArg(Address toContractAddress /*
 //    0x0ffbb6ea1c53f1b7fe028404c110be12e3e0105001a5697d52c222fda9a39219*/, String newString) {
 //        byte[] data = ABIUtil.encodeMethodArguments("changeSomething", newString);
-//        BlockchainRuntime.call(toContractAddress, BigInteger.valueOf(0), data , BlockchainRuntime.getRemainingEnergy());
+//        Blockchain.call(toContractAddress, BigInteger.valueOf(0), data , Blockchain.getRemainingEnergy());
 //        //emitEvent();
 //    }
 
     //In Solidity:  address newContract = new Contract(data)
     public static Address createNewContract(byte[] dappData) {
-        Result createResult = BlockchainRuntime.create(BigInteger.ZERO,dappData,BlockchainRuntime.getRemainingEnergy());
+        Result createResult = Blockchain.create(BigInteger.ZERO,dappData,Blockchain.getRemainingEnergy());
         if (!createResult.isSuccess()) {
-            BlockchainRuntime.revert(); //nrgUsed=1970189
+            Blockchain.revert(); //nrgUsed=1970189
         }
         Address newAddress = new Address(createResult.getReturnData());
         return newAddress;
@@ -148,7 +148,7 @@ public class HelloWorld {
 
 
     public static void acceptOwnership() {
-        BlockchainRuntime.require(BlockchainRuntime.getCaller().equals(newOwner));
+        Blockchain.require(Blockchain.getCaller().equals(newOwner));
         owner = newOwner;
         newOwner = null;
     }
@@ -159,18 +159,18 @@ public class HelloWorld {
     //cannot print debug messages in solidity
     public static void printValues() {
 
-        BlockchainRuntime.println("Contract Address: " + contractAddress);
+        Blockchain.println("Contract Address: " + contractAddress);
 
         long contractBalance = getContractBalance();
-        BlockchainRuntime.println("Contract Balance: " + contractBalance);
-        BlockchainRuntime.println("Contract Balance: " + BlockchainRuntime.getBalanceOfThisContract());
+        Blockchain.println("Contract Balance: " + contractBalance);
+        Blockchain.println("Contract Balance: " + Blockchain.getBalanceOfThisContract());
 
 
-        BlockchainRuntime.println("Contract owner: " + owner);
-        BlockchainRuntime.println("Contract owner balance: " + BlockchainRuntime.getBalance(owner));
+        Blockchain.println("Contract owner: " + owner);
+        Blockchain.println("Contract owner balance: " + Blockchain.getBalance(owner));
 
-        BlockchainRuntime.println("Timestamp: " + timestamp);
-        BlockchainRuntime.println("Block Number: " + blockNumber);
+        Blockchain.println("Timestamp: " + timestamp);
+        Blockchain.println("Block Number: " + blockNumber);
         //energy cost: 124413
         //checked
     }
@@ -178,7 +178,7 @@ public class HelloWorld {
 
     //To java devs: We cannot return BigInteger in ABI ->java dev
     private static long getContractBalance() {
-        return BlockchainRuntime.getBalanceOfThisContract().longValue();
+        return Blockchain.getBalanceOfThisContract().longValue();
         //nrgUsed=65552
         //
     }
@@ -186,12 +186,12 @@ public class HelloWorld {
     //Solidity: Event
     public static void newElementAdded(Address address) {
         String topic = "new address added to the map";
-        BlockchainRuntime.log(topic.getBytes(), address.toString().getBytes());
+        Blockchain.log(topic.getBytes(), address.toString().getBytes());
     }
 
     public static void addElementToMap(Address address) {
         onlyOwner();
-        BlockchainRuntime.require(!myMap.containsKey(address));
+        Blockchain.require(!myMap.containsKey(address));
         //In Solidity you cannot check if a key is existed in a mapping or not
         MyStruct newElement = new MyStruct();
         newElement.id = myMap.size(); //in Solidity, you cant get a length/size for mapping
@@ -206,10 +206,10 @@ public class HelloWorld {
     //In Solidity: we are able to return multiple values
     //In Java: return objects for multiple values
     public static void printElementInformation(Address address) {
-        BlockchainRuntime.require(myMap.containsKey(address));
+        Blockchain.require(myMap.containsKey(address));
         MyStruct element;
         element = getElementInformation(address);
-        BlockchainRuntime.println("Address is " + address + ".\nID is " + element.id + ". Valid is: " + element.valid);
+        Blockchain.println("Address is " + address + ".\nID is " + element.id + ". Valid is: " + element.valid);
     } //nrgUsed=111939
 
     private static MyStruct getElementInformation(Address address) {
@@ -223,27 +223,27 @@ public class HelloWorld {
 
     //In Solidity: you cannot return a mapping
     public static AionMap getMap(){
-        BlockchainRuntime.require(!myMap.isEmpty()); //nrgUsed=65981
+        Blockchain.require(!myMap.isEmpty()); //nrgUsed=65981
         for (Address a : mySet){
-            BlockchainRuntime.println("No. " + myMap.get(a).id + "; Address: " + a + " -> Status: " + myMap.get(a).valid + ".\n");
+            Blockchain.println("No. " + myMap.get(a).id + "; Address: " + a + " -> Status: " + myMap.get(a).valid + ".\n");
         }
         return myMap;
     }//nrgUsed=144162
 
     //In Solidity: myMap[]
     public static void updateElementInMap(Address address, boolean valid) {
-        BlockchainRuntime.require(myMap.containsKey(address));
+        Blockchain.require(myMap.containsKey(address));
         myMap.get(address).valid = valid;
     } //nrgUsed=110781
 
 
     //In Solidity: delede map[_address]
     public static void removeElementFromMap(Address address) {
-        BlockchainRuntime.require(myMap.containsKey(address));
+        Blockchain.require(myMap.containsKey(address));
         myMap.remove(address);
         mySet.remove(address);
         myList.remove(address);
-        BlockchainRuntime.require(!myMap.isEmpty());
+        Blockchain.require(!myMap.isEmpty());
         updateMapId();
     }
 

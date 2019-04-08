@@ -1,7 +1,7 @@
 package contract;
 
 import org.aion.avm.tooling.abi.Callable;
-import avm.BlockchainRuntime;
+import avm.Blockchain;
 import org.aion.avm.userlib.AionList;
 import org.aion.avm.userlib.AionMap;
 import java.io.File;
@@ -12,7 +12,7 @@ public class HelloWorld {
 
     @Callable
     public static void sayHello() {
-        BlockchainRuntime.println("Hello Avm");
+        Blockchain.println("Hello Avm");
     }
 
     @Callable
@@ -22,14 +22,14 @@ public class HelloWorld {
 
     @Callable
     public static String getString() {
-        BlockchainRuntime.println("Current string is " + myStr);
+        Blockchain.println("Current string is " + myStr);
         return myStr;
     }
 
     @Callable
     public static void setString(String newStr) {
         myStr = newStr;
-        BlockchainRuntime.println("New string is " + myStr);
+        Blockchain.println("New string is " + myStr);
     }
 
 }

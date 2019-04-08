@@ -3,13 +3,13 @@ package contract;
 import org.aion.avm.userlib.abi.ABIDecoder;
 import org.aion.avm.tooling.abi.Callable;
 import avm.Address;
-import avm.BlockchainRuntime;
+import avm.Blockchain;
 
 public class HelloWorld
 {
     private static String owner;
     static {
-        ABIDecoder decoder = new ABIDecoder(BlockchainRuntime.getData());
+        ABIDecoder decoder = new ABIDecoder(Blockchain.getData());
         owner = decoder.decodeOneString();
     }
 
@@ -20,12 +20,12 @@ public class HelloWorld
 
     @Callable
     public static void sayHello() {
-        BlockchainRuntime.println("Hello Avm");
+        Blockchain.println("Hello Avm");
     }
 
     @Callable
     public static void owner() {
-        BlockchainRuntime.println("Owner name >> " + owner);
+        Blockchain.println("Owner name >> " + owner);
     }
 
     @Callable
@@ -41,22 +41,22 @@ public class HelloWorld
     @Callable
     public static String[] testArray2(String[] sarr, int[] iarr, String name, Address[] aadd, short[] shorts, float[] floats, double[] doubles, boolean[] bo, byte[] b) {
 
-        BlockchainRuntime.println("String ---");
+        Blockchain.println("String ---");
         for(String s: sarr) {
-            BlockchainRuntime.println(s);
+            Blockchain.println(s);
         }
 
-        BlockchainRuntime.println("Ints ---");
+        Blockchain.println("Ints ---");
         for(int i: iarr) {
-            BlockchainRuntime.println(i + "");
+            Blockchain.println(i + "");
         }
 
-        BlockchainRuntime.println(name);
+        Blockchain.println(name);
 
-        BlockchainRuntime.println("Address ---");
+        Blockchain.println("Address ---");
 
         for(Address add: aadd) {
-            BlockchainRuntime.println(add.toString());
+            Blockchain.println(add.toString());
         }
 
         return sarr;
