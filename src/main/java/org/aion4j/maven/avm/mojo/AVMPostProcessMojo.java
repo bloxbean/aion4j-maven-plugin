@@ -14,6 +14,8 @@ import java.nio.file.Paths;
 @Mojo(name = "postpack", defaultPhase = LifecyclePhase.PACKAGE)
 public class AVMPostProcessMojo extends AVMAbstractBaseMojo {
 
+    private final static String DISABLE_JAR_OPTIMIZATION = "disableJarOptimization";
+
     @Override
     protected void preexecuteLocalAvm() throws MojoExecutionException {
 
@@ -40,8 +42,11 @@ public class AVMPostProcessMojo extends AVMAbstractBaseMojo {
 
         byte[] jarBytes = readJarContent();
 
-        byte[] compileBytes = abiCompile(getLocalAVMClass(), jarBytes);
-        jarBytes = optimizeJar(getLocalAVMClass(), compileBytes, getAvmConfigurationBooleanProps(PRESERVE_DEBUGGABILITY, false));
+        jarBytes = abiCompile(getLocalAVMClass(), jarBytes);
+
+        boolean disableJarOptimization = getAvmConfigurationBooleanProps(DISABLE_JAR_OPTIMIZATION, false);
+        if(!disableJarOptimization)
+            jarBytes = optimizeJar(getLocalAVMClass(), jarBytes, getAvmConfigurationBooleanProps(PRESERVE_DEBUGGABILITY, false));
 
         writeJarContent(jarBytes);
     }
