@@ -34,7 +34,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <skipITs>true</skipITs>
         <avm.version>local-plugin-version</avm.version>
-        <avm.helper.verion>0.5.3-beta2</avm.helper.verion>
+        <avm.helper.verion>0.5.3-beta3</avm.helper.verion>
     </properties>
 
     <dependencies>
