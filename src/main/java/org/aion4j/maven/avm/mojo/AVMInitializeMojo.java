@@ -17,6 +17,7 @@ public class AVMInitializeMojo extends AVMBaseMojo {
     private final static String AVM_JAR = "avm.jar";
     private final static String AVM_API_JAR = "org-aion-avm-api.jar";
     private final static String AVM_USERLIB_JAR = "org-aion-avm-userlib.jar";
+    private final static String AVM_TOOLING_JAR = "org-aion-avm-tooling.jar";
     private final static String VERSION_FILE = "version";
 
     @Override
@@ -60,6 +61,14 @@ public class AVMInitializeMojo extends AVMBaseMojo {
                     AVM_USERLIB_JAR, getAvmLibDir()));
             copyLibJar(AVM_USERLIB_JAR, AVM_RESOURCE_FOLDER + "/" + AVM_USERLIB_JAR,
                 getAvmLibDir());
+        }
+
+        if (!checkIfLibExists(AVM_TOOLING_JAR)) {
+            getLog().info(String
+                    .format("%s doesn't exist. Copying the default %s to %s folder.", AVM_TOOLING_JAR,
+                            AVM_TOOLING_JAR, getAvmLibDir()));
+            copyLibJar(AVM_TOOLING_JAR, AVM_RESOURCE_FOLDER + "/" + AVM_TOOLING_JAR,
+                    getAvmLibDir());
         }
 
         if (!checkIfLibExists(VERSION_FILE) && bundledVersion) {
