@@ -139,7 +139,7 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
 
             String txHash = null;
             if(pk != null && !pk.isEmpty()) {
-                txHash = remoteAVMNode.sendRawTransaction(null, pk, hexCode, BigInteger.ZERO, gas, gasPrice);
+                txHash = remoteAVMNode.sendDeployRawTransaction(null, pk, hexCode, BigInteger.ZERO, gas, gasPrice);
             } else {
 
                 if (password != null && !password.isEmpty()) {
