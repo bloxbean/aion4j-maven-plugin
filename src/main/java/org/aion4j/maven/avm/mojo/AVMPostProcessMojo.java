@@ -6,6 +6,8 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -76,8 +78,12 @@ public class AVMPostProcessMojo extends AVMAbstractBaseMojo {
 
         try {
             getLog().info("Post compile the jar >> " + dappJar);
-            Method compileJarBytesMethod = localAvmClazz.getMethod("compileJarBytes", byte[].class);
-            byte[] compiledBytes = (byte[]) compileJarBytesMethod.invoke(null, jarBytes );
+
+            //find abi path
+            String abiPath = getAbiPath();
+
+            Method compileJarBytesMethod = localAvmClazz.getMethod("compileJarBytesAndWriteAbi", byte[].class, OutputStream.class);
+            byte[] compiledBytes = (byte[]) compileJarBytesMethod.invoke(null, jarBytes, new FileOutputStream(new File(abiPath)));
 
             return compiledBytes;
         } catch (Exception ex) {
@@ -86,6 +92,16 @@ public class AVMPostProcessMojo extends AVMAbstractBaseMojo {
                             ex);
             throw new MojoExecutionException("Contract Jar post compilation failed", ex);
         }
+    }
+
+    private String getAbiPath() {
+        String dappJar = getDappJar();
+
+        if(dappJar.endsWith(".jar")) {
+            dappJar = dappJar.replace(".jar",  ".abi");
+            return dappJar;
+        } else
+            return dappJar + ".abi";
     }
 
     private byte[] optimizeJar(Class localAvmClazz, byte[] jarBytes, boolean debugMode) throws MojoExecutionException {
