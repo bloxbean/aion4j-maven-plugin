@@ -36,8 +36,8 @@ public class AVMPostProcessMojo extends AVMAbstractBaseMojo {
     private void startPostProcessing() throws MojoExecutionException {
         Path path = Paths.get(getDappJar());
         if (!Files.exists(path)) {
-            throw new MojoExecutionException(String.format("Post processing failed. Contract jar file doesn't exist : %s \n"
-                    + "Please make sure you have built the project.", dappJar));
+            getLog().info("Post processing skipped");
+            return;
         }
 
         backupOriginalJar(Paths.get(getDappJar()));
