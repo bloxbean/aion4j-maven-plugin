@@ -3,6 +3,7 @@ package org.aion4j.maven.avm.mojo;
 import org.aion4j.avm.helper.api.Log;
 import org.aion4j.avm.helper.remote.RemoteAVMNode;
 import org.aion4j.avm.helper.util.ConfigUtil;
+import org.aion4j.avm.helper.util.ResultCache;
 import org.aion4j.maven.avm.impl.DummyLog;
 import org.aion4j.maven.avm.impl.MavenLog;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -40,6 +41,11 @@ public class AVMGetReceiptMojo extends AVMBaseMojo {
             }
         }
 
+        startGetReceipt(web3RpcUrl, txHash, tail, silent, getCache(), getLog());
+
+    }
+
+    public static void startGetReceipt(String web3RpcUrl, String txHash, String tail, String silent, ResultCache cache, org.apache.maven.plugin.logging.Log log) throws MojoExecutionException {
         boolean enableTail = false;
         if(tail != null && !tail.isEmpty())
             enableTail = true;
@@ -51,11 +57,11 @@ public class AVMGetReceiptMojo extends AVMBaseMojo {
         while(counter < maxCountrer) {
             try {
 
-                Log log = null;
-                if(enableTail && silent != null && !silent.isEmpty()) log = new DummyLog();
-                else log = MavenLog.getLog(getLog());
+                Log _log = null;
+                if(enableTail && silent != null && !silent.isEmpty()) _log = new DummyLog();
+                else _log = MavenLog.getLog(log);
 
-                RemoteAVMNode remoteAVMNode = new RemoteAVMNode(web3RpcUrl, log);
+                RemoteAVMNode remoteAVMNode = new RemoteAVMNode(web3RpcUrl, _log);
 
                 JSONObject response = remoteAVMNode.getReceipt(txHash);
                 JSONObject resultObj = response.optJSONObject("result");
@@ -64,7 +70,7 @@ public class AVMGetReceiptMojo extends AVMBaseMojo {
 
                 if (resultObj == null) {
                     if(enableTail) {
-                        getLog().info("Waiting for transaction to mine ...Trying (" + counter + " of " + maxCountrer + " times)");
+                        log.info("Waiting for transaction to mine ...Trying (" + counter + " of " + maxCountrer + " times)");
                         Thread.currentThread().sleep(9000);
                         continue;
                     }
@@ -73,28 +79,27 @@ public class AVMGetReceiptMojo extends AVMBaseMojo {
                     if (contractAddress != null && !contractAddress.isEmpty()) {
                         //Update contract address in cache.
                         //Update deploy status properties
-                        getCache().updateDeployAddress(contractAddress);
+                        cache.updateDeployAddress(contractAddress);
                     } else {
                     }
                 }
 
-                getLog().info("Txn Receipt: \n");
+                log.info("Txn Receipt: \n");
                 if (resultObj != null) {
-                    getLog().info(resultObj.toString(2));
+                    log.info(resultObj.toString(2));
                 } else
-                    getLog().info(response.toString());
+                    log.info(response.toString());
 
                 break;
             } catch (Exception e) {
-                getLog().debug(e);
+                log.debug(e);
                 throw new MojoExecutionException(e.getMessage(), e);
             }
         }
 
         if(counter == maxCountrer) {
-            getLog().info("Waited too much for the receipt. Something is wrong.");
+            log.info("Waited too much for the receipt. Something is wrong.");
         }
-
     }
 
     private void printHelp() {

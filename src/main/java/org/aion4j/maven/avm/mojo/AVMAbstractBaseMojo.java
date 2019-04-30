@@ -67,6 +67,7 @@ public abstract class AVMAbstractBaseMojo extends AVMBaseMojo {
         try {
             localAvmInstance = getLocalAvmImplInstance(classLoader);
 
+            preexecuteLocalAvm(); //check pre-execute
             //call abstract method
             executeLocalAvm(classLoader, localAvmInstance);
 

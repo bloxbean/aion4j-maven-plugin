@@ -3,9 +3,12 @@ package org.aion4j.maven.avm.mojo;
 import org.aion4j.avm.helper.remote.RemoteAVMNode;
 import org.aion4j.avm.helper.util.ConfigUtil;
 import org.aion4j.maven.avm.impl.MavenLog;
+import org.apache.maven.Maven;
+import org.apache.maven.plugin.MavenPluginManager;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.project.MavenProject;
 
 import java.lang.reflect.Method;
 import java.math.BigInteger;
@@ -25,18 +28,32 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
 
     @Override
     protected void preexecuteLocalAvm() throws MojoExecutionException{
+
+    }
+
+    private boolean validateDappJar() throws MojoExecutionException {
         //check if dAppJar exists
         Path path = Paths.get(getDappJar());
         if (!Files.exists(path)) {
-            throw new MojoExecutionException(String.format("Contract jar file doesn't exist : %s \n"
-                    + "Please make sure you have built the project.", dappJar));
+            MavenProject project = (MavenProject)getPluginContext().get("project");
+            if(project.getModules().size() > 0) {
+                return false;
+            } else {
+                throw new MojoExecutionException(String.format("Contract jar file doesn't exist : %s \n"
+                        + "Please make sure you have built the project.", dappJar));
+            }
         }
+
+        return true;
     }
 
     @Override
     protected void executeLocalAvm(ClassLoader avmClassloader, Object localAvmInstance) throws MojoExecutionException {
 
         try {
+
+            if(!validateDappJar())
+                return;
 
             String deployer = getAddress();
 
@@ -90,11 +107,8 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
     protected void executeRemote() throws MojoExecutionException {
 
         //check if dAppJar exists
-        Path path = Paths.get(getDappJar());
-        if (!Files.exists(path)) {
-            throw new MojoExecutionException(String.format("Contract jar file doesn't exist : %s \n"
-                    + "Please make sure you have built the project.", dappJar));
-        }
+        if(!validateDappJar())
+            return;
 
         String web3RpcUrl = resolveWeb3rpcUrl();
 
@@ -160,6 +174,16 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
 
             //Update TxReceipt status properties
             getCache().updateDeployTxnReceipt(txHash);
+
+            //Let's try to get receipt
+            String wait = ConfigUtil.getProperty("wait");
+            boolean enableWait = false;
+            if(wait != null && !wait.isEmpty())
+                enableWait = true;
+
+            if(enableWait) {
+                AVMGetReceiptMojo.startGetReceipt(web3RpcUrl, txHash, "tail", "silent", getCache(), getLog());
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
