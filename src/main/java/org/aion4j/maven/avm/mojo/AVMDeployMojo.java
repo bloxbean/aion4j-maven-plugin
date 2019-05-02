@@ -9,6 +9,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+import org.eclipse.aether.util.StringUtils;
 
 import java.lang.reflect.Method;
 import java.math.BigInteger;
@@ -196,6 +197,17 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
         final Object[] args = new Object[5];
 
         deployArgs = ConfigUtil.getProperty("args");
+
+        if(deployArgs == null || deployArgs.trim().length() == 0) { //check if module.args is set
+            MavenProject project = (MavenProject)getPluginContext().get("project");
+            if(project != null) {
+                String artifactId = project.getArtifactId();
+                if(artifactId != null && artifactId.trim().length() != 0) {
+                    deployArgs = ConfigUtil.getProperty(artifactId + ".args");
+                }
+            }
+        }
+
         value = ConfigUtil.getProperty("value");
 
         if(value == null || value.isEmpty())
