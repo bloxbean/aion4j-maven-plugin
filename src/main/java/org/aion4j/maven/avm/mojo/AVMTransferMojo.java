@@ -91,6 +91,17 @@ public class AVMTransferMojo extends AVMBaseMojo {
             getLog().info("****************  Transfer Txn result  ****************");
             getLog().info("Transaction receipt       :" + txReceipt);
             getLog().info("******************************************************");
+
+            //Let's try to get receipt
+            String wait = ConfigUtil.getProperty("wait");
+            boolean enableWait = false;
+            if(wait != null && !wait.isEmpty() && Boolean.parseBoolean(wait))
+                enableWait = true;
+
+            if(enableWait) {
+                AVMGetReceiptMojo.startGetReceipt(web3RpcUrl, txReceipt, "tail", "silent", getCache(), getLog());
+            }
+
         } else {
             getLog().error("Transfer failed");
 

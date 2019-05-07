@@ -137,6 +137,16 @@ public class AVMSendTxnMojo extends AVMLocalRuntimeBaseMojo {
             getLog().info("Transaction receipt       :" + retData);
             getLog().info("******************************************************");
 
+            //Let's try to get receipt
+            String wait = ConfigUtil.getProperty("wait");
+            boolean enableWait = false;
+            if(wait != null && !wait.isEmpty() && Boolean.parseBoolean(wait))
+                enableWait = true;
+
+            if(enableWait) {
+                AVMGetReceiptMojo.startGetReceipt(web3RpcUrl, retData, "tail", "silent", getCache(), getLog());
+            }
+
         } catch (Exception ex) {
             getLog()
                     .error(String.format("Contract method transaction failed"),
