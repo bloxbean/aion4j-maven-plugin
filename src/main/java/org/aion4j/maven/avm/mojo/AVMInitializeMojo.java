@@ -5,10 +5,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
+import org.aion4j.avm.helper.util.ConfigUtil;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.project.MavenProject;
 
 @Mojo(name = "init", defaultPhase = LifecyclePhase.VALIDATE)
 public class AVMInitializeMojo extends AVMBaseMojo {
@@ -26,6 +29,8 @@ public class AVMInitializeMojo extends AVMBaseMojo {
         String libFolderPath = getAvmLibDir();
         File libFolder = new File(libFolderPath);
 
+        boolean forceCopy = ConfigUtil.getAvmConfigurationBooleanProps("forceCopy", false);
+
         if(!libFolder.exists()) {
             libFolder.mkdirs();
 
@@ -38,42 +43,42 @@ public class AVMInitializeMojo extends AVMBaseMojo {
         //only copy version file if the libraries are copied from bundled version
         boolean bundledVersion = false;
 
-        if (!checkIfLibExists(AVM_JAR)) {
+        if (!checkIfLibExists(AVM_JAR) || forceCopy) {
             getLog().info(String
-                .format("%s doesn't exist. Copying the default %s to %s folder.", AVM_JAR, AVM_JAR,
+                .format("Copying default %s to %s folder.", AVM_JAR,
                     getAvmLibDir()));
             copyLibJar(AVM_JAR, AVM_RESOURCE_FOLDER + "/" + AVM_JAR, getAvmLibDir());
 
             bundledVersion = true;
         }
 
-        if (!checkIfLibExists(AVM_API_JAR)) {
+        if (!checkIfLibExists(AVM_API_JAR) || forceCopy) {
             getLog().info(String
-                .format("%s doesn't exist. Copying the default %s to %s folder.", AVM_API_JAR,
+                .format("Copying default %s to %s folder.",
                     AVM_API_JAR, getAvmLibDir()));
             copyLibJar(AVM_API_JAR, AVM_RESOURCE_FOLDER + "/" + AVM_API_JAR,
                 getAvmLibDir());
         }
 
-        if (!checkIfLibExists(AVM_USERLIB_JAR)) {
+        if (!checkIfLibExists(AVM_USERLIB_JAR) || forceCopy) {
             getLog().info(String
-                .format("%s doesn't exist. Copying the default %s to %s folder.", AVM_USERLIB_JAR,
+                .format("Copying default %s to %s folder.",
                     AVM_USERLIB_JAR, getAvmLibDir()));
             copyLibJar(AVM_USERLIB_JAR, AVM_RESOURCE_FOLDER + "/" + AVM_USERLIB_JAR,
                 getAvmLibDir());
         }
 
-        if (!checkIfLibExists(AVM_TOOLING_JAR)) {
+        if (!checkIfLibExists(AVM_TOOLING_JAR) || forceCopy) {
             getLog().info(String
-                    .format("%s doesn't exist. Copying the default %s to %s folder.", AVM_TOOLING_JAR,
+                    .format("Copying default %s to %s folder.",
                             AVM_TOOLING_JAR, getAvmLibDir()));
             copyLibJar(AVM_TOOLING_JAR, AVM_RESOURCE_FOLDER + "/" + AVM_TOOLING_JAR,
                     getAvmLibDir());
         }
 
-        if (!checkIfLibExists(VERSION_FILE) && bundledVersion) {
+        if ((!checkIfLibExists(VERSION_FILE) || forceCopy) && bundledVersion) {
             getLog().info(String
-                .format("%s doesn't exist. Copying the default %s to %s folder.", VERSION_FILE,
+                .format("Copying default %s to %s folder.",
                     VERSION_FILE, getAvmLibDir()));
             copyLibJar(VERSION_FILE, AVM_RESOURCE_FOLDER + "/" + VERSION_FILE,
                 getAvmLibDir());
@@ -98,9 +103,9 @@ public class AVMInitializeMojo extends AVMBaseMojo {
         String fileName = chopped[chopped.length - 1];
 
         // See if we already have the file
-        if (checkIfLibExists(fileName)) {
-            return null;
-        }
+//        if (checkIfLibExists(fileName)) {
+//            return null;
+//        }
 
         InputStream fileStream = null;
         OutputStream out = null;
