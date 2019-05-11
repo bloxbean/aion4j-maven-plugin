@@ -16,9 +16,9 @@ Following maven goals has been implemented in this plugin :
 
 For all the supported goals, check this [page](https://github.com/bloxbean/aion4j-maven-plugin/wiki/Aion4j-Maven-Plugin---Goals-(In-Progress)).
 
-[Quick Start Guide](https://github.com/satran004/aion4j-maven-plugin/wiki/Quick-Start-with-embedded-AVM)
+[Quick Start Guide](https://github.com/bloxbean/aion4j-maven-plugin/wiki/Quick-Start-with-embedded-AVM)
 
-[User Guide](https://github.com/satran004/aion4j-maven-plugin/wiki/Aion4j-Maven-Plugin---User-Guide)
+[User Guide](https://github.com/bloxbean/aion4j-maven-plugin/wiki/Aion4j-Maven-Plugin---User-Guide)
 
 **Requirement**
 
@@ -26,7 +26,7 @@ Java 10
 
 **Build**
 ```
-$> git clone https://github.com/satran004/aion4j-maven-plugin.git
+$> git clone https://github.com/bloxbean/aion4j-maven-plugin.git
 ```
 1. Install avm.jar to local .m2 repo for compilation
 ```
