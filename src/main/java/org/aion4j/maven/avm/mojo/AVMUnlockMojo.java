@@ -8,7 +8,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 
 //Only support remote kernel
-@Mojo(name = "unlock")
+@Mojo(name = "unlock", aggregator = true)
 public class AVMUnlockMojo extends AVMBaseMojo {
 
     @Override

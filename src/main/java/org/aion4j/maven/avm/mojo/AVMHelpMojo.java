@@ -5,7 +5,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 
-@Mojo(name = "help")
+@Mojo(name = "help", aggregator = true)
 public class AVMHelpMojo extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {

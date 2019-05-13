@@ -7,7 +7,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 
 //Only support remote kernel
-@Mojo(name = "get-logs")
+@Mojo(name = "get-logs", aggregator = true)
 public class AVMGetLogsMojo extends AVMBaseMojo {
 
     @Override

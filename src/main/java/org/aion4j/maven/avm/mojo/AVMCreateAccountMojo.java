@@ -11,7 +11,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
 
-@Mojo(name = "create-account")
+@Mojo(name = "create-account", aggregator = true)
 public class AVMCreateAccountMojo extends AVMLocalRuntimeBaseMojo {
 
     @Override

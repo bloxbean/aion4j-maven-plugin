@@ -1,9 +1,7 @@
 package org.aion4j.maven.avm.mojo;
 
-import org.aion4j.avm.helper.exception.CallFailedException;
 import org.aion4j.avm.helper.remote.RemoteAVMNode;
 import org.aion4j.avm.helper.util.ConfigUtil;
-import org.aion4j.avm.helper.util.MethodCallArgsUtil;
 import org.aion4j.maven.avm.impl.MavenLog;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -12,7 +10,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
 
-@Mojo(name = "contract-txn", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
+@Mojo(name = "contract-txn", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, aggregator = true)
 public class AVMSendTxnMojo extends AVMLocalRuntimeBaseMojo {
 
     private long defaultGas = 2000000;

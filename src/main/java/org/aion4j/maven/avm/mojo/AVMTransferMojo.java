@@ -10,7 +10,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import java.math.BigInteger;
 
 //Only support remote kernel
-@Mojo(name = "transfer")
+@Mojo(name = "transfer", aggregator = true)
 public class AVMTransferMojo extends AVMBaseMojo {
 
     private long defaultGas = 2000000;

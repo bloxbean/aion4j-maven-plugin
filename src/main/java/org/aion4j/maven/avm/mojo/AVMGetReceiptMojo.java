@@ -12,7 +12,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.json.JSONObject;
 
 //Only support remote kernel
-@Mojo(name = "get-receipt")
+@Mojo(name = "get-receipt", aggregator = true)
 public class AVMGetReceiptMojo extends AVMBaseMojo {
 
     @Override

@@ -9,7 +9,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
 
-@Mojo(name = "get-balance")
+@Mojo(name = "get-balance", aggregator = true)
 public class AVMGetBalanceMojo extends AVMLocalRuntimeBaseMojo {
 
     @Override
