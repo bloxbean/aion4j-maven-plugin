@@ -16,6 +16,8 @@ Following maven goals has been implemented in this plugin :
 
 For all the supported goals, check this [page](https://github.com/bloxbean/aion4j-maven-plugin/wiki/Aion4j-Maven-Plugin---Goals-(In-Progress)).
 
+[Aion4j Maven Plugin Guide @ Aion Docs](https://docs.aion.network/docs/maven-and-aion4j)
+
 [Quick Start Guide](https://github.com/bloxbean/aion4j-maven-plugin/wiki/Quick-Start-with-embedded-AVM)
 
 [User Guide](https://github.com/bloxbean/aion4j-maven-plugin/wiki/Aion4j-Maven-Plugin---User-Guide)
