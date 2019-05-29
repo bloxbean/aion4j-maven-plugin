@@ -1,4 +1,4 @@
-### Current release version: 0.6.4
+### Current release version: 0.6.6
 
 **Aion4j maven plugin** provides build and deployment support for AVM based smart contracts.
 
