@@ -49,40 +49,95 @@ $>  ./mvnw integration-test -DskipITs=false
 ```
   <properties>
        ...
+       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+       <java.version>10</java.version>
+       <maven.compiler.source>${java.version}</maven.compiler.source>
+       <maven.compiler.target>${java.version}</maven.compiler.target>
+        
        <aion4j.plugin.version>x.x.x</aion4j.plugin.version>
        <avm.lib.dir>${project.basedir}/lib</avm.lib.dir>
+       
+       <contract.main.class>[contract-class]</contract.main.class>
   </properties>
 ```
 2. Add aion4j plugin to "&lt;plugins&gt;" section of  pom.xml
 ```
-<plugin>
-      <groupId>org.aion4j</groupId>
-      <artifactId>aion4j-maven-plugin</artifactId>
-      <version>${aion4j.plugin.version}</version>
-      <configuration>
-         <mode>local</mode>
-         <avmLibDir>${avm.lib.dir}</avmLibDir>
-         <localDefaultAddress>0xa092de3423a1e77f4c5f8500564e3601759143b7c0e652a7012d35eb67b283ca</localDefaultAddress>  
-      </configuration>
-      <executions>
-          <execution>
-           <goals>
-             <goal>clean</goal>
-             <goal>init</goal>
-             <goal>class-verifier</goal>
-             <goal>prepack</goal>
-             <goal>postpack</goal>
-           </goals>
-          </execution>
-      </executions>
- </plugin>
+<plugins>
+    ...
+    
+    <plugin>
+        <groupId>org.aion4j</groupId>
+        <artifactId>aion4j-maven-plugin</artifactId>
+        <version>${aion4j.plugin.version}</version>
+        <configuration>
+            <mode>local</mode>
+            <avmLibDir>${avm.lib.dir}</avmLibDir>
+            <localDefaultAddress>0xa092de3423a1e77f4c5f8500564e3601759143b7c0e652a7012d35eb67b283ca
+            </localDefaultAddress>
+        </configuration>
+        <executions>
+            <execution>
+                <goals>
+                    <goal>clean</goal>
+                    <goal>init</goal>
+                    <goal>prepack</goal>
+                    <goal>class-verifier</goal>
+                    <goal>postpack</goal>
+                </goals>
+            </execution>
+        </executions>
+    </plugin>
+    <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-install-plugin</artifactId>
+        <version>2.5</version>
+        <executions>
+            <execution>
+                <phase>initialize</phase>
+                <goals>
+                    <goal>install-file</goal>
+                </goals>
+                <configuration>
+                    <groupId>${groupId}</groupId>
+                    <artifactId>${artifactId}-avm</artifactId>
+                    <version>${version}</version>
+                    <packaging>jar</packaging>
+                    <file>${avm.lib.dir}/avm.jar</file>
+                </configuration>
+            </execution>
+        </executions>
+    </plugin>
+    <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+            <archive>
+                <manifest>
+                    <mainClass>${contract.main.class}</mainClass>
+                </manifest>
+            </archive>
+        </configuration>
+    </plugin>
+    <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.0.0-M3</version>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.maven.surefire</groupId>
+                <artifactId>surefire-junit47</artifactId>
+                <version>3.0.0-M3</version>
+            </dependency>
+        </dependencies>
+    </plugin>
+</plugins>
 ```
 
 "mode" can be local or remote.
 
-3. Add avm compile time dependencies to "&lt;dependencies&gt;" section.
+3. Add avm compile and test time dependencies to "&lt;dependencies&gt;" section.
 ```
-<dependency>
+    <dependency>
       <groupId>org.aion</groupId>
       <artifactId>avm-api</artifactId>
       <version>0.0.0</version>
@@ -95,11 +150,48 @@ $>  ./mvnw integration-test -DskipITs=false
       <version>0.0.0</version>
       <scope>system</scope>
       <systemPath>${avm.lib.dir}/org-aion-avm-userlib.jar</systemPath>
-</dependency>
+    </dependency>
+    <dependency>
+       <groupId>org.aion</groupId>
+       <artifactId>avm-api</artifactId>
+       <version>0.0.0</version>
+       <scope>system</scope>
+       <systemPath>${avm.lib.dir}/org-aion-avm-api.jar</systemPath>
+     </dependency>
+     <dependency>
+        <groupId>org.aion</groupId>
+        <artifactId>avm-userlib</artifactId>
+        <version>0.0.0</version>
+        <scope>system</scope>
+        <systemPath>${avm.lib.dir}/org-aion-avm-userlib.jar</systemPath>
+     </dependency>
+     <dependency>
+         <groupId>org.aion</groupId>
+         <artifactId>avm-tooling</artifactId>
+         <version>0.0.0</version>
+         <scope>system</scope>
+         <systemPath>${avm.lib.dir}/org-aion-avm-tooling.jar</systemPath>
+      </dependency>
+
+      <!-- Test dependencies -->
+      <dependency>
+         <groupId>junit</groupId>
+         <artifactId>junit</artifactId>
+         <version>4.11</version>
+         <scope>test</scope>
+      </dependency>
+      <!-- Don't change the following dependency. This is required to compile & run test cases. The avm.jar for the project will be
+        installed into the local maven repository during mvn initialize phase. -->
+      <dependency>
+          <groupId>${groupId}</groupId>
+          <artifactId>${artifactId}-avm</artifactId>
+          <version>${version}</version>
+          <scope>test</scope>
+      </dependency>
 ```
   Note: The above jars will be copies to "avm.lib.dir" using maven initialize (or through aion4j:init goal) if not there. 
   
-  **How to use in a dapp maven project**
+  **How to use in a dapp maven project (Embedded Avm or local mode)**
   1. Copy required avm dependencies.
   ```
   $>mvn initialize
@@ -112,4 +204,45 @@ $>  ./mvnw integration-test -DskipITs=false
   ```
   $>mvn aion4j:deploy
   ```
+**For Remote deployment (Remote mode or Aion Kernel)**
 
+For deployment and testing on Aion Kernel, add a new profile for remote mode under profiles section in pom.xml.
+```
+<profiles>
+       ...
+        <profile>
+            <id>remote</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.aion4j</groupId>
+                        <artifactId>aion4j-maven-plugin</artifactId>
+                        <version>${aion4j.plugin.version}</version>
+                        <configuration>
+                            <mode>remote</mode>
+                            <avmLibDir>${avm.lib.dir}</avmLibDir>
+                            <web3rpcUrl></web3rpcUrl>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>clean</goal>
+                                    <goal>init</goal>
+                                    <goal>prepack</goal>
+                                    <goal>class-verifier</goal>
+                                    <goal>postpack</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+```
+**How to use in a dapp maven project (Remote Aion Kernel)**
+
+  1. To deploy to an embedded AVM
+  ```
+  $>mvn aion4j:deploy -Premote
+  ```
