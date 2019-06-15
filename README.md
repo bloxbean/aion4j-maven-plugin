@@ -138,20 +138,6 @@ $>  ./mvnw integration-test -DskipITs=false
 3. Add avm compile and test time dependencies to "&lt;dependencies&gt;" section.
 ```
     <dependency>
-      <groupId>org.aion</groupId>
-      <artifactId>avm-api</artifactId>
-      <version>0.0.0</version>
-      <scope>system</scope>
-      <systemPath>${avm.lib.dir}/org-aion-avm-api.jar</systemPath>
-    </dependency>
-    <dependency>
-      <groupId>org.aion</groupId>
-      <artifactId>avm-userlib</artifactId>
-      <version>0.0.0</version>
-      <scope>system</scope>
-      <systemPath>${avm.lib.dir}/org-aion-avm-userlib.jar</systemPath>
-    </dependency>
-    <dependency>
        <groupId>org.aion</groupId>
        <artifactId>avm-api</artifactId>
        <version>0.0.0</version>
