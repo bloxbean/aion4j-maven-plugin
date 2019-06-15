@@ -44,7 +44,7 @@ $> ./mvnw clean install
 $>  ./mvnw integration-test -DskipITs=false
 ```
 
-**How to configure this plugin in a dapp maven project**
+**How to configure this plugin in a Smart Contract maven project**
 1. Define avm lib directory property in "&lt;properties&gt;" section of pom.xml
 ```
   <properties>
@@ -177,7 +177,7 @@ $>  ./mvnw integration-test -DskipITs=false
 ```
   Note: The above jars will be copies to "avm.lib.dir" using maven initialize (or through aion4j:init goal) if not there. 
   
-  **How to use in a dapp maven project (Embedded Avm or local mode)**
+  **How to use in a Smart Contract maven project (Embedded Avm or local mode)**
   1. Copy required avm dependencies.
   ```
   $>mvn initialize
@@ -226,9 +226,9 @@ For deployment and testing on Aion Kernel, add a new profile for remote mode und
         </profile>
     </profiles>
 ```
-**How to use in a dapp maven project (Remote Aion Kernel)**
+**How to use in a Smart Contract maven project (Remote Aion Kernel)**
 
-  1. To deploy to an embedded AVM
+  1. To deploy to a remote Aion Kernel
   ```
   $>mvn aion4j:deploy -Premote
   ```
