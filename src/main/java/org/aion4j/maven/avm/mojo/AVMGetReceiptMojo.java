@@ -98,7 +98,7 @@ public class AVMGetReceiptMojo extends AVMBaseMojo {
         }
 
         if(counter == maxCountrer) {
-            log.info("Waited too much for the receipt. Something is wrong.");
+            log.info("Waited too long for the receipt, something is wrong.");
         }
     }
 
