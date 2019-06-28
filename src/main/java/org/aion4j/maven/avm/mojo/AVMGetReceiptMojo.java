@@ -52,6 +52,7 @@ public class AVMGetReceiptMojo extends AVMBaseMojo {
 
         int counter = 0;
         int maxCountrer = 1;
+        boolean gotReceipt = false;
 
         if(enableTail) maxCountrer = 15;
         while(counter < maxCountrer) {
@@ -90,6 +91,7 @@ public class AVMGetReceiptMojo extends AVMBaseMojo {
                 } else
                     log.info(response.toString());
 
+                gotReceipt = true;
                 break;
             } catch (Exception e) {
                 log.debug(e);
@@ -97,7 +99,7 @@ public class AVMGetReceiptMojo extends AVMBaseMojo {
             }
         }
 
-        if(counter == maxCountrer) {
+        if(counter == maxCountrer && !gotReceipt) {
             log.info("Waited too long for the receipt, something is wrong.");
         }
     }
