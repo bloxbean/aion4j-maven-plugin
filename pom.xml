@@ -3,7 +3,7 @@
     <groupId>org.aion4j</groupId>
     <artifactId>aion4j-maven-plugin</artifactId>
     <packaging>maven-plugin</packaging>
-    <version>0.6.8-SNAPSHOT</version>
+    <version>0.7.0-beta1-SNAPSHOT</version>
     <name>aion4j-maven-plugin Maven Mojo</name>
     <description>Maven plugin for AVM based smart contract development on Aion blockchain</description>
     <url>https://github.com/bloxbean/aion4j-maven-plugin</url>
@@ -34,7 +34,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <skipITs>true</skipITs>
         <avm.version>local-plugin-version</avm.version>
-        <avm.helper.verion>0.6.6</avm.helper.verion>
+        <avm.helper.verion>0.6.8</avm.helper.verion>
     </properties>
 
     <dependencies>
