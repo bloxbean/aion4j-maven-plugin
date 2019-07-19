@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/bloxbean/aion4j-maven-plugin.svg?branch=master)](https://travis-ci.org/bloxbean/aion4j-maven-plugin)
 ### Current release version: 0.6.7
 
 **Aion4j maven plugin** provides build and deployment support for AVM based smart contracts.
