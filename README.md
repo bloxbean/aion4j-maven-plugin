@@ -121,6 +121,7 @@ $>  ./mvnw integration-test -DskipITs=false
     <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
+        <version>3.1.2</version>
         <configuration>
             <archive>
                 <manifest>
