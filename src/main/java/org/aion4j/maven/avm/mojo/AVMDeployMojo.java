@@ -3,13 +3,10 @@ package org.aion4j.maven.avm.mojo;
 import org.aion4j.avm.helper.remote.RemoteAVMNode;
 import org.aion4j.avm.helper.util.ConfigUtil;
 import org.aion4j.maven.avm.impl.MavenLog;
-import org.apache.maven.Maven;
-import org.apache.maven.plugin.MavenPluginManager;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
-import org.eclipse.aether.util.StringUtils;
 
 import java.lang.reflect.Method;
 import java.math.BigInteger;
