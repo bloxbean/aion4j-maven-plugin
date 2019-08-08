@@ -3,7 +3,7 @@
     <groupId>org.aion4j</groupId>
     <artifactId>aion4j-maven-plugin</artifactId>
     <packaging>maven-plugin</packaging>
-    <version>0.7.1-SNAPSHOT</version>
+    <version>0.7.1-beta1-SNAPSHOT</version>
     <name>aion4j-maven-plugin Maven Mojo</name>
     <description>Maven plugin for AVM based smart contract development on Aion blockchain</description>
     <url>https://github.com/bloxbean/aion4j-maven-plugin</url>
@@ -51,7 +51,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.9.4</version>
+            <version>2.9.9.2</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
