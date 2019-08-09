@@ -63,7 +63,7 @@ public class AVMAccountFaucetMojo extends AVMLocalRuntimeBaseMojo {
     }
 
     @Override
-    public void execute() throws MojoExecutionException {
+    public void execute() throws MojoExecutionException, MojoFailureException {
 
         String account = getAddress();
         if(account == null || account.trim().length() == 0)
@@ -75,7 +75,12 @@ public class AVMAccountFaucetMojo extends AVMLocalRuntimeBaseMojo {
 
         web3rpcUrl = resolveWeb3rpcUrl();
 
+        getLog().info("\n");
         getLog().info("Start AION topup for address : " + account);
+        getLog().info("##############################################################################################################################");
+        getLog().info("You can only send topup request maximum 3 times in 24hrs.");
+        getLog().info("Your transaction will fail if you exceed that limit.");
+        getLog().info("##############################################################################################################################");
         //Check account's balance
 
         RemoteAvmAdapter remoteAvmAdapter = new RemoteAvmAdapter(web3rpcUrl, new DummyLog()); //Dummy log as we don't want to show detailed log
@@ -84,6 +89,8 @@ public class AVMAccountFaucetMojo extends AVMLocalRuntimeBaseMojo {
 
         if(isFaucetWebCall) { //Make faucet web call for new account
             getLog().info("Let's register the address and get some minimum AION coins through Faucet Web");
+            //TODO retry
+
             allocateInitialBalanceThroughFaucetWeb(account, web3rpcUrl);
         }
 
@@ -95,8 +102,12 @@ public class AVMAccountFaucetMojo extends AVMLocalRuntimeBaseMojo {
 
         try {
             invokeContractForBalanceTopup(pk, account);
-        } catch (Exception e) {
+        } catch (MojoExecutionException e) {
             getLog().error("Account topup failed", e);
+            throw e;
+        } catch (MojoFailureException e) {
+            getLog().error("Account topup failed", e);
+            throw e;
         }
 
         BigInteger balance = remoteAvmAdapter.getBalance(account);
@@ -122,7 +133,7 @@ public class AVMAccountFaucetMojo extends AVMLocalRuntimeBaseMojo {
 
     }
 
-    private void allocateInitialBalanceThroughFaucetWeb(String account, String web3RpcUrl) throws MojoExecutionException {
+    private void allocateInitialBalanceThroughFaucetWeb(String account, String web3RpcUrl) throws MojoExecutionException, MojoFailureException {
         //Get challenge from Faucet server
         Challenge challenge = null;
         try {
@@ -186,17 +197,32 @@ public class AVMAccountFaucetMojo extends AVMLocalRuntimeBaseMojo {
         AVMGetReceiptMojo.startGetReceipt(web3RpcUrl, topupResult.getTxHash(), "tail", "silent", getCache(), getLog());
     }
 
-    private void invokeContractForBalanceTopup(String pk, String account) throws MojoExecutionException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    private void invokeContractForBalanceTopup(String pk, String account) throws MojoExecutionException, MojoFailureException {
         Class localAvmClazz = getLocalAVMClass();
         //Lets do method call encoding
 
-        Method encodeMethodCallMethod = localAvmClazz.getMethod("encodeMethodCall", String.class, Object[].class);
+        Method encodeMethodCallMethod = null;
+        try {
+            encodeMethodCallMethod = localAvmClazz.getMethod("encodeMethodCall", String.class, Object[].class);
+        } catch (NoSuchMethodException e) {
+            throw new MojoExecutionException(e.getMessage(), e);
+        }
 
-        String encodedMethodCall = (String)encodeMethodCallMethod.invoke(null, "topUp", new Object[0]);
+        String encodedMethodCall = null;
+        try {
+            encodedMethodCall = (String)encodeMethodCallMethod.invoke(null, "topUp", new Object[0]);
+        } catch (Exception e) {
+            throw new MojoExecutionException(e.getMessage(), e);
+        }
 
         getLog().info("Encoded method call data: " + encodedMethodCall);
 
-        RemoteAVMNode remoteAVMNode = new RemoteAVMNode(web3rpcUrl, MavenLog.getLog(getLog()));
+        RemoteAVMNode remoteAVMNode = null;
+
+        if(getLog().isDebugEnabled())
+            remoteAVMNode = new RemoteAVMNode(web3rpcUrl,  MavenLog.getLog(getLog()));
+        else
+            remoteAVMNode = new RemoteAVMNode(web3rpcUrl,  new DummyLog());
 
         String retData = null;
 

@@ -2,6 +2,7 @@ package org.aion4j.maven.avm.mojo;
 
 import org.aion4j.avm.helper.local.LocalAvmNode;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -14,7 +15,7 @@ import java.security.CodeSource;
 public abstract class AVMAbstractBaseMojo extends AVMBaseMojo {
 
 
-    public void execute() throws MojoExecutionException {
+    public void execute() throws MojoExecutionException, MojoFailureException {
 
         if(isLocal()) {
             executeLocalAVM();

@@ -45,7 +45,7 @@ public class AVMGetReceiptMojo extends AVMBaseMojo {
 
     }
 
-    public static void startGetReceipt(String web3RpcUrl, String txHash, String tail, String silent, ResultCache cache, org.apache.maven.plugin.logging.Log log) throws MojoExecutionException {
+    public static void startGetReceipt(String web3RpcUrl, String txHash, String tail, String silent, ResultCache cache, org.apache.maven.plugin.logging.Log log) throws MojoExecutionException, MojoFailureException {
         boolean enableTail = false;
         if(tail != null && !tail.isEmpty())
             enableTail = true;
@@ -82,6 +82,12 @@ public class AVMGetReceiptMojo extends AVMBaseMojo {
                         //Update deploy status properties
                         cache.updateDeployAddress(contractAddress);
                     } else {
+                    }
+
+                    //Get status
+                    String status = resultObj.optString("status");
+                    if(("0x0").equals(status)) {
+                        throw new MojoFailureException("Transaction could not be processed.");
                     }
                 }
 
