@@ -1,31 +1,17 @@
 package org.aion4j.maven.avm.mojo;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.ObjectMapper;
 import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
-import com.nettgryppa.security.HashCash;
-import org.aion4j.avm.helper.remote.RemoteAVMNode;
+import org.aion4j.avm.helper.exception.RemoteAvmCallException;
+import org.aion4j.avm.helper.faucet.FaucetService;
 import org.aion4j.avm.helper.util.ConfigUtil;
-import org.aion4j.maven.avm.faucet.Challenge;
-import org.aion4j.maven.avm.faucet.TopupResult;
-import org.aion4j.maven.avm.impl.DummyLog;
 import org.aion4j.maven.avm.impl.MavenLog;
-import org.aion4j.maven.avm.impl.RemoteAvmAdapter;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Mojo(name = "account-topup", aggregator = true)
 public class AVMAccountFaucetMojo extends AVMLocalRuntimeBaseMojo {
@@ -83,43 +69,16 @@ public class AVMAccountFaucetMojo extends AVMLocalRuntimeBaseMojo {
         getLog().info("##############################################################################################################################");
         //Check account's balance
 
-        RemoteAvmAdapter remoteAvmAdapter = new RemoteAvmAdapter(web3rpcUrl, new DummyLog()); //Dummy log as we don't want to show detailed log
-
-        boolean isFaucetWebCall = isFacetWebCallRequired(remoteAvmAdapter, account);
-
-        if(isFaucetWebCall) { //Make faucet web call for new account
-            getLog().info("Let's register the address and get some minimum AION coins through Faucet Web");
-            //TODO retry
-
-            allocateInitialBalanceThroughFaucetWeb(account, web3rpcUrl);
-        }
-
-//
-//        getLog().info("New balance : " + balance.toString());
-
-        //Invoke
-        getLog().info("Let's get some coin from the Faucet contract");
+        FaucetService faucetService = new FaucetService(getLocalAVMClass().getClassLoader(), web3rpcUrl, FAUCET_WEB_URL, FAUCET_CONTRACT_ADDRESS, MavenLog.getLog(getLog()));
+        faucetService.setDefaultGas(defaultGas);
+        faucetService.setDefaultGasPrice(defaultGasPrice);
 
         try {
-            invokeContractForBalanceTopup(pk, account);
-        } catch (MojoExecutionException e) {
-            getLog().error("Account topup failed", e);
-            throw e;
-        } catch (MojoFailureException e) {
-            getLog().error("Account topup failed", e);
-            throw e;
+            faucetService.topup(account, pk);
+        } catch (RemoteAvmCallException e) {
+           // getLog().error("Account topup failed", e);
+            throw new MojoExecutionException("Account topup failed", e);
         }
-
-        BigInteger balance = remoteAvmAdapter.getBalance(account);
-
-        if(balance == null || BigInteger.ZERO.equals(balance)) {
-            getLog().warn("Could not send some initial AION coins to the address");
-            throw new MojoExecutionException("Topup registration failed for address : " + account);
-        }
-
-        getLog().info("New balance: " + balance);
-
-        return;
 
     }
 
@@ -133,140 +92,5 @@ public class AVMAccountFaucetMojo extends AVMLocalRuntimeBaseMojo {
 
     }
 
-    private void allocateInitialBalanceThroughFaucetWeb(String account, String web3RpcUrl) throws MojoExecutionException, MojoFailureException {
-        //Get challenge from Faucet server
-        Challenge challenge = null;
-        try {
-            getLog().info("Fetching challenge from the Faucet web server ....");
-            challenge = getChallenge();
-        } catch (UnirestException ex) {
-            getLog()
-                    .error(String.format("Get challenge failed"),
-                            ex);
-            throw new MojoExecutionException("Get challenge failed", ex);
-        }
 
-        if(challenge == null)
-            throw new MojoExecutionException("Get challenge failed");
-
-        Map<String, List<String>> extensions = new HashMap<>();
-        List<String> extensionList = new ArrayList<>();
-        extensionList.add(String.valueOf(challenge.getCounter()));
-        extensionList.add(account);
-
-        //add counter to extension
-        extensions.put("data", extensionList);
-
-        getLog().info("Start genereting proof with value " + challenge.getValue());
-        //Start minting hashcash
-        long t1 = System.currentTimeMillis();
-        HashCash cash = null;
-        try {
-            cash = HashCash.mintCash(challenge.getMessage(), extensions, challenge.getValue(), 1);
-        } catch (NoSuchAlgorithmException e) {
-            getLog().error("Error generating proof",e);
-            throw new MojoExecutionException("Error generating proof");
-        }
-
-        if(cash == null) {
-            throw new MojoExecutionException("Error generating proof");
-        }
-
-        long t2 = System.currentTimeMillis();
-
-        getLog().info("Time spent in minting proof : " + (t2 - t1) / 1000 + "sec");
-
-        getLog().info("Send hascash proof to server : " + cash.toString());
-
-        TopupResult topupResult = null;
-        try {
-            topupResult = submitHashCash(account, cash);
-            if(topupResult != null) {
-                getLog().info("Register result >> " + topupResult);
-            } else {
-                getLog().error("Account could not be credited");
-                throw new MojoExecutionException("Error in crediting account");
-            }
-        } catch (UnirestException e) {
-            getLog().error("Topup failed for address : " + account,e);
-
-            throw new MojoExecutionException("Topup failed for address : " + account);
-        }
-
-        //Let's try to get receipt
-        AVMGetReceiptMojo.startGetReceipt(web3RpcUrl, topupResult.getTxHash(), "tail", "silent", getCache(), getLog());
-    }
-
-    private void invokeContractForBalanceTopup(String pk, String account) throws MojoExecutionException, MojoFailureException {
-        Class localAvmClazz = getLocalAVMClass();
-        //Lets do method call encoding
-
-        Method encodeMethodCallMethod = null;
-        try {
-            encodeMethodCallMethod = localAvmClazz.getMethod("encodeMethodCall", String.class, Object[].class);
-        } catch (NoSuchMethodException e) {
-            throw new MojoExecutionException(e.getMessage(), e);
-        }
-
-        String encodedMethodCall = null;
-        try {
-            encodedMethodCall = (String)encodeMethodCallMethod.invoke(null, "topUp", new Object[0]);
-        } catch (Exception e) {
-            throw new MojoExecutionException(e.getMessage(), e);
-        }
-
-        getLog().info("Encoded method call data: " + encodedMethodCall);
-
-        RemoteAVMNode remoteAVMNode = null;
-
-        if(getLog().isDebugEnabled())
-            remoteAVMNode = new RemoteAVMNode(web3rpcUrl,  MavenLog.getLog(getLog()));
-        else
-            remoteAVMNode = new RemoteAVMNode(web3rpcUrl,  new DummyLog());
-
-        String retData = null;
-
-        retData = remoteAVMNode.sendRawTransaction(FAUCET_CONTRACT_ADDRESS, pk, encodedMethodCall, BigInteger.ZERO, defaultGas , defaultGasPrice);
-
-        if(retData != null) {
-            //Let's try to get receipt
-            AVMGetReceiptMojo.startGetReceipt(web3rpcUrl, retData, "tail", "silent", getCache(), getLog());
-        }
-
-    }
-
-    //This is needed if the account is a new account with balance zero
-    private boolean isFacetWebCallRequired(RemoteAvmAdapter remoteAvmAdapter, String address) {
-        BigInteger balance = remoteAvmAdapter.getBalance(address);
-
-        getLog().info("Fetched existing balance for the account : " + balance);
-
-        if(balance == null || BigInteger.ZERO.equals(balance)) {
-            getLog().debug("Address balance is null. Let's try to get some minimum balance for the account through Faucet Web.");
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    private TopupResult submitHashCash(String account, HashCash hashCash) throws UnirestException {
-        HttpResponse<TopupResult> httpResponse =  Unirest.post(FAUCET_WEB_URL + "/register")
-                .header("Content-Type", "text/plain")
-                .body(hashCash.toString())
-                .asObject(TopupResult.class);
-
-        if(httpResponse.getStatus() != 200) {
-            return null;
-        } else {
-            return httpResponse.getBody();
-        }
-
-    }
-
-    private Challenge getChallenge() throws UnirestException {
-        return Unirest.get(FAUCET_WEB_URL + "/challenge")
-                .header("accept", "application/json")
-                .header("Content-Type", "application/json")
-                .asObject(Challenge.class).getBody();
-    }
 }

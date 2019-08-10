@@ -19,6 +19,16 @@ public class MavenLog implements Log {
     }
 
     @Override
+    public void error(String s) {
+        log.error(s);
+    }
+
+    @Override
+    public void warn(String s) {
+        log.warn(s);
+    }
+
+    @Override
     public void info(String s, Throwable t) {
         log.info(s, t);
     }
@@ -31,6 +41,11 @@ public class MavenLog implements Log {
     @Override
     public void error(String msg, Throwable t) {
         log.error(msg, t);
+    }
+
+    @Override
+    public void warn(String s, Throwable throwable) {
+        log.warn(s, throwable);
     }
 
     @Override
