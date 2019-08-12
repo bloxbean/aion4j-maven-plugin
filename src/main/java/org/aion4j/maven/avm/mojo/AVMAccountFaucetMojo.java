@@ -27,7 +27,7 @@ import java.util.List;
 public class AVMAccountFaucetMojo extends AVMLocalRuntimeBaseMojo {
 
     private final static String FAUCET_WEB_URL = "http://faucet-web.aion4j.org/";
-    private final static String FAUCET_CONTRACT_ADDRESS = "0xa0089bdb72c1472e1b109a48efa4ae640a9d2667eb5ae69221bf18984f8a90a2";
+    private final static String FAUCET_CONTRACT_ADDRESS = "0xa023be19f1f21acca3a35786f11f2c0cbd976e4fb8bbbb985f3a78f35b1da6d3";
 
     private long defaultGas = 2000000;
     private long defaultGasPrice = 100000000000L;
