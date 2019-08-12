@@ -68,7 +68,6 @@ public class AVMAccountFaucetMojo extends AVMLocalRuntimeBaseMojo {
         boolean isListWithBalance = ConfigUtil.getAvmConfigurationBooleanProps("list-with-balance", false);
 
         if(isListClear) { //If list ignore other commands
-            if(isTopUp || isCreate)
             clearAccountCache();
             return;
         }
