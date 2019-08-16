@@ -244,3 +244,7 @@ For deployment and testing on Aion Kernel, add a new profile for remote mode und
   ```
   $>mvn aion4j:deploy -Premote
   ```
+
+**How to contribute ?**
+
+Please check this [contribution guide](https://github.com/bloxbean/aion4j-maven-plugin/blob/master/CONTRIBUTING.md)
