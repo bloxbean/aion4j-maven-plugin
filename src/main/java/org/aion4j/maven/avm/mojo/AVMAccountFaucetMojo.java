@@ -1,6 +1,7 @@
 package org.aion4j.maven.avm.mojo;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.ObjectMapper;
 import com.mashape.unirest.http.Unirest;
 import org.aion4j.avm.helper.cache.global.AccountCache;
@@ -12,6 +13,7 @@ import org.aion4j.avm.helper.faucet.FaucetService;
 import org.aion4j.avm.helper.remote.RemoteAvmAdapter;
 import org.aion4j.avm.helper.util.ConfigUtil;
 import org.aion4j.avm.helper.util.CryptoUtil;
+import org.aion4j.avm.helper.util.StringUtils;
 import org.aion4j.maven.avm.impl.DummyLog;
 import org.aion4j.maven.avm.impl.MavenLog;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -27,7 +29,9 @@ import java.util.List;
 public class AVMAccountFaucetMojo extends AVMLocalRuntimeBaseMojo {
 
     private final static String FAUCET_WEB_URL = "http://faucet-web.aion4j.org/";
-    private final static String FAUCET_CONTRACT_ADDRESS = "0xa023be19f1f21acca3a35786f11f2c0cbd976e4fb8bbbb985f3a78f35b1da6d3";
+    private final static String FAUCET_CONTRACT_ADDRESS_URL = "https://bloxbean.github.io/aion4j-release/faucet-contract";
+
+    private final static String DEFAULT_FAUCET_CONTRACT_ADDRESS = "0xa055dc67cd05d013a0b7c064708a0eb86e31c5edbaf00bca645665217779d9f2";
 
     private long defaultGas = 2000000;
     private long defaultGasPrice = 100000000000L;
@@ -178,12 +182,12 @@ public class AVMAccountFaucetMojo extends AVMLocalRuntimeBaseMojo {
         getLog().info("\n");
         getLog().info("Start AION topup for address : " + account);
         getLog().info("##############################################################################################################################");
-        getLog().info("You can only send topup request maximum 3 times in 24hrs.");
+        getLog().info("You can only send topup request maximum 3 times per account in 24hrs.");
         getLog().info("Your transaction will fail if you exceed that limit.");
         getLog().info("##############################################################################################################################");
         //Check account's balance
 
-        FaucetService faucetService = new FaucetService(getLocalAVMClass().getClassLoader(), web3rpcUrl, FAUCET_WEB_URL, FAUCET_CONTRACT_ADDRESS, MavenLog.getLog(getLog()));
+        FaucetService faucetService = new FaucetService(getLocalAVMClass().getClassLoader(), web3rpcUrl, getFaucetWebUrl(), getFaucetContractAddress(), MavenLog.getLog(getLog()));
         faucetService.setDefaultGas(defaultGas);
         faucetService.setDefaultGasPrice(defaultGasPrice);
 
@@ -234,6 +238,44 @@ public class AVMAccountFaucetMojo extends AVMLocalRuntimeBaseMojo {
         }
 
         return aion4jFolder.getAbsolutePath();
+    }
+
+    private String getFaucetContractAddress() {
+        String faucetContract = ConfigUtil.getProperty("faucet.contract");
+        if(!StringUtils.isEmpty(faucetContract))
+            return faucetContract;
+
+        String contractAddress = null;
+        try {
+            //Fetch faucet contract address from GitHub release page.
+            HttpResponse<String> response = Unirest.get(FAUCET_CONTRACT_ADDRESS_URL).asString();
+            if(response.getStatus() == 200) {
+                contractAddress = response.getBody();
+            }
+
+        } catch (Exception e) {
+            getLog().debug(e);
+        }
+
+        if(StringUtils.isEmpty(contractAddress) || !contractAddress.startsWith("0x")) {
+            getLog().debug("Fetched faucet contract address: " + contractAddress);
+            getLog().warn("Unable to fetch faucet contract address. " +
+                    "Let's use default faucet contract address : " + DEFAULT_FAUCET_CONTRACT_ADDRESS.substring(0,10) + "...");
+
+            return DEFAULT_FAUCET_CONTRACT_ADDRESS;
+        } else {
+            getLog().info("Fetched faucet contract address : " + contractAddress);
+            getLog().debug("Faucet contract address : " + contractAddress);
+            return contractAddress.trim();
+        }
+    }
+
+    private String getFaucetWebUrl() {
+        String faucetWebUrl = ConfigUtil.getProperty("faucet.web.url");
+        if(!StringUtils.isEmpty(faucetWebUrl))
+            return faucetWebUrl;
+        else
+            return FAUCET_WEB_URL;
     }
 
     @Override
