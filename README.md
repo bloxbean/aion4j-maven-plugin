@@ -1,8 +1,8 @@
 [![Build Status](https://travis-ci.org/bloxbean/aion4j-maven-plugin.svg?branch=master)](https://travis-ci.org/bloxbean/aion4j-maven-plugin)
 [![Gitter](https://badges.gitter.im/aion4j/community.svg)](https://gitter.im/aion4j/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
-### Latest Release: 0.7.0
-  * Avm 1.4
+### Latest Release: 0.7.2
+  * Avm 1.4+ [Latest Tooling Jars](https://github.com/aionnetwork/AVM/releases/tag/latest-tooling)
   * AvmArchetype: Since 0.30
   
 ### Previous Release: 0.6.7 
