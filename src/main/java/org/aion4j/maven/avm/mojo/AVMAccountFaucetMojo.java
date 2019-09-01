@@ -22,6 +22,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.util.List;
 
@@ -70,6 +71,7 @@ public class AVMAccountFaucetMojo extends AVMLocalRuntimeBaseMojo {
         boolean isList = ConfigUtil.getAvmConfigurationBooleanProps("list", false);
         boolean isListClear = ConfigUtil.getAvmConfigurationBooleanProps("list-clear", false);
         boolean isListWithBalance = ConfigUtil.getAvmConfigurationBooleanProps("list-with-balance", false);
+        String balance = ConfigUtil.getProperty("balance");
 
         if(isListClear) { //If list ignore other commands
             clearAccountCache();
@@ -94,6 +96,11 @@ public class AVMAccountFaucetMojo extends AVMLocalRuntimeBaseMojo {
 
         String address = null;
         String pk = null;
+
+        if(isCreate && !StringUtils.isEmpty(balance)) { //This is for local balance setup so, so let's call local avm
+            executeLocalAVM();
+            return;
+        }
 
         if(isCreate) {
             //Create a new account
@@ -285,7 +292,38 @@ public class AVMAccountFaucetMojo extends AVMLocalRuntimeBaseMojo {
 
     @Override
     protected void executeLocalAvm(ClassLoader avmClassloader, Object localAvmInstance) throws MojoExecutionException {
+        String balance = ConfigUtil.getProperty("balance");
+        boolean isCreate = ConfigUtil.getAvmConfigurationBooleanProps("create", false);
+        String addressToCreate = ConfigUtil.getProperty("address");
 
+        try {
+            if(isCreate) {
+                getLog().info("Generate new account and allocate balance in local Avm");
+            } else if(!StringUtils.isEmpty(addressToCreate)) {
+                getLog().info("Allocate balance to account in local Avm: " + addressToCreate);
+            }
+
+
+            final Method createAccountMethod = localAvmInstance.getClass().getMethod("createAccountWithBalance", String.class, BigInteger.class);
+
+
+            if (addressToCreate == null || addressToCreate.isEmpty()) {
+                Account account = AccountGenerator.newAddress();
+                addressToCreate = account.getAddress();
+            }
+
+            Object response = createAccountMethod.invoke(localAvmInstance, addressToCreate, new BigInteger(balance.trim()));
+
+            if ((boolean) response) {
+                getLog().info(String.format("Account creation successful"));
+                getLog().info("Address: " + addressToCreate);
+                getLog().info("Balance: " + balance.trim());
+            } else {
+                getLog().info("Account creation failed. Please check if account exists");
+            }
+        } catch (Exception e) {
+            throw new MojoExecutionException("Error creating account with balance", e);
+        }
     }
 
 }

@@ -25,7 +25,7 @@ public abstract class AVMAbstractBaseMojo extends AVMBaseMojo {
 
     }
 
-    private void executeLocalAVM() throws MojoExecutionException {
+    protected void executeLocalAVM() throws MojoExecutionException {
         getLog().debug("----------- AVM classpath Urls --------------");
         URL urlsForClassLoader = null;
         try {
