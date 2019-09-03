@@ -64,14 +64,13 @@ public class AVMAccountFaucetMojo extends AVMLocalRuntimeBaseMojo {
     }
 
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    public void executeRemote() throws MojoExecutionException {
 
         boolean isTopUp = ConfigUtil.getAvmConfigurationBooleanProps("topup", false);
         boolean isCreate = ConfigUtil.getAvmConfigurationBooleanProps("create", false);
         boolean isList = ConfigUtil.getAvmConfigurationBooleanProps("list", false);
         boolean isListClear = ConfigUtil.getAvmConfigurationBooleanProps("list-clear", false);
         boolean isListWithBalance = ConfigUtil.getAvmConfigurationBooleanProps("list-with-balance", false);
-        String balance = ConfigUtil.getProperty("balance");
 
         if(isListClear) { //If list ignore other commands
             clearAccountCache();
@@ -96,11 +95,6 @@ public class AVMAccountFaucetMojo extends AVMLocalRuntimeBaseMojo {
 
         String address = null;
         String pk = null;
-
-        if(isCreate && !StringUtils.isEmpty(balance)) { //This is for local balance setup so, so let's call local avm
-            executeLocalAVM();
-            return;
-        }
 
         if(isCreate) {
             //Create a new account
@@ -137,10 +131,14 @@ public class AVMAccountFaucetMojo extends AVMLocalRuntimeBaseMojo {
     }
 
     private void writeAccountToCache(String address, String pk) {
-        GlobalCache globalCache = getGlobalAccountCache();
-        AccountCache accountCache = globalCache.getAccountCache();
-        accountCache.addAccount(new Account(address, pk));
-        globalCache.setAccountCache(accountCache);
+        boolean ignoreCache = ConfigUtil.getAvmConfigurationBooleanProps("ignore-cache", false);
+
+        if(!ignoreCache) {
+            GlobalCache globalCache = getGlobalAccountCache();
+            AccountCache accountCache = globalCache.getAccountCache();
+            accountCache.addAccount(new Account(address, pk));
+            globalCache.setAccountCache(accountCache);
+        }
     }
 
     private void showAccountListFromCache(boolean showBalance) throws MojoExecutionException{
@@ -292,32 +290,62 @@ public class AVMAccountFaucetMojo extends AVMLocalRuntimeBaseMojo {
 
     @Override
     protected void executeLocalAvm(ClassLoader avmClassloader, Object localAvmInstance) throws MojoExecutionException {
-        String balance = ConfigUtil.getProperty("balance");
+        boolean isTopUp = ConfigUtil.getAvmConfigurationBooleanProps("topup", false);
         boolean isCreate = ConfigUtil.getAvmConfigurationBooleanProps("create", false);
+        boolean isList = ConfigUtil.getAvmConfigurationBooleanProps("list", false);
+        boolean isListClear = ConfigUtil.getAvmConfigurationBooleanProps("list-clear", false);
+        boolean isListWithBalance = ConfigUtil.getAvmConfigurationBooleanProps("list-with-balance", false);
+        String balance = ConfigUtil.getProperty("balance");
         String addressToCreate = ConfigUtil.getProperty("address");
+
+        if(isListClear) { //If list ignore other commands
+            clearAccountCache();
+            return;
+        }
+
+        if(isList) { //If list ignore other commands
+            if(isTopUp || isCreate)
+                getLog().warn("You can not use other commands with 'list'.");
+
+            showAccountListFromCache(false);
+            return;
+        }
+
+        if(isListWithBalance) { //If list ignore other commands
+            throw new MojoExecutionException("-Dlist-with-balance is currently supported only in remote mode. " +
+                    "Please use aion4j:get-balance to get the balance of an account.");
+        }
+
+        if(isTopUp) {
+            throw new MojoExecutionException(("Topup is not currently supported only in remote mode."));
+        }
 
         try {
             if(isCreate) {
-                getLog().info("Generate new account and allocate balance in local Avm");
+                getLog().info("Generate a new account and allocate balance in local Avm");
             } else if(!StringUtils.isEmpty(addressToCreate)) {
-                getLog().info("Allocate balance to account in local Avm: " + addressToCreate);
+                getLog().info("Allocate balance to the account in local Avm: " + addressToCreate);
             }
-
 
             final Method createAccountMethod = localAvmInstance.getClass().getMethod("createAccountWithBalance", String.class, BigInteger.class);
 
-
+            Account account = null;
             if (addressToCreate == null || addressToCreate.isEmpty()) {
-                Account account = AccountGenerator.newAddress();
+                account = AccountGenerator.newAddress();
                 addressToCreate = account.getAddress();
+
+                //Write to cache
+                writeAccountToCache(account.getAddress(), account.getPrivateKey());
             }
 
             Object response = createAccountMethod.invoke(localAvmInstance, addressToCreate, new BigInteger(balance.trim()));
 
             if ((boolean) response) {
                 getLog().info(String.format("Account creation successful"));
-                getLog().info("Address: " + addressToCreate);
-                getLog().info("Balance: " + balance.trim());
+                getLog().info("Address    : " + addressToCreate);
+                if(account != null)
+                    getLog().info("Private Key: " + account.getPrivateKey());
+                getLog().info("Balance    : " + balance.trim());
             } else {
                 getLog().info("Account creation failed. Please check if account exists");
             }
