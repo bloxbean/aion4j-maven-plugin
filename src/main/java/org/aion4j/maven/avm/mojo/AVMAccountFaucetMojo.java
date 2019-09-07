@@ -14,6 +14,7 @@ import org.aion4j.avm.helper.remote.RemoteAvmAdapter;
 import org.aion4j.avm.helper.util.ConfigUtil;
 import org.aion4j.avm.helper.util.CryptoUtil;
 import org.aion4j.avm.helper.util.StringUtils;
+import org.aion4j.maven.avm.adapter.LocalAvmAdapter;
 import org.aion4j.maven.avm.impl.DummyLog;
 import org.aion4j.maven.avm.impl.MavenLog;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -298,6 +299,8 @@ public class AVMAccountFaucetMojo extends AVMLocalRuntimeBaseMojo {
         String balance = ConfigUtil.getProperty("balance");
         String addressToCreate = ConfigUtil.getProperty("address");
 
+        LocalAvmAdapter localAvmAdapter = new LocalAvmAdapter(localAvmInstance);
+
         if(isListClear) { //If list ignore other commands
             clearAccountCache();
             return;
@@ -307,51 +310,99 @@ public class AVMAccountFaucetMojo extends AVMLocalRuntimeBaseMojo {
             if(isTopUp || isCreate)
                 getLog().warn("You can not use other commands with 'list'.");
 
-            showAccountListFromCache(false);
+            showAccountListFromCacheLocal(localAvmAdapter, false);
             return;
         }
 
         if(isListWithBalance) { //If list ignore other commands
-            throw new MojoExecutionException("-Dlist-with-balance is currently supported only in remote mode. " +
-                    "Please use aion4j:get-balance to get the balance of an account.");
+            showAccountListFromCacheLocal(localAvmAdapter, true);
+            return;
         }
 
         if(isTopUp) {
-            throw new MojoExecutionException(("Topup is not currently supported only in remote mode."));
+            if(StringUtils.isEmpty(addressToCreate)) {
+                throw new MojoExecutionException("Address cannot be null for topup. \nUsage: mvn aion4j:account -Dtopup -Daddress=<address> -Dbalance=<amount>");
+            }
+
+            if(StringUtils.isEmpty(balance)) {
+                throw new MojoExecutionException("Balance cannot be null for topup. \nUsage: mvn aion4j:account -Dtopup -Daddress=<address> -Dbalance=<amount>");
+            }
+
+            boolean response = localAvmAdapter.transfer(addressToCreate, new BigInteger(balance));
+
+            if(response) {
+                BigInteger newBal = localAvmAdapter.getBalance(addressToCreate);
+
+                getLog().info("Topup was successful.");
+                getLog().info("Address   : " + addressToCreate);
+                getLog().info("Balance   : " + newBal);
+            }
+            return;
         }
 
         try {
             if(isCreate) {
-                getLog().info("Generate a new account and allocate balance in local Avm");
-            } else if(!StringUtils.isEmpty(addressToCreate)) {
-                getLog().info("Allocate balance to the account in local Avm: " + addressToCreate);
-            }
+                getLog().info("Generate a new account");
 
-            final Method createAccountMethod = localAvmInstance.getClass().getMethod("createAccountWithBalance", String.class, BigInteger.class);
-
-            Account account = null;
-            if (addressToCreate == null || addressToCreate.isEmpty()) {
-                account = AccountGenerator.newAddress();
+                Account account = AccountGenerator.newAddress();
                 addressToCreate = account.getAddress();
 
                 //Write to cache
                 writeAccountToCache(account.getAddress(), account.getPrivateKey());
-            }
 
-            Object response = createAccountMethod.invoke(localAvmInstance, addressToCreate, new BigInteger(balance.trim()));
-
-            if ((boolean) response) {
                 getLog().info(String.format("Account creation successful"));
-                getLog().info("Address    : " + addressToCreate);
-                if(account != null)
-                    getLog().info("Private Key: " + account.getPrivateKey());
-                getLog().info("Balance    : " + balance.trim());
-            } else {
-                getLog().info("Account creation failed. Please check if account exists");
+                getLog().info("Address       : " + addressToCreate);
+
+                if (account != null)
+                    getLog().info("Private Key   : " + account.getPrivateKey());
+
+                if (!StringUtils.isEmpty(balance)) { //Let's assign some balance in local Avm
+
+                    boolean response = localAvmAdapter.createAccountWithBalance(addressToCreate, new BigInteger(balance));
+                    if (response) {
+                        getLog().info("Balance(nAmp) : " + balance.trim());
+                    } else {
+                        getLog().info("Balance allocation failed. Please check if account exists");
+                    }
+                }
             }
         } catch (Exception e) {
             throw new MojoExecutionException("Error creating account with balance", e);
         }
     }
+
+    private void showAccountListFromCacheLocal(LocalAvmAdapter localAvmAdapter, boolean showBalance) throws MojoExecutionException{
+
+        GlobalCache globalCache = getGlobalAccountCache();
+
+        AccountCache accountCache = globalCache.getAccountCache();
+        List<Account> accountList = accountCache.getAccounts();
+
+        if(accountList.size() > 0) {
+            getLog().info("Accounts :");
+            int index = 0;
+            for(Account account: accountList) {
+                getLog().info("Account #" + ++index);
+                getLog().info("    Address    : " + account.getAddress());
+                getLog().info("    Private key: " + account.getPrivateKey());
+
+                if(showBalance) { //Fetch balance for the account
+                    BigInteger balance = null;
+                    try {
+                        balance = localAvmAdapter.getBalance(account.getAddress());
+                        Double aionValue = CryptoUtil.convertAmpToAion(balance);
+
+                        getLog().info(String.format("    Balance    : %s nAmp (%s Aion)", balance, String.format("%.12f",aionValue)));
+                    }catch (Exception e) {
+                        getLog().debug("Unable to fetch balance for account: " + account.getAddress(), e);
+                        balance = BigInteger.ZERO;
+                    }
+                }
+            }
+        } else {
+            getLog().info("No account to show");
+        }
+    }
+
 
 }

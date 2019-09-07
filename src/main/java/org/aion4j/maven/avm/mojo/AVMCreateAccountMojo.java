@@ -11,6 +11,10 @@ import org.apache.maven.plugins.annotations.Mojo;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
 
+/**
+ * This mojo is deprecated.
+ * This mojo has been replaced by {@link AVMAccountFaucetMojo}
+ */
 @Mojo(name = "create-account", aggregator = true)
 public class AVMCreateAccountMojo extends AVMLocalRuntimeBaseMojo {
 
