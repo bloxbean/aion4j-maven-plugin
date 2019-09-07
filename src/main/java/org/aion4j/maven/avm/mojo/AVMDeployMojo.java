@@ -58,7 +58,7 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
             //parse other command line args
             parseArgs();
 
-            final Method deployMethod = localAvmInstance.getClass().getMethod("deploy", String.class, String.class, String.class);
+            final Method deployMethod = localAvmInstance.getClass().getMethod("deploy", String.class, String.class, String.class, BigInteger.class);
 
             final Object[] args = new Object[2];
             args[0] = new String[]{dappJar};
@@ -73,7 +73,7 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
 
             getLog().info("Avm storage path : " + getStoragePath());
 
-            Object response = deployMethod.invoke(localAvmInstance, dappJar, deployArgs, deployer);
+            Object response = deployMethod.invoke(localAvmInstance, dappJar, deployArgs, deployer, valueB);
 
             Method getAddressMethod = response.getClass().getMethod("getAddress");
             Method getEnergyUsed = response.getClass().getMethod("getEnergyUsed");
@@ -151,7 +151,7 @@ public class AVMDeployMojo extends AVMLocalRuntimeBaseMojo {
 
             String txHash = null;
             if(pk != null && !pk.isEmpty()) {
-                txHash = remoteAVMNode.sendDeployRawTransaction(null, pk, hexCode, BigInteger.ZERO, gas, gasPrice);
+                txHash = remoteAVMNode.sendDeployRawTransaction(null, pk, hexCode, valueB, gas, gasPrice);
             } else {
 
                 if (password != null && !password.isEmpty()) {
