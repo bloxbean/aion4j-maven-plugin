@@ -24,6 +24,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
 
@@ -168,9 +169,9 @@ public class AVMAccountFaucetMojo extends AVMLocalRuntimeBaseMojo {
                     BigInteger balance = null;
                     try {
                         balance = remoteAvmAdapter.getBalance(account.getAddress());
-                        Double aionValue = CryptoUtil.convertAmpToAion(balance);
+                        BigDecimal aionValue = CryptoUtil.ampToAion(balance);
 
-                        getLog().info(String.format("    Balance    : %s nAmp (%s Aion)", balance, String.format("%.12f",aionValue)));
+                        getLog().info(String.format("    Balance    : %s nAmp (%s Aion)", balance, String.format("%.12f",aionValue.floatValue())));
                     }catch (Exception e) {
                         getLog().debug("Unable to fetch balance for account: " + account.getAddress(), e);
                         balance = BigInteger.ZERO;
@@ -396,9 +397,9 @@ public class AVMAccountFaucetMojo extends AVMLocalRuntimeBaseMojo {
                     BigInteger balance = null;
                     try {
                         balance = localAvmAdapter.getBalance(account.getAddress());
-                        Double aionValue = CryptoUtil.convertAmpToAion(balance);
+                        BigDecimal aionValue = CryptoUtil.ampToAion(balance);
 
-                        getLog().info(String.format("    Balance    : %s nAmp (%s Aion)", balance, String.format("%.12f",aionValue)));
+                        getLog().info(String.format("    Balance    : %s nAmp (%s Aion)", balance, String.format("%.12f",aionValue.floatValue())));
                     }catch (Exception e) {
                         getLog().debug("Unable to fetch balance for account: " + account.getAddress(), e);
                         balance = BigInteger.ZERO;

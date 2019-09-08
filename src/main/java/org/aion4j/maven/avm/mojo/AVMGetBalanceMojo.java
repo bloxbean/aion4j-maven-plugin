@@ -2,11 +2,13 @@ package org.aion4j.maven.avm.mojo;
 
 import org.aion4j.avm.helper.remote.RemoteAVMNode;
 import org.aion4j.avm.helper.util.CryptoUtil;
+import org.aion4j.maven.avm.adapter.LocalAvmAdapter;
 import org.aion4j.maven.avm.impl.MavenLog;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 @Mojo(name = "get-balance", aggregator = true)
@@ -21,8 +23,7 @@ public class AVMGetBalanceMojo extends AVMLocalRuntimeBaseMojo {
     protected void executeLocalAvm(ClassLoader avmClassloader, Object localAvmInstance) throws MojoExecutionException {
 
         try {
-
-            final Method getBalanceMethod = localAvmInstance.getClass().getMethod("getBalance", String.class);
+            LocalAvmAdapter localAvmAdapter = new LocalAvmAdapter(localAvmInstance);
 
             String address = getAddress();
 
@@ -35,11 +36,12 @@ public class AVMGetBalanceMojo extends AVMLocalRuntimeBaseMojo {
                 throw new MojoExecutionException("Please provide -Daddress property");
             }
 
-            Object response = getBalanceMethod.invoke(localAvmInstance, address);
+            BigInteger balance = localAvmAdapter.getBalance(address);
 
-            if(response != null) {
+            if(balance != null) {
+                BigDecimal aionValue = CryptoUtil.ampToAion(balance);
                 getLog().info( "Address        : " + address);
-                getLog().info(String.format("Balance        : " + response));
+                getLog().info(String.format("Balance        : %s nAmp (%s Aion)", balance, String.format("%.12f",aionValue.floatValue())));
             } else
                 getLog().info("Balance not found");
 
@@ -72,10 +74,10 @@ public class AVMGetBalanceMojo extends AVMLocalRuntimeBaseMojo {
 
             BigInteger balance = new BigInteger(balanceInHex, 16);
 
-            Double aionValue = CryptoUtil.convertAmpToAion(balance);
+            BigDecimal aionValue = CryptoUtil.ampToAion(balance);
 
             getLog().info(String.format("Address   :  %s", address));
-            getLog().info(String.format("Balance   :  %s (%s Aion)", balance, String.format("%.12f",aionValue)));
+            getLog().info(String.format("Balance   :  %s nAmp (%s Aion)", balance, String.format("%.12f",aionValue.floatValue())));
         } else {
             getLog().info("Balance not found for the account");
         }
