@@ -73,6 +73,8 @@ public class AVMAccountFaucetMojo extends AVMLocalRuntimeBaseMojo {
         boolean isListClear = ConfigUtil.getAvmConfigurationBooleanProps("list-clear", false);
         boolean isListWithBalance = ConfigUtil.getAvmConfigurationBooleanProps("list-with-balance", false);
 
+        getLog().info("Mode : remote (Aion Kernel)");
+
         if(isListClear) { //If list ignore other commands
             clearAccountCache();
             return;
@@ -301,6 +303,8 @@ public class AVMAccountFaucetMojo extends AVMLocalRuntimeBaseMojo {
 
         LocalAvmAdapter localAvmAdapter = new LocalAvmAdapter(localAvmInstance);
 
+        getLog().info("Mode : local (Embedded Avm)");
+
         if(isListClear) { //If list ignore other commands
             clearAccountCache();
             return;
@@ -327,6 +331,8 @@ public class AVMAccountFaucetMojo extends AVMLocalRuntimeBaseMojo {
             if(StringUtils.isEmpty(balance)) {
                 throw new MojoExecutionException("Balance cannot be null for topup. \nUsage: mvn aion4j:account -Dtopup -Daddress=<address> -Dbalance=<amount>");
             }
+
+            getLog().info(String.format("Trying to transfer %s to the address ...", balance));
 
             boolean response = localAvmAdapter.transfer(addressToCreate, new BigInteger(balance));
 
