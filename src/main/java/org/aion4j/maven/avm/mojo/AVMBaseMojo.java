@@ -147,7 +147,7 @@ public abstract class AVMBaseMojo extends AbstractMojo {
 
     protected ResultCache getCache() {
         if(cache == null)
-            cache = new ResultCache(project.getName(), isLocal()? getStoragePath(): project.getBuild().getOutputDirectory());
+            cache = new ResultCache(project.getArtifactId(), isLocal()? getStoragePath(): project.getBuild().getOutputDirectory());
 
         return cache;
     }
