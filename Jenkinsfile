@@ -56,11 +56,11 @@ pipeline {
                 sh 'mvn -B test'
 
             }
-            post {
-                always {
-                    junit '**/target/surefire-reports/*.xml'
-                }
-            }
+//            post {
+//                always {
+//                    junit '**/target/surefire-reports/*.xml'
+//                }
+//            }
         }
 
         stage('Integration Tests') {
@@ -69,11 +69,11 @@ pipeline {
                 sh 'mvn -B integration-test'
 
             }
-//            post {
-//                always {
-//                    junit '**/target/failsafe-reports/*.xml'
-//                }
-//            }
+            post {
+                always {
+                    junit '**/target/failsafe-reports/*.xml'
+                }
+            }
         }
 
         stage("Snapshot Release") {
