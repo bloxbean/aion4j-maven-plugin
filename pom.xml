@@ -35,7 +35,7 @@
         <skipITs>true</skipITs>
         <avm.version>local-plugin-version</avm.version>
 
-        <avm.helper.verion>0.7.2</avm.helper.verion>
+        <avm.helper.verion>0.7.3-SNAPSHOT</avm.helper.verion>
         <aion4j-code-generator-version>0.1.3</aion4j-code-generator-version>
     </properties>
 
@@ -211,14 +211,14 @@
         </profile>
     </profiles>
     <!-- For snapshot build dependencies -->
-<!--    <repositories>-->
-<!--        <repository>-->
-<!--            <id>sonatype-snapshots</id>-->
-<!--            <name>Sonatype Public</name>-->
-<!--            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>-->
-<!--            <snapshots>-->
-<!--                <enabled>true</enabled>-->
-<!--            </snapshots>-->
-<!--        </repository>-->
-<!--    </repositories>-->
+    <repositories>
+        <repository>
+            <id>sonatype-snapshots</id>
+            <name>Sonatype Public</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 </project>
