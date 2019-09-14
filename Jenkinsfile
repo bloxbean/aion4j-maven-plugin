@@ -46,7 +46,7 @@ pipeline {
         stage('Build') {
             steps {
                  sh  'mvn initialize'
-                 sh  'mvn clean install -DskipITs'
+                 sh  'mvn clean install'
             }
         }
 
@@ -66,7 +66,7 @@ pipeline {
         stage('Integration Tests') {
             steps {
 
-                sh 'mvn -B integration-test'
+                sh 'mvn -B integration-test -DskipITs=false'
 
             }
             post {
