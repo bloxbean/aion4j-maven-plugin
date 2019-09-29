@@ -1,0 +1,103 @@
+<!--
+  ~ MIT License
+  ~
+  ~ Copyright (c) 2019 BloxBean Project
+  ~
+  ~ Permission is hereby granted, free of charge, to any person obtaining a copy
+  ~ of this software and associated documentation files (the "Software"), to deal
+  ~ in the Software without restriction, including without limitation the rights
+  ~ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  ~ copies of the Software, and to permit persons to whom the Software is
+  ~ furnished to do so, subject to the following conditions:
+  ~
+  ~ The above copyright notice and this permission notice shall be included in all
+  ~ copies or substantial portions of the Software.
+  ~
+  ~ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  ~ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  ~ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  ~ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  ~ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  ~ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  ~ SOFTWARE.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.aion4j.maven.avm.testing</groupId>
+    <artifactId>sample-contract-client</artifactId>
+    <packaging>jar</packaging>
+    <version>1.0</version>
+
+    <properties>
+        <maven.compiler.source>10</maven.compiler.source>
+        <maven.compiler.target>10</maven.compiler.target>
+        <aion4jPluginVersion>xxx</aion4jPluginVersion>
+        <contract.main.class>contract.HelloAvm</contract.main.class>
+        <avm.lib.dir>${basedir}/libtest</avm.lib.dir>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.aion</groupId>
+            <artifactId>avm</artifactId>
+            <version>0.0.1</version>
+            <scope>system</scope>
+            <systemPath>${avm.lib.dir}/avm.jar</systemPath>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jar-plugin</artifactId>
+            <version>3.1.2</version>            
+            <configuration>
+                <archive>
+                    <manifest>
+                        <mainClass>contract.HelloAvm</mainClass>
+                    </manifest>
+                </archive>
+            </configuration>
+        </plugin>
+        <plugin>
+            <groupId>org.aion4j</groupId>
+            <artifactId>aion4j-maven-plugin</artifactId>
+            <version>${aion4jPluginVersion}</version>
+            <configuration>
+                <mode>local</mode>
+                <avmLibDir>${avm.lib.dir}</avmLibDir>
+                <localDefaultAddress>0xa092de3423a1e77f4c5f8500564e3601759143b7c0e652a7012d35eb67b283ca</localDefaultAddress>
+            </configuration>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>clean</goal>
+                        <goal>init</goal>
+                        <goal>prepack</goal>
+                        <!--<goal>class-verifier</goal>-->
+                        <goal>postpack</goal>
+                        <goal>generate-test-support</goal>
+                        <goal>generate-js-client</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>3.0.0-M3</version>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.maven.surefire</groupId>
+                    <artifactId>surefire-junit47</artifactId>
+                    <version>3.0.0-M3</version>
+                </dependency>
+            </dependencies>
+        </plugin>
+        </plugins>
+    </build>
+
+</project>
