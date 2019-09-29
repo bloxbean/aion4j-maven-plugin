@@ -24,7 +24,7 @@
 
 package org.aion4j.maven.avm.mojo.codegen;
 
-import org.aion4j.avm.codegenerator.api.testsupport.TestSupportGenerator;
+import org.aion4j.avm.codegenerator.generators.testsupport.TestSupportGenerator;
 import org.aion4j.avm.codegenerator.util.FileUtil;
 import org.aion4j.maven.avm.util.IOUtils;
 import org.aion4j.maven.avm.util.JarBuilder;
