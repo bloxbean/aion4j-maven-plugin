@@ -17,6 +17,8 @@ import org.aion4j.avm.helper.util.StringUtils;
 import org.aion4j.maven.avm.adapter.LocalAvmAdapter;
 import org.aion4j.maven.avm.impl.DummyLog;
 import org.aion4j.maven.avm.impl.MavenLog;
+import org.aion4j.maven.avm.ipc.IPCAccount;
+import org.aion4j.maven.avm.ipc.IPCResultWriter;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -26,6 +28,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 
 @Mojo(name = "account", aggregator = true)
@@ -157,6 +160,10 @@ public class AVMAccountFaucetMojo extends AVMLocalRuntimeBaseMojo {
         AccountCache accountCache = globalCache.getAccountCache();
         List<Account> accountList = accountCache.getAccounts();
 
+        //only required if we need to persist the result. So that the caller can read that from filesystem.
+        List<IPCAccount> ipcAccountList = new ArrayList();
+        String output = ConfigUtil.getProperty("output"); //only required for ipc call. For exp: IDE to maven process
+
         if(accountList.size() > 0) {
             getLog().info("Accounts :");
             int index = 0;
@@ -165,6 +172,7 @@ public class AVMAccountFaucetMojo extends AVMLocalRuntimeBaseMojo {
                 getLog().info("    Address    : " + account.getAddress());
                 getLog().info("    Private key: " + account.getPrivateKey());
 
+                IPCAccount ipcAccount = new IPCAccount(account);
                 if(showBalance) { //Fetch balance for the account
                     BigInteger balance = null;
                     try {
@@ -176,8 +184,18 @@ public class AVMAccountFaucetMojo extends AVMLocalRuntimeBaseMojo {
                         getLog().debug("Unable to fetch balance for account: " + account.getAddress(), e);
                         balance = BigInteger.ZERO;
                     }
+
+                    ipcAccount.setBalance(balance);
                 }
+
+                ipcAccountList.add(ipcAccount);
             }
+
+            try {
+                if (!StringUtils.isEmpty(output)) { //If it's an ipc call, write the result json
+                    IPCResultWriter.saveAccountList(ipcAccountList, output, getLog());
+                }
+            }catch (Exception e) {}
         } else {
             getLog().info("No account to show");
         }
@@ -385,6 +403,10 @@ public class AVMAccountFaucetMojo extends AVMLocalRuntimeBaseMojo {
         AccountCache accountCache = globalCache.getAccountCache();
         List<Account> accountList = accountCache.getAccounts();
 
+        //only required if we need to persist the result. So that the caller can read that from filesystem.
+        List<IPCAccount> ipcAccountList = new ArrayList();
+        String output = ConfigUtil.getProperty("output"); //only required for ipc call. For exp: IDE to maven process
+
         if(accountList.size() > 0) {
             getLog().info("Accounts :");
             int index = 0;
@@ -393,6 +415,7 @@ public class AVMAccountFaucetMojo extends AVMLocalRuntimeBaseMojo {
                 getLog().info("    Address    : " + account.getAddress());
                 getLog().info("    Private key: " + account.getPrivateKey());
 
+                IPCAccount ipcAccount = new IPCAccount(account);
                 if(showBalance) { //Fetch balance for the account
                     BigInteger balance = null;
                     try {
@@ -404,11 +427,23 @@ public class AVMAccountFaucetMojo extends AVMLocalRuntimeBaseMojo {
                         getLog().debug("Unable to fetch balance for account: " + account.getAddress(), e);
                         balance = BigInteger.ZERO;
                     }
+
+                    ipcAccount.setBalance(balance);
                 }
+
+                ipcAccountList.add(ipcAccount);
             }
+
+            try {
+                if (!StringUtils.isEmpty(output)) { //If it's an ipc call, write the result json
+                    IPCResultWriter.saveAccountList(ipcAccountList, output, getLog());
+                }
+            } catch (Exception e) {}
         } else {
             getLog().info("No account to show");
         }
+
+
     }
 
 
