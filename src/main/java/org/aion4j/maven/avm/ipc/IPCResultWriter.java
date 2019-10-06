@@ -47,7 +47,6 @@ public class IPCResultWriter {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             objectMapper.writeValue(new File(outputFile), accountCache);
-            System.out.println("Output writeennnnn>>>>>> " + outputFile);
         } catch (Exception e) {
             if(log.isDebugEnabled()) {
                 log.error(e);
