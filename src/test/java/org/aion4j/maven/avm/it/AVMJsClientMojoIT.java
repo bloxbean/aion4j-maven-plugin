@@ -54,9 +54,9 @@ public class AVMJsClientMojoIT extends BaseTestHelper {
         verifier.executeGoals(goals);
 
         verifier.assertFilePresent("target/sample-contract-client-js-client-1.0.zip");
-        verifier.assertFilePresent("target/generated-sources/aion4j-js-client/contract.js");
-        verifier.assertFilePresent("target/generated-sources/aion4j-js-client/contract-abi.js");
-        verifier.assertFilePresent("target/generated-sources/aion4j-js-client/contract-deploy.js");
-        verifier.assertFilePresent("target/generated-sources/aion4j-js-client/contract-deploy-abi.js");
+        verifier.assertFilePresent("target/generated-sources/aion4j-js-client/node/contract.js");
+        verifier.assertFilePresent("target/generated-sources/aion4j-js-client/node/contract-abi.js");
+        verifier.assertFilePresent("target/generated-sources/aion4j-js-client/node/contract-deploy.js");
+        verifier.assertFilePresent("target/generated-sources/aion4j-js-client/node/contract-deploy-abi.js");
     }
 }
