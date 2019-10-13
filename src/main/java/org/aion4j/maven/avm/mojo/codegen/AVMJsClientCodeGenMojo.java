@@ -25,6 +25,7 @@
 package org.aion4j.maven.avm.mojo.codegen;
 
 import org.aion4j.avm.codegenerator.generators.clientjs.JsClientGenerator;
+import org.aion4j.avm.codegenerator.generators.clientjs.VueJsClientGenerator;
 import org.aion4j.avm.codegenerator.util.FileUtil;
 import org.aion4j.maven.avm.util.ZipBuilder;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -79,10 +80,22 @@ public class AVMJsClientCodeGenMojo extends CodeGenBaseMojo {
         data.put("version", "1.0.0");
         //Generate client js code
         JsClientGenerator jsClientGenerator = new JsClientGenerator(isVerbose);
+        VueJsClientGenerator vueJsClientGenerator = new VueJsClientGenerator(isVerbose);
+
+        File nodeClientFolder = new File(jsClientSourceDir, "node");
+        nodeClientFolder.mkdirs();
         try {
-            jsClientGenerator.generate(abiStr, jsClientSourceDir, data);
+            jsClientGenerator.generate(abiStr, nodeClientFolder.getAbsolutePath() , data);
         } catch (IOException e) {
             throw new MojoExecutionException("Could not generate Javascript client code", e);
+        }
+
+        File vueClientFolder = new File(jsClientSourceDir, "vue-app");
+        vueClientFolder.mkdirs();
+        try {
+            vueJsClientGenerator.generate(abiStr, vueClientFolder.getAbsolutePath(), data);
+        } catch (IOException e) {
+            throw new MojoExecutionException("Could not generate Javascript client (vuejs) code", e);
         }
 
         //Create js client zip file
