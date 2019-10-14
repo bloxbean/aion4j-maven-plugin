@@ -36,7 +36,7 @@
         <avm.version>local-plugin-version</avm.version>
 
         <avm.helper.verion>0.7.9</avm.helper.verion>
-        <aion4j-code-generator-version>0.1.9</aion4j-code-generator-version>
+        <aion4j-code-generator-version>0.1.10</aion4j-code-generator-version>
     </properties>
 
     <dependencies>
