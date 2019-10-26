@@ -5,7 +5,7 @@ before_install:
   - export M2_HOME=$HOME/apache-maven-3.5.4
   - if [ ! -d $M2_HOME/bin ]; then curl https://archive.apache.org/dist/maven/maven-3/3.5.4/binaries/apache-maven-3.5.4-bin.tar.gz | tar zxf - -C $HOME; fi
   - export PATH=$M2_HOME/bin:$PATH
-script: rm -rf $HOME/.m2/repository/org/aion4j/avm-helper && rm -rf $HOME/.m2/repository/org/aion4j/aion4j-code-generator && ./mvnw initialize && ./mvnw clean install && ./mvnw verify -DskipITs=false
+script: rm -rf $HOME/.m2/repository/org/aion4j/avm-helper && rm -rf $HOME/.m2/repository/org/aion4j/aion4j-code-generator && ./mvnw initialize && ./mvnw clean install && ./mvnw package -DskipITs=false
 cache:
   directories:
     - "$HOME/.m2/repository"
