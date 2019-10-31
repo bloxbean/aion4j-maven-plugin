@@ -29,6 +29,8 @@ import org.aion4j.maven.avm.util.StringUtils;
 import org.apache.maven.plugin.logging.Log;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
 
 public class IPCResultWriter {
@@ -51,6 +53,24 @@ public class IPCResultWriter {
             if(log.isDebugEnabled()) {
                 log.error(e);
                 log.warn("Could not write to ipc account cache", e);
+            }
+        }
+    }
+
+    public static void saveOutput(String content, String outputFile, Log log) { //Write any string
+        FileWriter fileWriter = null;
+        try {
+            fileWriter = new FileWriter(new File(outputFile));
+            fileWriter.write(content);
+        } catch (IOException e) {
+            log.error(e);
+            log.warn("Could not write to ipc output file", e);
+        } finally {
+            if(fileWriter != null) {
+                try {
+                    fileWriter.close();
+                } catch (IOException e) {
+                }
             }
         }
     }

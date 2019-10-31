@@ -55,6 +55,23 @@ public class LocalAvmAdapter {
         }
     }
 
+    public BigInteger getNonce(String address) throws MojoExecutionException {
+        if(StringUtils.isEmpty(address))
+            return null;
+        try {
+            final Method getNonceMethod = localAvmInstance.getClass().getMethod("getNonce", String.class);
+            Object response = getNonceMethod.invoke(localAvmInstance, address);
+
+            if (response != null) {
+                return (BigInteger) response;
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            throw new MojoExecutionException("Get nonce failed", e);
+        }
+    }
+
     public boolean transfer(String toAddress, BigInteger amount) throws MojoExecutionException {
         if(StringUtils.isEmpty(toAddress))
             return false;
