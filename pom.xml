@@ -35,7 +35,7 @@
         <skipITs>true</skipITs>
         <avm.version>local-plugin-version</avm.version>
 
-        <avm.helper.verion>0.8.0-SNAPSHOT</avm.helper.verion>
+        <avm.helper.verion>0.8.0-beta1</avm.helper.verion>
         <aion4j-code-generator-version>0.1.11</aion4j-code-generator-version>
     </properties>
 
