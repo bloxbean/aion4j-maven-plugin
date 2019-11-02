@@ -1,7 +1,6 @@
 package org.aion4j.maven.avm.mojo;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.ObjectMapper;
 import com.mashape.unirest.http.Unirest;
 import org.aion4j.avm.helper.cache.global.AccountCache;
@@ -10,6 +9,8 @@ import org.aion4j.avm.helper.crypto.Account;
 import org.aion4j.avm.helper.crypto.AccountGenerator;
 import org.aion4j.avm.helper.exception.RemoteAvmCallException;
 import org.aion4j.avm.helper.faucet.FaucetService;
+import org.aion4j.avm.helper.faucet.NetworkHelper;
+import org.aion4j.avm.helper.faucet.model.Network;
 import org.aion4j.avm.helper.remote.RemoteAvmAdapter;
 import org.aion4j.avm.helper.util.ConfigUtil;
 import org.aion4j.avm.helper.util.CryptoUtil;
@@ -20,12 +21,10 @@ import org.aion4j.maven.avm.impl.MavenLog;
 import org.aion4j.maven.avm.ipc.IPCAccount;
 import org.aion4j.maven.avm.ipc.IPCResultWriter;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -35,10 +34,6 @@ import java.util.List;
 public class AVMAccountFaucetMojo extends AVMLocalRuntimeBaseMojo {
 
     private final static String FAUCET_WEB_URL = "http://faucet-web.aion4j.org/";
-    private final static String FAUCET_CONTRACT_ADDRESS_URL = "https://bloxbean.github.io/aion4j-release/faucet-contract";
-
-    private final static String DEFAULT_FAUCET_CONTRACT_ADDRESS = "0xa055dc67cd05d013a0b7c064708a0eb86e31c5edbaf00bca645665217779d9f2";
-
     private long defaultGas = 2000000;
     private long defaultGasPrice = 100000000000L;
 
@@ -267,33 +262,18 @@ public class AVMAccountFaucetMojo extends AVMLocalRuntimeBaseMojo {
         return aion4jFolder.getAbsolutePath();
     }
 
+    /**
+     *
+     * @return Return faucet contract address if it's set in environment, otherwise null
+     * @throws MojoExecutionException
+     */
     private String getFaucetContractAddress() {
         String faucetContract = ConfigUtil.getProperty("faucet.contract");
-        if(!StringUtils.isEmpty(faucetContract))
+        if(!StringUtils.isEmpty(faucetContract)) {
+            getLog().info("Faucet contract address : " + faucetContract);
             return faucetContract;
-
-        String contractAddress = null;
-        try {
-            //Fetch faucet contract address from GitHub release page.
-            HttpResponse<String> response = Unirest.get(FAUCET_CONTRACT_ADDRESS_URL).asString();
-            if(response.getStatus() == 200) {
-                contractAddress = response.getBody();
-            }
-
-        } catch (Exception e) {
-            getLog().debug(e);
-        }
-
-        if(StringUtils.isEmpty(contractAddress) || !contractAddress.startsWith("0x")) {
-            getLog().debug("Fetched faucet contract address: " + contractAddress);
-            getLog().warn("Unable to fetch faucet contract address. " +
-                    "Let's use default faucet contract address : " + DEFAULT_FAUCET_CONTRACT_ADDRESS.substring(0,10) + "...");
-
-            return DEFAULT_FAUCET_CONTRACT_ADDRESS;
         } else {
-            getLog().info("Fetched faucet contract address : " + contractAddress);
-            getLog().debug("Faucet contract address : " + contractAddress);
-            return contractAddress.trim();
+            return null;
         }
     }
 
