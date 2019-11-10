@@ -30,6 +30,14 @@ Following maven goals has been implemented in this plugin :
 7. aion4j:class-verifier - To verify JCL whiltelist classes in the contract
 8. aion4j:deploy - Extend the deploy goal for remote deployment.
 9. aion4j:postpack - Post process the jar after build. Example: Abi Compile to process @Callable annotation. Default phase "package"
+10. aion4j:get-receipt - Get the receipt for a transaction hash
+11. aion4j:get-logs - Get logs
+12. aion4j:transfer - Transfer aion coins from one account to another.
+13. aion4j:get-balance - Get balance of an account.
+14: aion4j:account - Create and manage account, topup account with test Aion tokens.
+15. aion4j:create-invokable - Create invokable transaction (meta-transaction)
+16. aion4j:generate-js-client - Generate javascript client code to invoke the smart contract.
+17. aion4j:generate-test-support - Generate helper classes for unit test.
 
 For all the supported goals, check this [page](https://github.com/bloxbean/aion4j-maven-plugin/wiki/Aion4j-Maven-Plugin---Goals-(In-Progress)).
 
