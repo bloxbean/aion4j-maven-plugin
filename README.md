@@ -6,12 +6,12 @@
   * AvmArchetype: Since 0.30
   * [Release notes](https://github.com/bloxbean/aion4j-maven-plugin/wiki/Release-Notes)
   
-### Latest Release: 0.8.0
+### Release: 0.8.0
   * Avm 1.5
   * AvmArchetype: Since 0.30
   * [Release notes](https://github.com/bloxbean/aion4j-maven-plugin/wiki/Release-Notes)
   
-### Previous Release: 0.7.2
+### Release: 0.7.2
   * Avm 1.4+ [Latest Tooling Jars](https://github.com/aionnetwork/AVM/releases/tag/latest-tooling)
   * AvmArchetype: Since 0.30
   * [Release notes](https://github.com/bloxbean/aion4j-maven-plugin/wiki/Release-Notes)
