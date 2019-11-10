@@ -1,6 +1,11 @@
 [![Build Status](https://travis-ci.org/bloxbean/aion4j-maven-plugin.svg?branch=master)](https://travis-ci.org/bloxbean/aion4j-maven-plugin)
 [![Gitter](https://badges.gitter.im/aion4j/community.svg)](https://gitter.im/aion4j/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
+### Latest Release: 1.0.0
+  * Avm 2.0
+  * AvmArchetype: Since 0.30
+  * [Release notes](https://github.com/bloxbean/aion4j-maven-plugin/wiki/Release-Notes)
+  
 ### Latest Release: 0.8.0
   * Avm 1.5
   * AvmArchetype: Since 0.30
